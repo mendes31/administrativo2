@@ -1,0 +1,70 @@
+<?php
+
+namespace App\adms\Controllers\costCenter;
+
+use App\adms\Controllers\Services\PageLayoutService;
+use App\adms\Controllers\Services\PaginationService;
+use App\adms\Models\Repository\CostCentersRepository;
+use App\adms\Views\Services\LoadViewService;
+
+/**
+ * Controller para listar Centros de Custo
+ *
+ * Esta classe é responsável por recuperar e exibir uma lista de Centros de Custo no sistema. Utiliza um repositório
+ * para obter dados dos Centros de Custo e um serviço de paginação para gerenciar a navegação entre páginas de resultados.
+ * Em seguida, carrega a visualização correspondente com os dados recuperados.
+ * 
+ * @package App\adms\Controllers\costCenter
+ * @author Rafael Mendes
+ */
+class ListCostCenters
+{
+    /** @var array|string|null $data Dados que devem ser enviados para a VIEW */
+    private array|string|null $data = null;
+
+    /** @var int $limitResult Limite de registros por página */
+    private int $limitResult = 100; // Ajuste conforme necessário
+
+    /**
+     * Recuperar e listar Centros de Custo com paginação.
+     * 
+     * Este método recupera os Centros de Custo a partir do repositório de Centros de Custo com base na página atual e no limite
+     * de registros por página. Gera os dados de paginação e carrega a visualização para exibir a lista de Centros de Custo.
+     * 
+     * @param string|int $page Página atual para a exibição dos resultados. O padrão é 1.
+     * 
+     * @return void
+     */
+    public function index(string|int $page = 1): void
+    {
+        // Instanciar o Repository para recuperar os registros do banco de dados
+        $listCostCenters = new CostCentersRepository();
+
+        // Recuperar os Centros de Custo para a página atual
+        $this->data['costCenters'] = $listCostCenters->getAllCostCenters((int) $page, (int) $this->limitResult);
+
+        // Gerar dados de paginação
+        $this->data['pagination'] = PaginationService::generatePagination(
+            (int) $listCostCenters->getAmountCostCenters(), 
+            (int) $this->limitResult, 
+            (int) $page, 
+            'list-cost-centers'
+        );
+
+        // Definir o título da página
+        // Ativar o item de menu
+        // Apresentar ou ocultar botão 
+        $pageElements = [
+            'title_head' => 'Listar Centros de Custo',
+            'menu' => 'list-cost-centers',
+            'buttonPermission' => ['CreateCostCenter', 'ViewCostCenter', 'UpdateCostCenter', 'DeleteCostCenter'],
+        ];
+        $pageLayoutService = new PageLayoutService();
+        $pageLayoutService->configurePageElements($pageElements);
+        $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
+
+        // Carregar a VIEW com os dados
+        $loadView = new LoadViewService("adms/Views/costCenter/list", $this->data);
+        $loadView->loadView();
+    }
+}

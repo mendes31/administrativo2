@@ -1,0 +1,10 @@
+# Arquivos e diretórios que não devem ser enviados para o GitHub
+/vendor/
+
+# Ignorar todos os arquivos dentro do diretório logs
+logs/*
+
+# # Exceto o arquivo .empty
+!logs/.empty
+
+.env
