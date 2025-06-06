@@ -14,7 +14,7 @@ use App\adms\Helpers\CSRFHelper;
                 <a href="<?php echo $_ENV['URL_ADM']; ?>dashboard" class="text-decoration-none">Dashboard</a>
             </li>
             <li class="breadcrumb-item">
-                <a href="<?php echo $_ENV['URL_ADM']; ?>list-payments" class="text-decoration-none">Contas</a>
+                <a href="<?php echo $_ENV['URL_ADM']; ?>list-receipts" class="text-decoration-none">Contas a Receber</a>
             </li>
             <li class="breadcrumb-item">Editar</li>
 
@@ -31,19 +31,19 @@ use App\adms\Helpers\CSRFHelper;
             <span class="ms-auto d-sm-flex flex-row">
                 <?php
                 $filtros = $_GET;
-                if (empty($filtros) && isset($_SESSION['filtros_list_payments'])) {
-                    $filtros = $_SESSION['filtros_list_payments'];
+                if (empty($filtros) && isset($_SESSION['filtros_list_receipts'])) {
+                    $filtros = $_SESSION['filtros_list_receipts'];
                 }
-                $urlList = $_ENV['URL_ADM'] . 'list-payments';
+                $urlList = $_ENV['URL_ADM'] . 'list-receipts';
                 if (!empty($filtros)) {
                     $urlList .= '?' . http_build_query($filtros);
                 }
-                echo "<a href='{$_ENV['URL_ADM']}list-payments' class='btn btn-info btn-sm me-1 mb-1'><i class='fa-solid fa-list'></i> Listar</a> ";
+                echo "<a href='{$_ENV['URL_ADM']}list-receipts' class='btn btn-info btn-sm me-1 mb-1'><i class='fa-solid fa-list'></i> Listar</a> ";
                 echo "<button onclick='history.back()' class='btn btn-secondary btn-sm me-1 mb-1'><i class='fa-solid fa-arrow-left'></i> Voltar</button> ";
 
-                $id = ($this->data['form']['id_pay'] ?? '');
-                if (in_array('ViewPay', $this->data['buttonPermission'])) {
-                    echo "<a href='{$_ENV['URL_ADM']}view-pay/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a> ";
+                $id = ($this->data['form']['id_receive'] ?? '');
+                if (in_array('ViewReceive', $this->data['buttonPermission'])) {
+                    echo "<a href='{$_ENV['URL_ADM']}view-receive/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a> ";
                 }
                 ?>
             </span>
@@ -54,12 +54,12 @@ use App\adms\Helpers\CSRFHelper;
 
             <?php include './app/adms/Views/partials/alerts.php'; ?>
 
-            <!-- Formulário para cadastrar uma nova Conta à Pagar -->
+            <!-- Formulário para cadastrar uma nova Conta à Receber -->
             <form action="" method="POST" class="row g-3">
 
-                <input type="hidden" name="csrf_token" value="<?php echo CSRFHelper::generateCSRFToken('form_update_pay'); ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo CSRFHelper::generateCSRFToken('form_update_receive'); ?>">
 
-                <input type="hidden" name="id" id="id" value="<?php echo $this->data['form']['id_pay'] ?? ''; ?>">
+                <input type="hidden" name="id" id="id" value="<?php echo $this->data['form']['id_receive'] ?? ''; ?>">
 
                 <input type="hidden" name="partner_id" id="partner_id" value="<?php echo $this->data['form']['partner_id'] ?? ''; ?>">
 
@@ -91,8 +91,8 @@ use App\adms\Helpers\CSRFHelper;
                 </div>
 
                 <div class="col-md-3">
-                    <label for="partner_id" class="form-label">Fornecedor</label>
-                    <select name="partner_id" class="form-select" id="partner_id" <?php echo $disabled_fornecedor; ?>>
+                    <label for="partner_id" class="form-label">Cliente</label>
+                    <select name="partner_id" class="form-select" id="partner_id" <?php echo $disabled_cliente; ?>>
                         <?php
 
                         // Verifica se existe uma lista de clientes
@@ -103,7 +103,9 @@ use App\adms\Helpers\CSRFHelper;
                                 // Verifica se já há um cliente salvo no banco e seleciona a opção correspondente
                                 $selected = (!empty($this->data['form']['card_name']) && $this->data['form']['card_name'] == $card_name) ? 'selected' : '';
 
-                                echo "<option value='$id' $selected>$card_name</option>";   
+
+
+                                echo "<option value='$id' $selected>$card_name</option>";
                             }
                         }
                         ?>
@@ -124,7 +126,7 @@ use App\adms\Helpers\CSRFHelper;
                 </div>
 
                 <div class="col-2">
-                    <label for="expected_date" class="form-label">Previsão Pagamento</label>
+                    <label for="expected_date" class="form-label">Previsão Recebimento</label>
                     <input type="date" name="expected_date" class="form-control" id="expected_date"
                         value="<?php echo !empty($this->data['form']['expected_date']) ? date('Y-m-d', strtotime($this->data['form']['expected_date'])) : ''; ?>" readonly>
                 </div>

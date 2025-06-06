@@ -84,7 +84,7 @@ class FinancialMovementsRepository extends DbConnection
             $stmtPay->execute();
             $despesas = $stmtPay->fetchAll(PDO::FETCH_ASSOC);
             // Receitas (adms_receive)
-            $sqlRec = "SELECT DAY(r.due_date) as dia, SUM(r.value) as receita, 0 as despesa
+            $sqlRec = "SELECT DAY(r.due_date) as dia, SUM(r.original_value) as receita, 0 as despesa
                        FROM adms_receive r
                        WHERE MONTH(r.due_date) = :mes AND YEAR(r.due_date) = :ano
                        GROUP BY dia";
@@ -147,7 +147,7 @@ class FinancialMovementsRepository extends DbConnection
             $stmtPay->execute();
             $totalDespesa = (float)($stmtPay->fetchColumn() ?: 0);
             // Receitas previstas
-            $sqlRec = "SELECT SUM(r.value) as total_receita
+            $sqlRec = "SELECT SUM(r.original_value) as total_receita
                        FROM adms_receive r
                        WHERE (YEAR(r.due_date) < :ano OR (YEAR(r.due_date) = :ano AND MONTH(r.due_date) <= :mes))";
             $stmtRec = $this->getConnection()->prepare($sqlRec);

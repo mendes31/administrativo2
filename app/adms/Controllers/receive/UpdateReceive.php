@@ -1,19 +1,17 @@
 <?php
 
-namespace App\adms\Controllers\pay;
+namespace App\adms\Controllers\receive;
 
 use App\adms\Controllers\Services\PageLayoutService;
-use App\adms\Controllers\Services\Validation\ValidationPaymentsService;
+use App\adms\Controllers\Services\Validation\ValidationReceiptsService;
 use App\adms\Helpers\CSRFHelper;
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Repository\AccountPlanRepository;
-use App\adms\Models\Repository\BanksRepository;
 use App\adms\Models\Repository\CostCentersRepository;
+use App\adms\Models\Repository\CustomerRepository;
 use App\adms\Models\Repository\FrequencyRepository;
 use App\adms\Models\Repository\LogsRepository;
-use App\adms\Models\Repository\PaymentMethodsRepository;
-use App\adms\Models\Repository\PaymentsRepository;
-use App\adms\Models\Repository\SupplierRepository;
+use App\adms\Models\Repository\ReceiptsRepository;
 use App\adms\Views\Services\LoadViewService;
 
 /**
@@ -23,10 +21,10 @@ use App\adms\Views\Services\LoadViewService;
  * do formulário, a atualização das informações do Conta no repositório e a renderização da visualização apropriada.
  * Caso haja algum problema, como um Conta não encontrado ou dados inválidos, mensagens de erro são exibidas e registradas.
  *
- * @package App\adms\Controllers\pay
+ * @package App\adms\Controllers\receive
  * @author Rafael Mendes
  */
-class UpdatePay
+class UpdateReceive
 {
     /** @var array|string|null $data Dados que devem ser enviados para a VIEW */
     private array|string|null $data = null;
@@ -54,14 +52,14 @@ class UpdatePay
         // Validar o CSRF token e a existência do ID da conta
         if (
             isset($this->data['form']['csrf_token']) &&
-            CSRFHelper::validateCSRFToken('form_update_pay', $this->data['form']['csrf_token'])
+            CSRFHelper::validateCSRFToken('form_update_receive', $this->data['form']['csrf_token'])
         ) {
             // Editar o Conta
-            $this->editPay();
+            $this->editReceive();
         } else {
             // Recuperar o registro do Conta
-            $viewPay = new PaymentsRepository();
-            $this->data['form'] = $viewPay->getPay((int) $id);
+            $viewReceive = new ReceiptsRepository();
+            $this->data['form'] = $viewReceive->getReceive((int) $id);
          
 
             // Verificar se a Conta foi encontrado
@@ -69,15 +67,15 @@ class UpdatePay
                 // Registrar o erro e redirecionar
                 GenerateLog::generateLog("error", "Conta não encontrado", ['id' => (int) $id]);
                 $_SESSION['error'] = "Conta não encontrada!";
-                header("Location: {$_ENV['URL_ADM']}list-payments");
+                header("Location: {$_ENV['URL_ADM']}list-receipts");
                 return;
 
                 
             }
 
             // Atualizar o campo busy e user_temp
-            $payRepo = new PaymentsRepository();
-            $payRepo->updateBusy((int) $id, $_SESSION['user_id']); // ou use o ID de usuário que tiver
+            $receiveRepo = new ReceiptsRepository();
+            $receiveRepo->updateBusy((int) $id, $_SESSION['user_id']); // ou use o ID de usuário que tiver
 
             // Buscar movimentos usando PartialValuesRepository
             $viewMovementValues = new \App\adms\Models\Repository\PartialValuesRepository();
@@ -102,7 +100,7 @@ class UpdatePay
             $this->data['form']['value'] = number_format($saldoPagar, 2, '.', '');
 
             // Carregar a visualização para edição do Conta
-            $this->viewPay();
+            $this->viewReceive();
 
             
         }
@@ -115,11 +113,11 @@ class UpdatePay
      * 
      * @return void
      */
-    private function viewPay(): void
+    private function viewReceive(): void
     {
-        // Instanciar o repositório para recuperar os fornecedores
-        $listSuppliers = new SupplierRepository();
-        $this->data['listSuppliers'] = $listSuppliers->getAllSuppliersSelect();
+        // Instanciar o repositório para recuperar os clientes
+        $listCustomers = new CustomerRepository();
+        $this->data['listCustomers'] = $listCustomers->getAllCustomersSelect();
 
         // Instanciar o repositório para recuperar as frequencias
         $listFrequencies = new FrequencyRepository();
@@ -138,15 +136,15 @@ class UpdatePay
         // Apresentar ou ocultar botão 
         $pageElements = [
             'title_head' => 'Editar Conta',
-            'menu' => 'list-payments',
-            'buttonPermission' => ['ListPayments', 'ViewPay'],
+            'menu' => 'list-receipts',
+            'buttonPermission' => ['ListReceipts', 'ViewReceive'],
         ];
         $pageLayoutService = new PageLayoutService();
         $pageLayoutService->configurePageElements($pageElements);
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
 
         // Carregar a VIEW
-        $loadView = new LoadViewService("adms/Views/pay/update", $this->data);
+        $loadView = new LoadViewService("adms/Views/receive/update", $this->data);
         $loadView->loadView();
     }
 
@@ -159,11 +157,11 @@ class UpdatePay
      * 
      * @return void
      */
-    private function editPay(): void
+    private function editReceive(): void
     {
         // Buscar dados atuais da conta no banco
-        $payRepo = new PaymentsRepository();
-        $contaAtual = $payRepo->getPay((int)$this->data['form']['id']);
+        $receiveRepo = new ReceiptsRepository();
+        $contaAtual = $receiveRepo->getReceive((int)$this->data['form']['id']);
 
        
         // Garantir que partner_id seja inteiro ou null
@@ -189,8 +187,8 @@ class UpdatePay
         
         // Atualizar o campo card_code_fornecedor conforme o partner_id
         if (!empty($this->data['form']['partner_id'])) {
-            $supplierRepo = new \App\adms\Models\Repository\SupplierRepository();
-            $cardCode = $supplierRepo->getSupplier($this->data['form']['partner_id'])['card_code'] ?? '';
+            $customerRepo = new \App\adms\Models\Repository\CustomerRepository();
+            $cardCode = $customerRepo->getCustomer($this->data['form']['partner_id'])['card_code'] ?? '';
             $this->data['form']['card_code_fornecedor'] = $cardCode;
         }
 
@@ -198,15 +196,15 @@ class UpdatePay
 
 
         // Validar os dados do formulário
-        $validationPay = new ValidationPaymentsService();
-        $this->data['errors'] = $validationPay->validate($this->data['form']);
+        $validationReceive = new ValidationReceiptsService();
+        $this->data['errors'] = $validationReceive->validate($this->data['form']);
 
      
     
 
         // Se houver erros de validação, recarregar a visualização
         if (!empty($this->data['errors'])) {
-            $this->viewPay();
+            $this->viewReceive();
             return;
         }
 
@@ -214,8 +212,8 @@ class UpdatePay
      
         
         // Atualizar a Conta
-        $payUpdate = new PaymentsRepository();
-        $result = $payUpdate->updatePay($this->data['form']);
+        $receiveUpdate = new ReceiptsRepository();
+        $result = $receiveUpdate->updateReceive($this->data['form']);
         //var_dump($this->data['form']);
         //exit;
 
@@ -227,7 +225,7 @@ class UpdatePay
             // gravar logs na tabela adms-logs
             if ($_ENV['APP_LOGS'] == 'Sim') {
                 $dataLogs = [
-                    'table_name' => 'adms_pay',
+                    'table_name' => 'adms_receive',
                     'action' => 'edição',
                     'record_id' => $this->data['form']['id'],
                     'description' => $this->data['form']['num_doc'],
@@ -237,10 +235,10 @@ class UpdatePay
                 $insertLogs->insertLogs($dataLogs);
             }
             $_SESSION['success'] = "Conta editada com sucesso!";
-            header("Location: {$_ENV['URL_ADM']}view-pay/{$this->data['form']['id']}");
+            header("Location: {$_ENV['URL_ADM']}view-receive/{$this->data['form']['id']}");
         } else {
             $this->data['errors'][] = "Conta não editado!";
-            $this->viewPay();
+            $this->viewReceive();
         }
     }
 }

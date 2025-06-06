@@ -250,7 +250,7 @@ class CustomerRepository extends DbConnection
         // QUERY para recuperar os registros do banco de dados
         $sql = 'SELECT id, card_code, card_name 
                 FROM adms_customer                
-                ORDER BY name ASC';
+                ORDER BY card_name ASC';
 
         // Preparar a QUERY
         $stmt = $this->getConnection()->prepare($sql);
