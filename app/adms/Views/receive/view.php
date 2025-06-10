@@ -6,10 +6,10 @@ use App\adms\Helpers\CSRFHelper;
 $csrf_token = CSRFHelper::generateCSRFToken('form_delete_pay');
 
 $filtros = $_GET;
-if (empty($filtros) && isset($_SESSION['filtros_list_payments'])) {
-    $filtros = $_SESSION['filtros_list_payments'];
+if (empty($filtros) && isset($_SESSION['filtros_list_receipts'])) {
+    $filtros = $_SESSION['filtros_list_receipts'];
 }
-$urlList = $_ENV['URL_ADM'] . 'list-payments';
+$urlList = $_ENV['URL_ADM'] . 'list-receipts';
 if (!empty($filtros)) {
     $urlList .= '?' . http_build_query($filtros);
 }
@@ -19,14 +19,14 @@ if (!empty($filtros)) {
 <div class="container-fluid px-4">
 
     <div class="mb-1 d-flex flex-column flex-sm-row gap-2">
-        <h2 class="mt-3">Conta</h2>
+        <h2 class="mt-3">Conta à Receber</h2>
 
         <ol class="breadcrumb mb-3 mt-0 mt-sm-3 ms-auto">
             <li class="breadcrumb-item">
                 <a href="<?php echo $_ENV['URL_ADM']; ?>dashboard" class="text-decoration-none">Dashboard</a>
             </li>
             <li class="breadcrumb-item">
-                <a href="<?php echo $_ENV['URL_ADM']; ?>list-payments" class="text-decoration-none">Contas</a>
+                <a href="<?php echo $_ENV['URL_ADM']; ?>list-receipts" class="text-decoration-none">Contas</a>
             </li>
             <li class="breadcrumb-item">Visualizar</li>
 
@@ -41,26 +41,26 @@ if (!empty($filtros)) {
 
             <span class="ms-sm-auto d-sm-flex flex-row">
                 <?php
-                echo "<a href='{$_ENV['URL_ADM']}list-payments' class='btn btn-info btn-sm me-1 mb-1'><i class='fa-solid fa-list'></i> Listar</a> ";
+                echo "<a href='{$_ENV['URL_ADM']}list-receipts' class='btn btn-info btn-sm me-1 mb-1'><i class='fa-solid fa-list'></i> Listar</a> ";
                 echo "<button onclick='history.back()' class='btn btn-secondary btn-sm me-1 mb-1'><i class='fa-solid fa-arrow-left'></i> Voltar</button> ";
 
-                $id = ($this->data['pay']['id_pay'] ?? '');
+                $id = ($this->data['receive']['id_receive'] ?? '');
 
                 // Exibir botões Editar e Deletar apenas se não houver movimentos registrados
                 $hasMovements = !empty($this->data['movementValues']);
-                if (in_array('UpdatePay', $this->data['buttonPermission']) && $this->data['pay']['paid'] != 1 && !$hasMovements) {
-                    echo "<a href='{$_ENV['URL_ADM']}update-pay/$id' class='btn btn-warning btn-sm me-1 mb-1'><i class='fa-solid fa-pen-to-square'></i> Editar</a>";
+                if (in_array('UpdateReceive', $this->data['buttonPermission']) && $this->data['receive']['paid'] != 1 && !$hasMovements) {
+                    echo "<a href='{$_ENV['URL_ADM']}update-receive/$id' class='btn btn-warning btn-sm me-1 mb-1'><i class='fa-solid fa-pen-to-square'></i> Editar</a>";
                 }
-                if (in_array('DeletePay', $this->data['buttonPermission']) && $this->data['pay']['paid'] != 1 && !$hasMovements) {
+                if (in_array('DeleteReceive', $this->data['buttonPermission']) && $this->data['receive']['paid'] != 1 && !$hasMovements) {
                     echo '<form id="formDelete' . $id . '" action="' . $_ENV['URL_ADM'] . 'delete-pay" method="POST" style="display:inline;">';
                     echo '<input type="hidden" name="csrf_token" value="' . $csrf_token . '">';
                     echo '<input type="hidden" name="id" id="id" value="' . $id . '">';
-                    echo '<input type="hidden" name="num_doc" id="num_doc" value="' . ($this->data['pay']['num_doc'] ?? '') . '">';
+                    echo '<input type="hidden" name="num_doc" id="num_doc" value="' . ($this->data['receive']['num_doc'] ?? '') . '">';
                     echo '<button type="submit" class="btn btn-danger btn-sm me-1 mb-1" onclick="confirmDeletion(event, ' . $id . ')"><i class="fa-regular fa-trash-can"></i> Deletar</button>';
                     echo '</form>';
                 }
-                if (in_array('ViewPay', $this->data['buttonPermission'])) {
-                    echo "<a href='{$_ENV['URL_ADM']}view-pay/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a> ";
+                if (in_array('ViewReceive', $this->data['buttonPermission'])) {
+                    echo "<a href='{$_ENV['URL_ADM']}view-receive/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a> ";
                 }
                 ?>
             </span>
@@ -72,10 +72,10 @@ if (!empty($filtros)) {
             include './app/adms/Views/partials/alerts.php';
 
             // Verifica se há usuários no array
-            if (isset($this->data['pay'])) {
+            if (isset($this->data['receive'])) {
 
-                // Extrai variáveis do array $this->data['pay'] para fácil acesso
-                extract($this->data['pay']);
+                // Extrai variáveis do array $this->data['receive'] para fácil acesso
+                extract($this->data['receive']);
             ?>
 
             <?php
@@ -105,7 +105,7 @@ if (!empty($filtros)) {
                         <!-- <td><?php echo $file; ?></td> -->
 
                         <dt class="col-sm-3">ID: </dt>
-                        <dd class="col-sm-9"><?php echo $id_pay; ?></dd>
+                        <dd class="col-sm-9"><?php echo $id_receive; ?></dd>
 
                         <!-- <dt class="col-sm-3">Data: </dt>
                         <dd class="col-sm-9"><?php echo date("d-m-Y", strtotime($doc_date)); ?></dd> -->
@@ -122,10 +122,10 @@ if (!empty($filtros)) {
                         <dt class="col-sm-3">Nº Nota: </dt>
                         <dd class="col-sm-9"><?php echo $num_nota ?? ''; ?></dd>
 
-                        <dt class="col-sm-3">Cód. Fornecedor: </dt>
-                        <dd class="col-sm-9"><?php echo $card_code_fornecedor ?? ''; ?></dd>
+                        <dt class="col-sm-3">Cód. Cliente: </dt>
+                        <dd class="col-sm-9"><?php echo $card_code_cliente ?? ''; ?></dd>
 
-                        <dt class="col-sm-3">Fornecedor: </dt>
+                        <dt class="col-sm-3">Cliente: </dt>
                         <dd class="col-sm-9"><?php echo $card_name; ?></dd>
 
                         <dt class="col-sm-3">Descrição: </dt>
@@ -137,13 +137,13 @@ if (!empty($filtros)) {
                         <dt class="col-sm-3">Valor Pago: </dt>
                         <dd class="col-sm-9"><?php echo 'R$ ' . number_format($totalPago ?? 0, 2, ',', '.'); ?></dd>
 
-                        <dt class="col-sm-3">Valor à Pagar: </dt>
+                        <dt class="col-sm-3">Valor à Receber: </dt>
                         <dd class="col-sm-9"><?php echo 'R$ ' . number_format($saldoPagar, 2, ',', '.'); ?></dd>
 
                         <dt class="col-sm-3">Vencimento: </dt>
                         <dd class="col-sm-9"><?php echo date("d-m-Y", strtotime($due_date)); ?></dd>
 
-                        <dt class="col-sm-3">Previsão Pgto: </dt>
+                        <dt class="col-sm-3">Previsão Recebimento: </dt>
                         <dd class="col-sm-9"><?php echo !empty($expected_date) ? date("d-m-Y", strtotime($expected_date)) : 'N/A'; ?></dd>
 
                         <dt class="col-sm-3">Frequência: </dt>
@@ -186,7 +186,7 @@ if (!empty($filtros)) {
         <div class="card-body">
             <div class="card mb-4 border-light shadow">
                 <div class="card-header d-flex flex-column flex-sm-row gap-2">
-                    <span>Pagamentos Realizados</span>
+                    <span>Recebimentos Realizados</span>
 
                     <span class="ms-sm-auto d-sm-flex flex-row">
 
@@ -205,13 +205,13 @@ if (!empty($filtros)) {
                 <table class="table table-striped table-hover" id="tabela">
                     <thead>
                         <tr>
-                            <th scope="col">Data PGTO</th>
+                            <th scope="col">Data Recebimento</th>
                             <th scope="col">ID Movimento</th>
                             <th scope="col">ID da Conta</th>
-                            <th scope="col">Valor Pago</th>
-                            <th scope="col" class="d-none d-md-table-cell">Forma PGTO</th>
-                            <th scope="col" class="d-none d-md-table-cell">Local de Saída</th>
-                            <th scope="col" class="d-none d-md-table-cell">Usuário PGTO</th>
+                            <th scope="col">Valor Recebido</th>
+                            <th scope="col" class="d-none d-md-table-cell">Forma Recebimento</th>
+                            <th scope="col" class="d-none d-md-table-cell">Local de Recebimento</th>
+                            <th scope="col" class="d-none d-md-table-cell">Usuário Recebimento</th>
                             <th scope="col" class="d-none d-md-table-cell">Tipo</th>
                             <th scope="col" class="d-none d-md-table-cell">Ações</th>
                         </tr>
@@ -220,7 +220,7 @@ if (!empty($filtros)) {
                     <tbody>
 
                         <?php
-                        // Percorre o array de pagamentos
+                        // Percorre o array de recebimentos
                         foreach ($this->data['movementValues'] as $movementValues) {
                             extract($movementValues); ?>
 
@@ -234,15 +234,15 @@ if (!empty($filtros)) {
                                 <td class="d-none d-md-table-cell"><?php echo $name_user_pegto ?? '-'; ?></td>
                                 <td class="d-none d-md-table-cell"><?php echo $type; ?></td>
                                 <td class="text-center">
-                                    <?php if (in_array('EditMovement', $this->data['buttonPermission'])): ?>
-                                        <a href="<?= $_ENV['URL_ADM'] . 'edit-movement/' . $id ?>" class="btn btn-warning btn-sm me-1 mb-1" title="Editar Pagamento">
+                                    <?php if (in_array('EditMovementReceive', $this->data['buttonPermission'])): ?>
+                                        <a href="<?= $_ENV['URL_ADM'] . 'edit-movement-receive/' . $id ?>" class="btn btn-warning btn-sm me-1 mb-1" title="Editar Recebimento">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
                                     <?php endif; ?>
-                                    <?php if (in_array('DeleteMovement', $this->data['buttonPermission'])): ?>
-                                        <form action="<?= $_ENV['URL_ADM'] . 'delete-movement/' . $id ?>" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este pagamento?');">
+                                    <?php if (in_array('DeleteMovementReceive', $this->data['buttonPermission'])): ?>
+                                        <form action="<?= $_ENV['URL_ADM'] . 'delete-movement-receive/' . $id ?>" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este pagamento?');">
                                             <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
-                                            <button type="submit" class="btn btn-danger btn-sm me-1 mb-1" title="Excluir Pagamento">
+                                            <button type="submit" class="btn btn-danger btn-sm me-1 mb-1" title="Excluir Recebimento">
                                                 <i class="fa-regular fa-trash-can"></i>
                                             </button>
                                         </form>

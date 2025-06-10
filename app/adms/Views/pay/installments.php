@@ -85,7 +85,7 @@ use App\adms\Helpers\CSRFHelper;
                 <div class="col-4">
                     <label for="value" class="form-label">Valor</label>
                     <input type="text" name="value" class="form-control" id="value" placeholder="Valor"
-                        value="<?php echo $this->data['form']['value'] ?? ''; ?>">
+                        value="<?php echo $this->data['form']['original_value'] ?? ''; ?>" readonly>
                 </div>
 
                 <div class="col-4">

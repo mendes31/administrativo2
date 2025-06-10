@@ -126,23 +126,40 @@ class Installments
      */
     private function editInstallments(): void
     {
+        // var_dump($this->data['form']);
+
+        // Garantir que o campo 'original_value' esteja preenchido
+        if (!isset($this->data['form']['original_value'])) {
+            $payRepo = new \App\adms\Models\Repository\PayRepository();
+            $conta = $payRepo->getPay((int)$this->data['form']['id_pay']);
+
+            var_dump($conta);
+            
+            if ($conta && isset($conta['original_value'])) {
+                $this->data['form']['original_value'] = $conta['original_value'];
+            } else {
+                $this->data['form']['original_value'] = $this->data['form']['value'] ?? 0;
+            }
+        }
+        var_dump($this->data['form']);
+        var_dump($this->data['form']['value']);
 
         // Atualizar a Conta
         $payInstallmentsUpdate = new InstallmentsRepository();
-
         $resultPayIds = $payInstallmentsUpdate->getPayIds((int) $this->data['form']['id_pay']);
+
+        var_dump($resultPayIds);
 
         // Instanciar o repositório para recuperar as frequencias
         $listFrequencies = new FrequencyRepository();
         $this->data['listFrequencies'] = $listFrequencies->getAllFrequencySelect();
 
-        // Validar os dados do formulário
+        // Validar os dados do formulário ANTES do loop
         $validationInstallments = new ValidationInstallmentsService();
-        // $this->data['errors'] = $validationInstallments->validate($this->data['form']);
+        $this->data['errors'] = $validationInstallments->validate($this->data['form']);
 
-        // Se houver erros de validação, recarregar a visualização
+        // Se houver erros de validação, recarregar a visualização e sair
         if (!empty($this->data['errors'])) {
-
             $this->viewPay();
             return;
         }
@@ -152,6 +169,11 @@ class Installments
         $idConta = (int)($this->data['form']['id'] ?? $id ?? $this->data['form']['id_pay'] ?? 0);
         $movements = $viewMovementValues->getMovementValues($idConta);
 
+        var_dump($this->data['form']);
+        var_dump($idConta);
+        var_dump($movements);
+        // exit;
+        
         $totalPago = 0;
         $totalDesconto = 0;
         if (!empty($movements)) {
@@ -170,14 +192,11 @@ class Installments
         }
         $this->data['form']['value'] = number_format($saldoPagar, 2, '.', '');
 
+        $sucesso = true;
         for ($i = 1; $i <= (int) $this->data['form']['installments']; $i++) {
-
-            // Validar os dados do formulário
-            $this->data['errors'] = $validationInstallments->validate($this->data['form']);
-
-
+            // NÃO validar dentro do loop!
             $nova_num_doc = $resultPayIds['0']['num_doc'] . ' - Parcela ' . $i;
-            $novo_valor = $resultPayIds['0']['value'] / $this->data['form']['installments'];
+            $novo_valor = $resultPayIds['0']['original_value'] / $this->data['form']['installments'];
             $dias_parcela = $i - 1;
             $dias_parcela_2 = ($i - 1) * $this->data['listFrequencies']['0']['days'];
             $novo_vencimento = $resultPayIds['0']['due_date'];
@@ -193,11 +212,10 @@ class Installments
                 $novo_vencimento = date('Y/m/d', strtotime("+$dias_parcela month", strtotime($resultPayIds['0']['due_date'])));
             }
 
-
             $novo_valor = number_format($novo_valor, 2, ',', '.');
             $novo_valor = str_replace('.', '', $novo_valor);
             $novo_valor = str_replace(',', '.', $novo_valor);
-            $resto_conta = $resultPayIds['0']['value'] - $novo_valor * $this->data['form']['installments'];
+            $resto_conta = $resultPayIds['0']['original_value'] - $novo_valor * $this->data['form']['installments'];
             $resto_conta = number_format($resto_conta, 2);
 
             if ($i == $this->data['form']['installments']) {
@@ -205,35 +223,37 @@ class Installments
             }
 
             $result = $payInstallmentsUpdate->createPay($this->data, $resultPayIds, $nova_num_doc, $novo_vencimento, $novo_valor);
-
+            // var_dump($result);
             // Verificar o resultado da atualização
-            if ($result) {
-
-                // gravar logs na tabela adms-logs
-                if ($_ENV['APP_LOGS'] == 'Sim') {
-                    $dataLogs = [
-                        'table_name' => 'adms_pay',
-                        'action' => 'inserção',
-                        'record_id' => $this->data['form']['id_pay'],
-                        // 'description' => $this->data['form']['num_doc'] . $this->data['form']['card_name'] . '(Parcelamento)',
-                        // 'description' => "Doc: ". "{$this->data['form']['num_doc']} " ." - " . "$this->name_pn" . " (Parcelamento)", $this->dataBD['form']['card_name']
-                        'description' => "Doc: ". "{$this->data['form']['num_doc']} " ." - " . "{$this->dataBD['card_name']}" . " (Parcelamento)",
-
-                    ];
-                    // Instanciar a classe validar  o usuário
-                    $insertLogs = new LogsRepository();
-                    $insertLogs->insertLogs($dataLogs);
-                }
-
-                $payInstallmentsUpdate->deletePay($this->data['form']['id_pay']);
-
-                $_SESSION['success'] = "Conta editada com sucesso!";
-                header("Location: {$_ENV['URL_ADM']}list-payments");
-                // header("Location: {$_ENV['URL_ADM']}view-pay/{$this->data['form']['id']}");
-            } else {
-                $this->data['errors'][] = "Conta não editado!";
-                $this->viewPay();
+            if (!$result) {
+                $sucesso = false;
+                break; // Se falhar, para o loop
             }
+        }
+        //var_dump($sucesso);
+   
+
+        if ($sucesso) {
+            // gravar logs na tabela adms-logs
+            if ($_ENV['APP_LOGS'] == 'Sim') {
+                $dataLogs = [
+                    'table_name' => 'adms_pay',
+                    'action' => 'inserção',
+                    'record_id' => $this->data['form']['id_pay'],
+                    'description' => "Doc: ". "{$this->data['form']['num_doc']} " ." - " . "{$this->dataBD['card_name']}" . " (Parcelamento)",
+                ];
+                $insertLogs = new LogsRepository();
+                $insertLogs->insertLogs($dataLogs);
+            }
+
+            $payInstallmentsUpdate->deletePay($this->data['form']['id_pay']);
+
+            $_SESSION['success'] = "Conta editada com sucesso!";
+            header("Location: {$_ENV['URL_ADM']}list-payments");
+            exit;
+        } else {
+            $this->data['errors'][] = "Conta não editado!";
+            $this->viewPay();
         }
     }
 }

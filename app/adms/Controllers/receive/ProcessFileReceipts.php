@@ -1,6 +1,6 @@
 <?php
 
-// namespace App\adms\Controllers\pay;
+// namespace App\adms\Controllers\receive;
 
 // /** @var array|string|null $data Dados que devem ser enviados para a VIEW */
 // private array|string|null $arquivo = null;
@@ -8,14 +8,14 @@
 
 // class ProcessFile
 
-use App\adms\Models\Repository\PaymentsRepository;
+use App\adms\Models\Repository\ReceiptsRepository;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 $arquivo = $_FILES['arquivo'];
 
 $camposObrigatorios = [
     'num_doc',
-    'card_code_fornecedor',
+    'card_code_cliente',
     'due_date',
     'installment_number'
 ];
@@ -116,11 +116,11 @@ function proximoDiaUtil($data) {
     return $dataTeste;
 }
 
-function gerenciarParcelas($num_doc, $card_code_fornecedor, $novasParcelas) {
-    $paymentCreate = new PaymentsRepository();
+function gerenciarParcelas($num_doc, $card_code_cliente, $novasParcelas) {
+    $receiptCreate = new ReceiptsRepository();
     
     // Buscar todas as parcelas existentes do documento
-    $parcelasExistentes = $paymentCreate->buscarParcelasDocumento($num_doc, $card_code_fornecedor);
+    $parcelasExistentes = $receiptCreate->buscarParcelasDocumento($num_doc, $card_code_cliente);
     $totalParcelasExistentes = count($parcelasExistentes);
     $totalNovasParcelas = count($novasParcelas);
     
@@ -128,7 +128,7 @@ function gerenciarParcelas($num_doc, $card_code_fornecedor, $novasParcelas) {
     if ($totalNovasParcelas < $totalParcelasExistentes) {
         // Deletar parcelas excedentes
         for ($i = $totalNovasParcelas + 1; $i <= $totalParcelasExistentes; $i++) {
-            $paymentCreate->deletarParcela($num_doc, $card_code_fornecedor, $i);
+            $receiptCreate->deletarParcela($num_doc, $card_code_cliente, $i);
         }
     }
     
@@ -147,7 +147,7 @@ function gerenciarParcelas($num_doc, $card_code_fornecedor, $novasParcelas) {
         for ($i = $totalParcelasExistentes + 1; $i <= $totalNovasParcelas; $i++) {
             $novaParcela = [
                 'num_doc' => $num_doc,
-                'card_code_fornecedor' => $card_code_fornecedor,
+                'card_code_cliente' => $card_code_cliente,
                 'installment_number' => $i,
                 'value' => number_format($valorMedio, 2, '.', ''),
                 'due_date' => $novasParcelas[$i-1]['due_date'],
@@ -155,7 +155,7 @@ function gerenciarParcelas($num_doc, $card_code_fornecedor, $novasParcelas) {
                 'pay_method_id' => 0,
                 'issue_date' => null
             ];
-            $paymentCreate->importPayment($novaParcela);
+            $receiptCreate->importReceive($novaParcela);
         }
     }
     
@@ -163,7 +163,7 @@ function gerenciarParcelas($num_doc, $card_code_fornecedor, $novasParcelas) {
     foreach ($novasParcelas as $index => $parcela) {
         $numeroParcela = $index + 1;
         if ($numeroParcela <= $totalParcelasExistentes) {
-            $paymentCreate->atualizarPayment($parcela);
+            $receiptCreate->atualizarReceive($parcela);
         }
     }
 }
@@ -182,7 +182,7 @@ if ($arquivo['type'] == "text/csv") {
         exit;
     }
     
-    $paymentCreate = new PaymentsRepository();
+    $receiptCreate = new ReceiptsRepository();
     $parcelasPorDocumento = [];
     
     // Primeiro, agrupar todas as parcelas por documento
@@ -196,7 +196,7 @@ if ($arquivo['type'] == "text/csv") {
         
         // Normalizar campos
         $dados['num_doc'] = trim((string)$dados['num_doc']);
-        $dados['card_code_fornecedor'] = trim((string)$dados['card_code_fornecedor']);
+        $dados['card_code_cliente'] = trim((string)$dados['card_code_cliente']);
         $dados['installment_number'] = (int)preg_replace('/[^0-9]/', '', $dados['installment_number']);
         
         if (isset($dados['due_date'])) {
@@ -219,7 +219,7 @@ if ($arquivo['type'] == "text/csv") {
             unset($dados['value']);
         }
         
-        $chave = $dados['num_doc'] . '_' . $dados['card_code_fornecedor'];
+        $chave = $dados['num_doc'] . '_' . $dados['card_code_cliente'];
         if (!isset($parcelasPorDocumento[$chave])) {
             $parcelasPorDocumento[$chave] = [];
         }
@@ -228,31 +228,31 @@ if ($arquivo['type'] == "text/csv") {
     
     // Processar cada documento e suas parcelas
     foreach ($parcelasPorDocumento as $chave => $parcelas) {
-        list($num_doc, $card_code_fornecedor) = explode('_', $chave);
+        list($num_doc, $card_code_cliente) = explode('_', $chave);
         $num_doc = trim((string)$num_doc);
-        $card_code_fornecedor = trim((string)$card_code_fornecedor);
-        $parcelasExistentes = $paymentCreate->buscarParcelasDocumento($num_doc, $card_code_fornecedor);
+        $card_code_cliente = trim((string)$card_code_cliente);
+        $parcelasExistentes = $receiptCreate->buscarParcelasDocumento($num_doc, $card_code_cliente);
         $totalParcelasExistentes = count($parcelasExistentes);
         $totalNovasParcelas = count($parcelas);
 
         // Se o número de parcelas diminuiu, apaga as excedentes
         if ($totalNovasParcelas < $totalParcelasExistentes) {
             for ($i = $totalNovasParcelas + 1; $i <= $totalParcelasExistentes; $i++) {
-                $paymentCreate->deletarParcela($num_doc, $card_code_fornecedor, $i);
+                $receiptCreate->deletarParcela($num_doc, $card_code_cliente, $i);
             }
-            $parcelasExistentes = $paymentCreate->buscarParcelasDocumento($num_doc, $card_code_fornecedor);
+            $parcelasExistentes = $receiptCreate->buscarParcelasDocumento($num_doc, $card_code_cliente);
         }
 
         foreach ($parcelas as $parcela) {
             error_log('Processando parcela: ' . print_r($parcela, true));
             $parcela['num_doc'] = trim((string)$parcela['num_doc']);
-            $parcela['card_code_fornecedor'] = trim((string)$parcela['card_code_fornecedor']);
+            $parcela['card_code_cliente'] = trim((string)$parcela['card_code_cliente']);
             $parcela['installment_number'] = (int)preg_replace('/[^0-9]/', '', $parcela['installment_number']);
             $existe = false;
             foreach ($parcelasExistentes as $existente) {
                 if (
                     trim((string)$existente['num_doc']) === $parcela['num_doc'] &&
-                    trim((string)$existente['card_code_fornecedor']) === $parcela['card_code_fornecedor'] &&
+                    trim((string)$existente['card_code_cliente']) === $parcela['card_code_cliente'] &&
                     (int)$existente['installment_number'] === $parcela['installment_number']
                 ) {
                     $existe = true;
@@ -286,7 +286,7 @@ if ($arquivo['type'] == "text/csv") {
                     if ($deveAtualizar) {
                         logComparacaoCampos($num_doc, $parcela['installment_number'], $diferencas);
                         $dadosAtualizar = array_merge($existente, $parcela);
-                        $paymentCreate->atualizarPayment($dadosAtualizar);
+                        $receiptCreate->atualizarReceive($dadosAtualizar);
                         $atualizados++;
                     } else {
                         $ignorados++;
@@ -295,10 +295,10 @@ if ($arquivo['type'] == "text/csv") {
                 }
             }
             if (!$existe) {
-                $paymentCreate->importPayment($parcela);
+                    $receiptCreate->importReceive($parcela);
                 $importados++;
                 // Atualiza a lista de parcelas existentes após inserção
-                $parcelasExistentes = $paymentCreate->buscarParcelasDocumento($num_doc, $card_code_fornecedor);
+                $parcelasExistentes = $receiptCreate->buscarParcelasDocumento($num_doc, $card_code_cliente);
             }
         }
     }
@@ -310,7 +310,7 @@ if ($arquivo['type'] == "text/csv") {
 }
 
 // Após o fechamento do arquivo e contagem dos registros:
-// Redireciona para list-payments com popup de resultado
+// Redireciona para list-receipts com popup de resultado
 echo "<script>alert('Importação finalizada!\\nRegistros importados: $importados\\nRegistros atualizados: $atualizados\\nRegistros ignorados (já existentes e sem alteração): $ignorados');window.location.href='/administrativo/list-payments';</script>";
 exit;
 

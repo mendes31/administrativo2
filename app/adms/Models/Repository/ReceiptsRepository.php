@@ -122,21 +122,21 @@ class ReceiptsRepository extends DbConnection
 
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         // Adiciona o campo total_pago para cada conta
-        foreach ($result as &$pay) {
+        foreach ($result as &$receive) {
             $sqlTotal = 'SELECT SUM(movement_value) as total_pago FROM adms_movements WHERE movement_id = :id_receive';
             $stmtTotal = $this->getConnection()->prepare($sqlTotal);
-            $stmtTotal->bindValue(':id_receive', $pay['id_receive'], PDO::PARAM_INT);
+            $stmtTotal->bindValue(':id_receive', $receive['id_receive'], PDO::PARAM_INT);
             $stmtTotal->execute();
-            $pay['total_pago'] = (float)($stmtTotal->fetch(PDO::FETCH_ASSOC)['total_pago'] ?? 0);
+            $receive['total_pago'] = (float)($stmtTotal->fetch(PDO::FETCH_ASSOC)['total_pago'] ?? 0);
 
             // Buscar todos os movimentos (recebimentos) da conta
             $sqlMov = 'SELECT * FROM adms_movements WHERE movement_id = :id_receive';
             $stmtMov = $this->getConnection()->prepare($sqlMov);
-            $stmtMov->bindValue(':id_receive', $pay['id_receive'], PDO::PARAM_INT);
+            $stmtMov->bindValue(':id_receive', $receive['id_receive'], PDO::PARAM_INT);
             $stmtMov->execute();
-            $pay['movements'] = $stmtMov->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $receive['movements'] = $stmtMov->fetchAll(PDO::FETCH_ASSOC) ?: [];
         }
-        unset($pay);
+        unset($receive);
         return $result;
     }
 
@@ -219,9 +219,9 @@ class ReceiptsRepository extends DbConnection
     //         $where[] = 'card_code_cliente LIKE :card_code_cliente';
     //         $params[':card_code_cliente'] = '%' . $filtros['card_code_cliente'] . '%';
     //     }
-    //     if (!empty($filtros['fornecedor'])) {
-    //         $where[] = 'partner_id IN (SELECT id FROM adms_customer  WHERE card_name LIKE :fornecedor)';
-    //         $params[':fornecedor'] = '%' . $filtros['fornecedor'] . '%';
+    //     if (!empty($filtros['cliente'])) {
+    //         $where[] = 'partner_id IN (SELECT id FROM adms_customer  WHERE card_name LIKE :cliente)';
+    //         $params[':cliente'] = '%' . $filtros['cliente'] . '%';
     //     }
     //     if (!empty($filtros['vencimento_hoje'])) {
     //         $where[] = 'DATE(due_date) = CURDATE()';
@@ -476,7 +476,11 @@ class ReceiptsRepository extends DbConnection
         $num_doc = trim((string)$data['num_doc']);
         $card_code_cliente = trim((string)$data['card_code_cliente']);
         $installment_number = (int)preg_replace('/[^0-9]/', '', $data['installment_number']);
-        $sql = 'SELECT COUNT(*) FROM adms_receive WHERE TRIM(num_doc) = :num_doc AND TRIM(card_code_cliente) = :card_code_cliente AND installment_number = :installment_number';
+        $sql = 'SELECT COUNT(*) FROM adms_receive 
+                WHERE TRIM(num_doc) = :num_doc 
+                AND TRIM(card_code_cliente) = :card_code_cliente 
+                AND installment_number = :installment_number
+                AND paid = 0';
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->bindParam(':num_doc', $num_doc);
         $stmt->bindParam(':card_code_cliente', $card_code_cliente);
@@ -486,17 +490,19 @@ class ReceiptsRepository extends DbConnection
             return false; // Já existe, não insere
         }
         try {
-            // 1. Verificar se o fornecedor existe pelo card_code_cliente
+            // 1. Verificar se o cliente existe pelo card_code_cliente
             $customerRepo = new \App\adms\Models\Repository\CustomerRepository();
             $customer = null;
             if (!empty($data['card_code_cliente'])) {
-                $sql = 'SELECT id FROM adms_customer    WHERE card_code = :card_code LIMIT 1';
+                $sql = 'SELECT id FROM adms_customer  
+                WHERE card_code = :card_code 
+                AND active = 1 LIMIT 1';
                 $stmt = $this->getConnection()->prepare($sql);
                 $stmt->bindValue(':card_code', $data['card_code_cliente'], PDO::PARAM_STR);
                 $stmt->execute();
                 $customer = $stmt->fetch(PDO::FETCH_ASSOC);
             }
-            // 2. Se não existir, cadastrar fornecedor básico
+            // 2. Se não existir, cadastrar cliente básico
             if (!$customer && !empty($data['card_code_cliente'])) {
                 $nomeCliente = $data['description'] ?? 'Cliente Importado';
                 $cliente = [
@@ -525,8 +531,8 @@ class ReceiptsRepository extends DbConnection
 
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':description', $data['description'] ?? '', PDO::PARAM_STR);
-            $stmt->bindValue(':num_doc', $data['num_doc'] ?? null, PDO::PARAM_STR);
-            $stmt->bindValue(':num_nota', null, PDO::PARAM_NULL);
+            $stmt->bindValue(':num_doc', $data['num_doc'] ?? null, PDO::PARAM_STR); 
+            $stmt->bindValue(':num_nota', null, PDO::PARAM_NULL); //deve receber campo do form serial
             $stmt->bindValue(':file', null, PDO::PARAM_NULL);
             $stmt->bindValue(':paid', 0, PDO::PARAM_INT);
             $stmt->bindValue(':partner_id', $partner_id, PDO::PARAM_INT);
@@ -543,7 +549,7 @@ class ReceiptsRepository extends DbConnection
             $stmt->bindValue(':due_date', $data['due_date'] ?? null, PDO::PARAM_STR);
             $stmt->bindValue(':expected_date', !empty($data['expected_date']) ? date('Y-m-d', strtotime($data['expected_date'])) : null, PDO::PARAM_STR);
             $stmt->bindValue(':installment_number', $data['installment_number'] ?? null, PDO::PARAM_INT);
-            $stmt->bindValue(':issue_date', !empty($data['issue_date']) ? date('Y-m-d', strtotime($data['issue_date'])) : null, PDO::PARAM_STR);
+            $stmt->bindValue(':issue_date', $data['doc_date'] ?? date("Y-m-d H:i:s"), PDO::PARAM_STR);
             $stmt->bindValue(':created_at', date("Y-m-d H:i:s"));
             $stmt->bindValue(':updated_at', null, PDO::PARAM_NULL);
             $stmt->execute();
@@ -562,11 +568,13 @@ class ReceiptsRepository extends DbConnection
      * @return bool
      */
     public function updateReceive(array $data): bool
-    {
+    {   
+        // var_dump($data);
+        
         $conn = $this->getConnection();
         $conn->beginTransaction();
         try {
-            // Atualiza campos replicados em todas as contas do mesmo num_doc e fornecedor
+            // Atualiza campos replicados em todas as contas do mesmo num_doc e cliente
             $sqlReplicar = "UPDATE adms_receive SET 
                 num_nota = :num_nota,
                 issue_date = :issue_date,
@@ -581,11 +589,11 @@ class ReceiptsRepository extends DbConnection
             $stmtReplicar->bindValue(':num_nota', $data['num_nota']);
             $stmtReplicar->bindValue(':issue_date', $data['issue_date']);
             $stmtReplicar->bindValue(':partner_id', $data['partner_id']);
-            $stmtReplicar->bindValue(':card_code_cliente', $data['card_code_cliente']);
+            $stmtReplicar->bindValue(':card_code_cliente', $data['card_code_cliente'] ?? null);
             $stmtReplicar->bindValue(':account_id', $data['account_id']);
             $stmtReplicar->bindValue(':cost_center_id', $data['cost_center_id']);
             $stmtReplicar->bindValue(':num_doc', $data['num_doc']);
-            $stmtReplicar->bindValue(':card_code_cliente', $data['card_code_cliente']);
+            $stmtReplicar->bindValue(':card_code_cliente', $data['card_code_cliente'] ?? null);
             $stmtReplicar->execute();
 
             // Atualiza os demais campos apenas na conta selecionada
@@ -735,7 +743,7 @@ class ReceiptsRepository extends DbConnection
     }
 
     /**
-     * Busca todas as parcelas de um documento para um fornecedor.
+     * Busca todas as parcelas de um documento para um cliente.
      */
     public function buscarParcelasDocumento($num_doc, $card_code_cliente)
     {
@@ -976,8 +984,8 @@ class ReceiptsRepository extends DbConnection
         )";
 
         $stmt = $this->getConnection()->prepare($sql);
-        $stmt->bindValue(':type', 'Saída', PDO::PARAM_STR);
-        $stmt->bindValue(':movement', 'Conta à Pagar', PDO::PARAM_STR);
+        $stmt->bindValue(':type', 'Entrada', PDO::PARAM_STR);
+        $stmt->bindValue(':movement', 'Conta à Receber', PDO::PARAM_STR);
         $stmt->bindParam(':description',  $data['description'], PDO::PARAM_STR);
         $stmt->bindValue(':movement_id', $data['id_receive'], PDO::PARAM_INT);
         $stmt->bindValue(':movement_value', $this->normalizarValor($data['subtotal'] ?? $data['value']), PDO::PARAM_STR);

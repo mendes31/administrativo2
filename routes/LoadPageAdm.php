@@ -48,6 +48,7 @@ class LoadPageAdm
         "ListSuppliers", "CreateSupplier", "ViewSupplier", "UpdateSupplier", "DeleteSupplier", 'ProcessFile',
         "ListPaymentMethods", "CreatePaymentMethod", "ViewPaymentMethod", "UpdatePaymentMethod", "DeletePaymentMethod",
         "ListPayments", "CreatePay", "ViewPay", "UpdatePay", "DeletePay", "Payment", "Installments", "ListPartialValues", "ClearBusyPay", "CheckBusy", "GetPaymentsStatus",
+        "ListReceipts", "CreateReceive", "ViewReceive", "UpdateReceive", "DeleteReceive", "Receive", "Installments", "ListPartialValues", "ClearBusyReceive", "CheckBusy", "GetReceiptsStatus",
         "Movements","CashFlow","ExportPdfCashFlow",
         "EditMovement", "DeleteMovement"
     ];

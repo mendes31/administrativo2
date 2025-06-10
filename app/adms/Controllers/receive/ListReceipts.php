@@ -137,7 +137,7 @@ class ListReceipts
         $pageElements = [
             'title_head' => 'Listar Contas à Receber',
             'menu' => 'list-receipts',
-            'buttonPermission' => ['CreateReceive', 'ViewReceive', 'Installments', 'Receive', 'UpdateReceive', 'DeleteReceive'],
+            'buttonPermission' => ['CreateReceive', 'ViewReceive', 'InstallmentsReceive', 'Receive', 'UpdateReceive', 'DeleteReceive'],
         ];
         $pageLayoutService = new PageLayoutService();
         $pageLayoutService->configurePageElements($pageElements);

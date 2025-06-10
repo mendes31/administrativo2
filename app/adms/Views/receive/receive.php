@@ -14,9 +14,9 @@ use App\adms\Helpers\CSRFHelper;
                 <a href="<?php echo $_ENV['URL_ADM']; ?>dashboard" class="text-decoration-none">Dashboard</a>
             </li>
             <li class="breadcrumb-item">
-                <a href="<?php echo $_ENV['URL_ADM']; ?>list-payments" class="text-decoration-none">Contas</a>
+                <a href="<?php echo $_ENV['URL_ADM']; ?>list-receipts" class="text-decoration-none">Contas</a>
             </li>
-            <li class="breadcrumb-item">Pagar</li>
+            <li class="breadcrumb-item">Receber</li>
 
         </ol>
 
@@ -26,24 +26,24 @@ use App\adms\Helpers\CSRFHelper;
 
         <div class="card-header hstack gap-2">
 
-            <span>Editar</span>
+            <span>Receber Conta</span>
 
             <span class="ms-auto d-sm-flex flex-row">
                 <?php
                 $filtros = $_GET;
-                if (empty($filtros) && isset($_SESSION['filtros_list_payments'])) {
-                    $filtros = $_SESSION['filtros_list_payments'];
+                if (empty($filtros) && isset($_SESSION['filtros_list_receipts'])) {
+                    $filtros = $_SESSION['filtros_list_receipts'];
                 }
-                $urlList = $_ENV['URL_ADM'] . 'list-payments';
+                $urlList = $_ENV['URL_ADM'] . 'list-receipts';
                 if (!empty($filtros)) {
                     $urlList .= '?' . http_build_query($filtros);
                 }
-                echo "<a href='{$_ENV['URL_ADM']}list-payments' class='btn btn-info btn-sm me-1 mb-1'><i class='fa-solid fa-list'></i> Listar</a> ";
+                echo "<a href='{$_ENV['URL_ADM']}list-receipts' class='btn btn-info btn-sm me-1 mb-1'><i class='fa-solid fa-list'></i> Listar</a> ";
                 echo "<button onclick='history.back()' class='btn btn-secondary btn-sm me-1 mb-1'><i class='fa-solid fa-arrow-left'></i> Voltar</button> ";
 
-                $id = ($this->data['form']['id_pay'] ?? $this->data['form']['id'] ?? '');
-                if (in_array('ViewPay', $this->data['buttonPermission'])) {
-                    echo "<a href='{$_ENV['URL_ADM']}view-pay/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a> ";
+                $id = ($this->data['form']['id_receive'] ?? $this->data['form']['id'] ?? '');
+                if (in_array('ViewReceive', $this->data['buttonPermission'])) {
+                    echo "<a href='{$_ENV['URL_ADM']}view-receive/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a> ";
                 }
                 ?>
             </span>
@@ -69,12 +69,12 @@ use App\adms\Helpers\CSRFHelper;
                 });
             </script>
 
-            <!-- Formulário para cadastrar uma nova Conta à Pagar -->
+            <!-- Formulário para cadastrar uma nova Conta à Receber -->
             <form action="" method="POST" class="row g-3">
 
-                <input type="hidden" name="csrf_token" value="<?php echo CSRFHelper::generateCSRFToken('form_payment'); ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo CSRFHelper::generateCSRFToken('form_receive'); ?>">
 
-                <input type="hidden" name="id_pay" id="id_pay" value="<?php echo $this->data['form']['id_pay'] ?? ''; ?>">
+                <input type="hidden" name="id_receive" id="id_receive" value="<?php echo $this->data['form']['id_receive'] ?? ''; ?>">
 
                 <div class="col-4">
                     <label for="num_doc" class="form-label">Nº Documento</label>
@@ -95,9 +95,9 @@ use App\adms\Helpers\CSRFHelper;
 
 
                 <div class="col-md-4">
-                    <label for="pay_method_id" class="form-label">Forma de Pagamento</label>
+                    <label for="pay_method_id" class="form-label">Forma de Recebimento</label>
                     <select name="pay_method_id" class="form-select" id="pay_method_id">
-                        <option value="" selected>Selecione uma Forma de Pagamento</option>
+                        <option value="" selected>Selecione uma Forma de Recebimento</option>
                         <?php
                         if ($this->data['listPaymentMethods'] ?? false) {
                             foreach ($this->data['listPaymentMethods'] as $listPaymentMethod) {
@@ -110,9 +110,9 @@ use App\adms\Helpers\CSRFHelper;
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label for="bank_id" class="form-label">Banco Saída</label>
+                    <label for="bank_id" class="form-label">Banco de Saída</label>
                     <select name="bank_id" class="form-select" id="bank_id">
-                        <option value="" selected>Selecione a Origem da Saída</option>
+                        <option value="" selected>Selecione o Banco de Saída</option>
                         <?php
                         if ($this->data['listBanks'] ?? false) {
                             foreach ($this->data['listBanks'] as $listBank) {
@@ -144,7 +144,7 @@ use App\adms\Helpers\CSRFHelper;
                 </div>
 
                 <div class="col-12">
-                    <button type="submit" class="btn btn-warning btn-sm">Pagar</button>
+                    <button type="submit" class="btn btn-warning btn-sm">Receber</button>
                 </div>
 
             </form>

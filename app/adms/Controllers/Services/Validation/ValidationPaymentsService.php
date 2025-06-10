@@ -49,7 +49,7 @@ class ValidationPaymentsService
 
         // Verificar se num_doc já existe para o mesmo parceiro
         if (!isset($data['id'])) {
-            if (isset($data['partner_id']) && $paymentsRepo->existsNumDocForPartner($data['num_doc'], $data['partner_id'])) {
+            if (isset($data['partner_id']) && $paymentsRepo->existsNumDocForPartner($data['num_doc'], $data['partner_id'], $data['id_pay'] ?? null)) {
                 $errors['num_doc'] = 'O número do documento já existe para este fornecedor.';
             }
         }

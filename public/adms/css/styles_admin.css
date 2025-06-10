@@ -36,6 +36,12 @@
   font-weight: bold;
 }
 
+.tooltip-receber .tooltip-inner {
+  background-color: #198754!important; /* Cor de fundo do tooltip */
+  color: white !important; /* Cor do texto do tooltip */
+  font-weight: bold;
+}
+
 .btn-parcelar {
   background-color: #ff9800 !important; /* Laranja */
   color: #000000 !important;

@@ -79,6 +79,7 @@ class PartialValuesRepository extends DbConnection
                         m.movement_id as "id_mov",
                         m.movement_value,
                         m.type,
+                        m.movement as "movement",
                         m.bank_id as "id_bank_pgto",
                         ab.bank_name as "name_bank",
                         m.method_id as "id_method",
@@ -89,6 +90,38 @@ class PartialValuesRepository extends DbConnection
                 LEFT JOIN adms_movements m ON m.movement_id = ap.id
                 LEFT JOIN adms_users au ON au.id = m.user_id
                 LEFT JOIN adms_supplier sup ON sup.id = ap.partner_id
+                LEFT JOIN adms_bank_accounts ab ON ab.id = m.bank_id
+                LEFT JOIN adms_payment_method apm ON apm.id = m.method_id
+                WHERE m.id = :id
+                LIMIT 1';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':id', $id, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(\PDO::FETCH_ASSOC) ?: null;
+    }
+
+    /**
+     * Busca um movimento de recebimento realizado pelo ID do movimento (m.id).
+     */
+    public function getMovementReceiveById(int $id): ?array
+    {
+        
+        $sql = 'SELECT  m.id as "id",
+                        m.created_at,
+                        m.movement_id as "id_mov",
+                        m.movement_value,
+                        m.type,
+                        m.movement as "movement",
+                        m.bank_id as "id_bank_pgto",
+                        ab.bank_name as "name_bank",
+                        m.method_id as "id_method",
+                        apm.name as "name_method",
+                        m.user_id as "id_user_pgto",
+                        au.name as "name_user_pegto"
+                FROM adms_receive ar
+                LEFT JOIN adms_movements m ON m.movement_id = ar.id
+                LEFT JOIN adms_users au ON au.id = m.user_id
+                LEFT JOIN adms_customer cus ON cus.id = ar.partner_id
                 LEFT JOIN adms_bank_accounts ab ON ab.id = m.bank_id
                 LEFT JOIN adms_payment_method apm ON apm.id = m.method_id
                 WHERE m.id = :id

@@ -10,15 +10,22 @@ class MenuPermissionUserRepository extends DbConnection
 
     public function menuPermission(array $menu): array|bool
     {
-        //     // Verificar se o array $button está vazio
-            if(empty($menu)){
-                return [];
-            }
+        if(empty($menu)){
+            return [];
+        }
 
-        // Criar uma string de placeholders do mesmo tamanho do array de controllers
+        // Se for super admin (nível 1)
+        if (isset($_SESSION['user_access_level_id']) && $_SESSION['user_access_level_id'] == 1) {
+            $placeholders = implode(', ', array_fill(0, count($menu), '?'));
+            $sql = "SELECT controller FROM adms_pages WHERE controller IN ($placeholders) AND page_status = 1";
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->execute($menu);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result ? array_column($result, 'controller') : [];
+        }
+
+        // Regra normal para outros usuários
         $placeholders = implode(', ', array_fill(0, count($menu), '?'));
-
-        // QUERY para verificar a permissão do usuário em relação às páginas
         $sql = "SELECT
                     ap.controller
                 FROM 
@@ -31,20 +38,10 @@ class MenuPermissionUserRepository extends DbConnection
                     aual.adms_user_id = ?
                     AND ap.controller IN ($placeholders)
                     AND alp.permission = 1";
-            // Preparar a QUERY
-            $stmt = $this->getConnection()->prepare($sql);
-
-            // Combinar o valor do 'user_id' com o array de botões (controllers)
-            $params = array_merge([$_SESSION['user_id']], $menu);
-
-            // Executar a QUERY com os parâmetros
-            $stmt->execute($params);
-
-            // Ler os registros
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            // Retornar apenas os valores de 'controller' como array simples
-            return $result ? array_column($result, 'controller') : [];
-
+        $stmt = $this->getConnection()->prepare($sql);
+        $params = array_merge([$_SESSION['user_id']], $menu);
+        $stmt->execute($params);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $result ? array_column($result, 'controller') : [];
     }
 }

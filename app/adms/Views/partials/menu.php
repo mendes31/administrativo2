@@ -94,8 +94,8 @@ $menus = [
             ],
             [
                 'label' => 'Receber',
-                'url' => $_ENV['URL_ADM'] . 'list-receive',
-                'permission' => 'ListReceive'
+                'url' => $_ENV['URL_ADM'] . 'list-receipts',
+                'permission' => 'ListReceipts'
             ],
             [
                 'label' => 'Rel Extrato Caixa',
@@ -152,13 +152,15 @@ $menus = [
             <div class="nav">
                 <?php
                 // Função para verificar se há pelo menos um submenu permitido
-                function hasPermittedSubmenu($submenu, $menuPermission) {
-                    foreach ($submenu as $item) {
-                        if (isset($item['permission']) && in_array($item['permission'], $menuPermission)) {
-                            return true;
+                if (!function_exists('hasPermittedSubmenu')) {
+                    function hasPermittedSubmenu($submenu, $menuPermission) {
+                        foreach ($submenu as $item) {
+                            if (isset($item['permission']) && in_array($item['permission'], $menuPermission)) {
+                                return true;
+                            }
                         }
+                        return false;
                     }
-                    return false;
                 }
                 // Renderização dinâmica dos menus
                 foreach ($menus as $menu) {

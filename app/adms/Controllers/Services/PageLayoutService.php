@@ -22,7 +22,7 @@ class PageLayoutService
             'ListPages',
             'ListBanks',
             'ListPayments',
-            'ListReceive',
+            'ListReceipts',
             'ListBalance',
             'FinancialReport',
             'ListCostCenters',

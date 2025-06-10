@@ -7,6 +7,7 @@ use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Repository\LogsRepository;
 use App\adms\Models\Repository\PartialValuesRepository;
 use App\adms\Models\Repository\PaymentsRepository;
+use App\adms\Models\Repository\ReceiptsRepository;
 use App\adms\Views\Services\LoadViewService;
 
 /**
@@ -44,26 +45,26 @@ class ViewReceive
         // Validar se o ID é um valor inteiro
         if (!(int) $id) {
             // Registrar o erro e redirecionar
-            GenerateLog::generateLog("error", "Conta à Pagar não encontrada", ['id' => (int) $id]);
-            $_SESSION['error'] = "Conta à Pagar não encontrada!";
-            header("Location: {$_ENV['URL_ADM']}list-payments");
+            GenerateLog::generateLog("error", "Conta à Receber não encontrada", ['id' => (int) $id]);
+            $_SESSION['error'] = "Conta à Receber não encontrada!";
+            header("Location: {$_ENV['URL_ADM']}list-receipts");
             return;
         }
 
-        // Instanciar o Repository para recuperar o registro do Conta à Pagar de dados
-        $viewPay = new PaymentsRepository();
-        $this->data['pay'] = $viewPay->getPay((int) $id);
+        // Instanciar o Repository para recuperar o registro do Conta à Receber de dados
+        $viewReceive = new ReceiptsRepository();
+        $this->data['receive'] = $viewReceive->getReceive((int) $id);
 
         // Instanciar o Repository para recuperar o registro do Conta à Pagar de dados
         $viewMovementValues = new PartialValuesRepository();
         $this->data['movementValues'] = $viewMovementValues->getMovementValues((int) $id);
 
-        // Verificar se encontrou o registro no Conta à Pagar de dados
-        if (!$this->data['pay']) {
+        // Verificar se encontrou o registro no Conta à Receber de dados
+        if (!$this->data['receive']) {
             // Registrar o erro e redirecionar
-            GenerateLog::generateLog("error", "Conta à Pagar não encontrado", ['id' => (int) $id]);
-            $_SESSION['error'] = "Conta à Pagar não encontrado!";
-            header("Location: {$_ENV['URL_ADM']}list-payments");
+            GenerateLog::generateLog("error", "Conta à Receber não encontrado", ['id' => (int) $id]);
+            $_SESSION['error'] = "Conta à Receber não encontrado!";
+            header("Location: {$_ENV['URL_ADM']}list-receipts");
             return;
         }
 
@@ -74,9 +75,9 @@ class ViewReceive
         // Ativar o item de menu
         // Apresentar ou ocultar botão 
         $pageElements = [
-            'title_head' => 'Visualizar Conta à Pagar',
-            'menu' => 'list-payments',
-            'buttonPermission' => ['ListPayments', 'UpdatePay', 'DeletePay', 'EditMovement','DeleteMovement'],
+            'title_head' => 'Visualizar Conta à Receber',
+            'menu' => 'list-receipts',
+            'buttonPermission' => ['ListReceipts', 'UpdateReceive', 'DeleteMovementReceive', 'EditMovementReceive','DeleteMovement'],
         ];
         $pageLayoutService = new PageLayoutService();
         $pageLayoutService->configurePageElements($pageElements);
@@ -87,8 +88,8 @@ class ViewReceive
             $dataLogs = [
                 'table_name' => 'adms_receive',
                 'action' => 'visualização',
-                'record_id' => $this->data['pay']['id_receive'],
-                'description' => $this->data['pay']['num_doc'],
+                'record_id' => $this->data['receive']['id_receive'],
+                'description' => $this->data['receive']['num_doc'],
 
             ];
             // Instanciar a classe validar  o usuário
@@ -99,11 +100,11 @@ class ViewReceive
               
 
         // Atualizar o campo busy e user_temp
-        $payRepo = new PaymentsRepository();
-        $payRepo->updateBusy((int) $id, $_SESSION['user_id']); // ou use o ID de usuário que tiver
+        $receiveRepo = new ReceiptsRepository();
+        $receiveRepo->updateBusy((int) $id, $_SESSION['user_id']); // ou use o ID de usuário que tiver
 
         // Carregar a VIEW
-        $loadView = new LoadViewService("adms/Views/pay/view", $this->data);
+        $loadView = new LoadViewService("adms/Views/receive/view", $this->data);
         $loadView->loadView();
     }
 }

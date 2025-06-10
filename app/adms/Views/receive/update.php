@@ -70,11 +70,11 @@ use App\adms\Helpers\CSRFHelper;
                     $disabled = '';
                     $readonly_doc = 'readonly';
                     $amount_paid = isset($this->data['form']['amount_paid']) ? (float)$this->data['form']['amount_paid'] : 0;
-                    $disabled_fornecedor = '';
+                    $disabled_cliente = '';
                     if ($amount_paid > 0) {
                         $readonly = 'readonly';
                         $disabled = 'disabled';
-                        $disabled_fornecedor = 'disabled';
+                        $disabled_cliente = 'disabled';
                     }
                     ?>
                     <input type="text" name="num_doc" class="form-control" id="num_doc" placeholder="Nº Documento" value="<?php echo $this->data['form']['num_doc'] ?? ''; ?>" <?php echo $readonly_doc; ?>>

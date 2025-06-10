@@ -2,7 +2,7 @@
 
 namespace App\adms\Controllers\receive;
 
-use App\adms\Models\Repository\PaymentsRepository;
+use App\adms\Models\Repository\ReceiptsRepository;
 
 class ClearBusyReceive
 {
@@ -12,14 +12,14 @@ class ClearBusyReceive
         
         if (!(int) $id) {
             $_SESSION['error'] = "ID inválido para limpar bloqueio!";
-            header("Location: {$_ENV['URL_ADM']}list-payments");
+            header("Location: {$_ENV['URL_ADM']}list-receipts");
             return;
         }
 
-        $payRepo = new PaymentsRepository();
-        $payRepo->clearBusy((int) $id);
+        $receiveRepo = new ReceiptsRepository();
+        $receiveRepo->clearBusy((int) $id);
 
         $_SESSION['success'] = "Bloqueio liberado com sucesso.";
-        header("Location: {$_ENV['URL_ADM']}list-payments"); // ou volte pra listagem
+        header("Location: {$_ENV['URL_ADM']}list-receipts"); // ou volte pra listagem
     }
 }

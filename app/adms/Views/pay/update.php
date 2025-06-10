@@ -96,9 +96,9 @@ use App\adms\Helpers\CSRFHelper;
                         <?php
 
                         // Verifica se existe uma lista de clientes
-                        if (!empty($this->data['listCustomers'])) {
-                            foreach ($this->data['listCustomers'] as $listCustomer) {
-                                extract($listCustomer);
+                        if (!empty($this->data['listSuppliers'])) {
+                            foreach ($this->data['listSuppliers'] as $listSupplier) {
+                                extract($listSupplier);
 
                                 // Verifica se já há um cliente salvo no banco e seleciona a opção correspondente
                                 $selected = (!empty($this->data['form']['card_name']) && $this->data['form']['card_name'] == $card_name) ? 'selected' : '';

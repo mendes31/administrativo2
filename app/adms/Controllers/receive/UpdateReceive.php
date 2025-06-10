@@ -61,7 +61,8 @@ class UpdateReceive
             $viewReceive = new ReceiptsRepository();
             $this->data['form'] = $viewReceive->getReceive((int) $id);
          
-
+            // var_dump($this->data['form']);
+            
             // Verificar se a Conta foi encontrado
             if (!$this->data['form']) {
                 // Registrar o erro e redirecionar
@@ -81,23 +82,23 @@ class UpdateReceive
             $viewMovementValues = new \App\adms\Models\Repository\PartialValuesRepository();
             $movements = $viewMovementValues->getMovementValues((int)$id);
 
-            $totalPago = 0;
+            $totalRecebido = 0;
             $totalDesconto = 0;
             if (!empty($movements)) {
                 foreach ($movements as $mov) {
-                    $totalPago += $mov['movement_value'];
+                    $totalRecebido += $mov['movement_value'];
                     $totalDesconto += $mov['discount_value'] ?? 0;
                 }
             }
             if ($totalDesconto > 0) {
-                $saldoPagar = $this->data['form']['original_value'] - ($totalPago + $totalDesconto);
+                $saldoReceber = $this->data['form']['original_value'] - ($totalRecebido + $totalDesconto);
             } else {
-                $saldoPagar = $this->data['form']['original_value'] - $totalPago;
+                $saldoReceber = $this->data['form']['original_value'] - $totalRecebido;
             }
-            if ($saldoPagar < 0) {
-                $saldoPagar = 0;
+            if ($saldoReceber < 0) {
+                $saldoReceber = 0;
             }
-            $this->data['form']['value'] = number_format($saldoPagar, 2, '.', '');
+            $this->data['form']['value'] = number_format($saldoReceber, 2, '.', '');
 
             // Carregar a visualização para edição do Conta
             $this->viewReceive();
@@ -163,7 +164,8 @@ class UpdateReceive
         $receiveRepo = new ReceiptsRepository();
         $contaAtual = $receiveRepo->getReceive((int)$this->data['form']['id']);
 
-       
+        // var_dump($this->data['form']);
+        // var_dump($contaAtual);
         // Garantir que partner_id seja inteiro ou null
         if (empty($this->data['form']['partner_id'])) {
             $this->data['form']['partner_id'] = null;
@@ -185,15 +187,16 @@ class UpdateReceive
         // Sempre que for edição, original_value recebe o novo value
         $this->data['form']['original_value'] = $this->data['form']['value'];
         
-        // Atualizar o campo card_code_fornecedor conforme o partner_id
+        // Atualizar o campo card_code_cliente conforme o partner_id
         if (!empty($this->data['form']['partner_id'])) {
             $customerRepo = new \App\adms\Models\Repository\CustomerRepository();
             $cardCode = $customerRepo->getCustomer($this->data['form']['partner_id'])['card_code'] ?? '';
-            $this->data['form']['card_code_fornecedor'] = $cardCode;
+            $this->data['form']['card_code_cliente'] = $cardCode;
         }
 
 
-
+        //var_dump($this->data['form']);
+        
 
         // Validar os dados do formulário
         $validationReceive = new ValidationReceiptsService();
@@ -214,8 +217,9 @@ class UpdateReceive
         // Atualizar a Conta
         $receiveUpdate = new ReceiptsRepository();
         $result = $receiveUpdate->updateReceive($this->data['form']);
-        //var_dump($this->data['form']);
+        // var_dump($this->data['form']);
         //exit;
+        
 
 
         

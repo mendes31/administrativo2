@@ -2,7 +2,7 @@
 
 namespace App\adms\Controllers\receive;
 
-use App\adms\Models\Repository\PaymentsRepository;
+use App\adms\Models\Repository\ReceiptsRepository;
 
 class CheckBusyReceive
 {
@@ -17,8 +17,8 @@ class CheckBusyReceive
             return;
         }
 
-        $payRepo = new PaymentsRepository();
-        $result = $payRepo->getBusy($id);
+        $receiveRepo = new ReceiptsRepository();
+        $result = $receiveRepo->getBusy($id);
 
         header('Content-Type: application/json');
 

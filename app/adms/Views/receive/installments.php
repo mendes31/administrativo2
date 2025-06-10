@@ -14,7 +14,7 @@ use App\adms\Helpers\CSRFHelper;
                 <a href="<?php echo $_ENV['URL_ADM']; ?>dashboard" class="text-decoration-none">Dashboard</a>
             </li>
             <li class="breadcrumb-item">
-                <a href="<?php echo $_ENV['URL_ADM']; ?>list-payments" class="text-decoration-none">Contas</a>
+                <a href="<?php echo $_ENV['URL_ADM']; ?>list-receipts" class="text-decoration-none">Contas</a>
             </li>
             <li class="breadcrumb-item">Editar</li>
 
@@ -30,14 +30,14 @@ use App\adms\Helpers\CSRFHelper;
 
             <span class="ms-auto d-sm-flex flex-row">
                 <?php
-                if (in_array('ListPayments', $this->data['buttonPermission'])) {
-                    echo "<a href='{$_ENV['URL_ADM']}list-payments' class='btn btn-info btn-sm me-1 mb-1'><i class='fa-solid fa-list'></i> Listar</a> ";
+                if (in_array('ListReceipts', $this->data['buttonPermission'])) {
+                    echo "<a href='{$_ENV['URL_ADM']}list-receipts' class='btn btn-info btn-sm me-1 mb-1'><i class='fa-solid fa-list'></i> Listar</a> ";
                 }
                 echo "<button onclick='history.back()' class='btn btn-secondary btn-sm me-1 mb-1'><i class='fa-solid fa-arrow-left'></i> Voltar</button> ";
 
                 $id = ($this->data['form']['id'] ?? '');
-                if (in_array('ViewPay', $this->data['buttonPermission'])) {
-                    echo "<a href='{$_ENV['URL_ADM']}view-pay/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a> ";
+                    if (in_array('ViewReceive', $this->data['buttonPermission'])) {
+                    echo "<a href='{$_ENV['URL_ADM']}view-receive/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a> ";
                 }
                 ?>
             </span>
@@ -51,9 +51,9 @@ use App\adms\Helpers\CSRFHelper;
             <!-- Formulário para cadastrar uma nova Conta à Pagar -->
             <form action="" method="POST" class="row g-3">
 
-                <input type="hidden" name="csrf_token" value="<?php echo CSRFHelper::generateCSRFToken('form_installments'); ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo CSRFHelper::generateCSRFToken('form_installments_receive'); ?>">
 
-                <input type="hidden" name="id_pay" id="id_pay" value="<?php echo $this->data['form']['id_pay'] ?? ''; ?>">
+                <input type="hidden" name="id_receive" id="id_receive" value="<?php echo $this->data['form']['id_receive'] ?? ''; ?>">
                 
                 <div class="col-4">
                     <label for="num_doc" class="form-label">Nº Documento</label>
@@ -61,18 +61,18 @@ use App\adms\Helpers\CSRFHelper;
                 </div>
 
                 <div class="col-md-8">
-                    <label for="partner_id" class="form-label">Fornecedor</label>
+                    <label for="partner_id" class="form-label">Cliente</label>
                     <!-- <input type="text" class="form-control" id="partner_id" value="<?php echo $this->data['form']['card_name'] ?? ''; ?>" readonly> -->
 
                     <select name="partner_id" class="form-select" id="partner_id">
                         <?php
 
-                        // Verifica se existe uma lista de fornecedores
-                        if (!empty($this->data['listSuppliers'])) {
-                            foreach ($this->data['listSuppliers'] as $listSupplier) {
-                                extract($listSupplier);
+                        // Verifica se existe uma lista de clientes
+                        if (!empty($this->data['listCustomers'])) {
+                            foreach ($this->data['listCustomers'] as $listCustomer) {
+                                extract($listCustomer);
 
-                                // Verifica se já há um fornecedor salvo no banco e seleciona a opção correspondente
+                                // Verifica se já há um cliente salvo no banco e seleciona a opção correspondente
                                 $selected = (!empty($this->data['form']['card_name']) && $this->data['form']['card_name'] == $card_name) ? 'selected' : '';
 
                                 echo "<option value='$id' $selected>$card_name</option>";
@@ -85,7 +85,7 @@ use App\adms\Helpers\CSRFHelper;
                 <div class="col-4">
                     <label for="value" class="form-label">Valor</label>
                     <input type="text" name="value" class="form-control" id="value" placeholder="Valor"
-                        value="<?php echo $this->data['form']['value'] ?? ''; ?>">
+                        value="<?php echo $this->data['form']['original_value'] ?? ''; ?>" readonly>
                 </div>
 
                 <div class="col-4">

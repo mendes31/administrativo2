@@ -177,6 +177,23 @@ class FinancialMovementsRepository extends DbConnection
     }
 
     /**
+     * Busca um movimento financeiro de recebimento pelo ID.
+     */
+    public function getMovementReceiveById($id_mov)
+    {
+        $sql = 'SELECT m.*, ar.original_value, ab.bank_name, apm.name as method_name
+                FROM adms_movements m
+                LEFT JOIN adms_receive ar ON ar.id = m.movement_id
+                LEFT JOIN adms_bank_accounts ab ON ab.id = m.bank_id
+                LEFT JOIN adms_payment_method apm ON apm.id = m.method_id
+                WHERE m.id = :id_mov LIMIT 1';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':id_mov', $id_mov, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Atualiza um movimento financeiro pelo ID.
      * Somente campos permitidos: valor, forma pgto, banco, usuário e updated_at.
      */
@@ -194,7 +211,7 @@ class FinancialMovementsRepository extends DbConnection
     /**
      * Exclui um movimento financeiro pelo ID.
      */
-    public function deleteMovement($id_mov)
+    public function deleteMovementReceive($id_mov)
     {
         $sql = 'DELETE FROM adms_movements WHERE id = :id_mov';
         $stmt = $this->getConnection()->prepare($sql);

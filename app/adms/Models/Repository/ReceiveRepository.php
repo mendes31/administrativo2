@@ -17,7 +17,7 @@ use PDO;
  * @package App\adms\Models\Repository
  * @author Rafael Mendes
  */
-class PayRepository extends DbConnection
+class ReceiveRepository extends DbConnection
 {
 
     /**
@@ -26,25 +26,25 @@ class PayRepository extends DbConnection
      * @param int $id ID da Conta a Pagar.
      * @return array|bool Dados da Conta a Pagar ou `false` se não encontrada.
      */
-    public function getPay(int $id): array|bool
+    public function getReceive(int $id): array|bool
     {
 
 
         $sql = 'SELECT 
-                        ap.id AS id_pay, ap.num_doc, ap.num_nota, ap.issue_date, ap.description, ap.file, ap.paid, ap.original_value, ap.doc_date, 
-                        ap.due_date, ap.expected_date, ap.created_at, ap.updated_at,
-                        sup.card_name, 
+                        ar.id AS id_receive, ar.num_doc, ar.num_nota, ar.issue_date, ar.description, ar.file, ar.paid, ar.original_value, ar.doc_date, 
+                        ar.due_date, ar.expected_date, ar.created_at, ar.updated_at,
+                        cus.card_name, 
                         au.name AS name_user,
                         af.name AS name_freq, af.id as id_freq, af.days,
                         acc.name AS name_cc, acc.id as id_cc,
                         aap.name AS name_aap, aap.id as id_aap
-                FROM adms_receive ap 
-                    LEFT JOIN adms_users au ON au.id = ap.user_launch_id
-                    LEFT JOIN adms_frequency af on af.id = ap.frequency_id
-                    LEFT JOIN adms_supplier sup on sup.id = ap.partner_id
-                    LEFT JOIN adms_cost_center acc on acc.id = ap.cost_center_id
-                    LEFT JOIN adms_accounts_plan aap on aap.id = ap.account_id
-                WHERE ap.id = :id LIMIT 1';
+                FROM adms_receive ar 
+                    LEFT JOIN adms_users au ON au.id = ar.user_launch_id
+                    LEFT JOIN adms_frequency af on af.id = ar.frequency_id
+                    LEFT JOIN adms_customer cus on cus.id = ar.partner_id
+                    LEFT JOIN adms_cost_center acc on acc.id = ar.cost_center_id
+                    LEFT JOIN adms_accounts_plan aap on aap.id = ar.account_id
+                WHERE ar.id = :id LIMIT 1';
 
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);

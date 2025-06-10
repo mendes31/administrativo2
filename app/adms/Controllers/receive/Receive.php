@@ -3,7 +3,7 @@
 namespace App\adms\Controllers\receive;
 
 use App\adms\Controllers\Services\PageLayoutService;
-use App\adms\Controllers\Services\Validation\ValidationPayService;
+use App\adms\Controllers\Services\Validation\ValidationReceiveService;
 use App\adms\Helpers\CSRFHelper;
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Repository\AccountPlanRepository;
@@ -12,8 +12,8 @@ use App\adms\Models\Repository\CostCentersRepository;
 use App\adms\Models\Repository\FrequencyRepository;
 use App\adms\Models\Repository\LogsRepository;
 use App\adms\Models\Repository\PaymentMethodsRepository;
-use App\adms\Models\Repository\PaymentsRepository;
-use App\adms\Models\Repository\SupplierRepository;
+use App\adms\Models\Repository\ReceiptsRepository;
+use App\adms\Models\Repository\CustomerRepository;
 use App\adms\Views\Services\LoadViewService;
 
 /**
@@ -50,18 +50,18 @@ class Receive
         $this->data['form'] = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
         // Validar o CSRF token e a existência do ID da conta
-        if (isset($this->data['form']['csrf_token']) && CSRFHelper::validateCSRFToken('form_payment', $this->data['form']['csrf_token'])) {
+        if (isset($this->data['form']['csrf_token']) && CSRFHelper::validateCSRFToken('form_receive', $this->data['form']['csrf_token'])) {
             // Editar o Conta
             // Recuperar o registro do Conta
-            $viewPay = new PaymentsRepository();
+            $viewReceive = new ReceiptsRepository();
 
-            $this->dataBD = $viewPay->getPay((int) $id);
+            $this->dataBD = $viewReceive->getReceive((int) $id);
 
-            $this->downPay();
+            $this->downReceive();
         } else {
             // Recuperar o registro do Conta
-            $viewPay = new PaymentsRepository();
-            $this->data['form'] = $viewPay->getPay((int) $id);
+            $viewReceive = new ReceiptsRepository();
+            $this->data['form'] = $viewReceive->getReceive((int) $id);
 
             // var_dump($this->data['form']);
 
@@ -70,16 +70,16 @@ class Receive
                 // Registrar o erro e redirecionar
                 GenerateLog::generateLog("error", "Conta não encontrado", ['id' => (int) $id]);
                 $_SESSION['error'] = "Conta não encontrada!";
-                header("Location: {$_ENV['URL_ADM']}list-payments");
+                header("Location: {$_ENV['URL_ADM']}list-receipts");
                 return;
             }
 
             // Atualizar o campo busy e user_temp
-            $payRepo = new PaymentsRepository();
-            $payRepo->updateBusy((int) $id, $_SESSION['user_id']); // ou use o ID de usuário que tiver
+            $receiveRepo = new ReceiptsRepository();
+            $receiveRepo->updateBusy((int) $id, $_SESSION['user_id']); // ou use o ID de usuário que tiver
 
             // Carregar a visualização para edição do Conta
-            $this->viewPay();
+            $this->viewReceive();
         }
     }
 
@@ -90,11 +90,11 @@ class Receive
      * 
      * @return void
      */
-    private function viewPay(): void
+    private function viewReceive(): void
     {
         // Instanciar o repositório para recuperar os fornecedores
-        $listSuppliers = new SupplierRepository();
-        $this->data['listSuppliers'] = $listSuppliers->getAllSuppliersSelect();
+        $listCustomers = new CustomerRepository();
+        $this->data['listCustomers'] = $listCustomers->getAllCustomersSelect();
 
         // Instanciar o repositório para recuperar as frequencias
         $listFrequencies = new FrequencyRepository();
@@ -121,37 +121,37 @@ class Receive
         // Apresentar ou ocultar botão 
         $pageElements = [
             'title_head' => 'Editar Conta',
-            'menu' => 'list-payments',
-            'buttonPermission' => ['ListPayments', 'ViewPay'],
+            'menu' => 'list-receipts',
+            'buttonPermission' => ['ListReceipts', 'ViewReceive'],
         ];
         $pageLayoutService = new PageLayoutService();
         $pageLayoutService->configurePageElements($pageElements);
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
 
         // Carregar a VIEW
-        $loadView = new LoadViewService("adms/Views/pay/payment", $this->data);
+        $loadView = new LoadViewService("adms/Views/receive/receive", $this->data);
         $loadView->loadView();
 
-        $viewPay = new \App\adms\Models\Repository\PaymentsRepository();
-        $conta = $viewPay->getPay((int)($this->data['form']['id_pay'] ?? $this->data['form']['id'] ?? 0));
-        if ($conta) {
+        $viewReceive = new \App\adms\Models\Repository\ReceiptsRepository();
+        $receive = $viewReceive->getReceive((int)($this->data['form']['id_receive'] ?? $this->data['form']['id'] ?? 0));
+        if ($receive) {
             // Buscar movimentos usando PartialValuesRepository
             $viewMovementValues = new \App\adms\Models\Repository\PartialValuesRepository();
-            $idConta = (int)($this->data['form']['id_pay'] ?? $this->data['form']['id'] ?? 0);
-            $movements = $viewMovementValues->getMovementValues($idConta);
+            $idReceive = (int)($this->data['form']['id_receive'] ?? $this->data['form']['id'] ?? 0);
+            $movements = $viewMovementValues->getMovementValues($idReceive);
 
-            $totalPago = 0;
+            $totalRecebido = 0;
             $totalDesconto = 0;
             if (!empty($movements)) {
                 foreach ($movements as $mov) {
-                    $totalPago += $mov['movement_value'];
+                    $totalRecebido += $mov['movement_value'];
                     $totalDesconto += $mov['discount_value'] ?? 0;
                 }
             }
             if ($totalDesconto > 0) {
-                $valorRestante = $conta['original_value'] - ($totalPago + $totalDesconto);
+                $valorRestante = $receive['original_value'] - ($totalRecebido + $totalDesconto);
             } else {
-                $valorRestante = $conta['original_value'] - $totalPago;
+                $valorRestante = $receive['original_value'] - $totalRecebido;
             }
             if ($valorRestante < 0) {
                 $valorRestante = 0;
@@ -185,28 +185,28 @@ class Receive
      * 
      * @return void
      */
-    private function downPay(): void
+    private function downReceive(): void
     {
         // Validação obrigatória de issue_date e num_nota
         if (empty($this->dataBD['issue_date']) || empty($this->dataBD['num_nota'])) {
-            $this->data['errors'][] = "Para realizar o pagamento, é obrigatório informar a Data de Emissão e o Número da Nota.";
-            $this->viewPay();
+            $this->data['errors'][] = "Para realizar o recebimento, é obrigatório informar a Data de Emissão e o Número da Nota.";
+            $this->viewReceive();
             return;
         }
 
         // Validar os dados do formulário
-        $validationPay = new ValidationPayService();
-        $this->data['errors'] = $validationPay->validate($this->dataBD, $this->data['form']);
+        $validationReceive = new ValidationReceiveService();
+        $this->data['errors'] = $validationReceive->validate($this->dataBD, $this->data['form']);
 
         // Se houver erros de validação, recarregar a visualização
         if (!empty($this->data['errors'])) {
-            $this->viewPay();
+            $this->viewReceive();
             return;
         }
 
         // $resultOriginalValue = $validationPay->validateOriginalValue($this->dataBD, $this->data['form']);
         // // Atualizar a Conta
-        $payUpdate = new PaymentsRepository();
+        $receiveUpdate = new ReceiptsRepository();
         // var_dump($this->dataBD);
         // var_dump($this->data['form']);
         // var_dump($resultOriginalValue);
@@ -215,7 +215,7 @@ class Receive
         // if ($resultOriginalValue) {
             // Aqui seria edição completa, mas para pagamento/baixa 
             
-                $resultMovement = $payUpdate->createMovement($this->dataBD, $this->data['form']);
+                $resultMovement = $receiveUpdate->createMovement($this->dataBD, $this->data['form']);
 
                 // Verificar o resultado da atualização
                 if ($resultMovement) {
@@ -225,7 +225,7 @@ class Receive
                         $dataLogs = [
                             'table_name' => 'adms_receive',
                             'action' => 'edição',
-                            'record_id' => $this->data['form']['id_pay'],
+                            'record_id' => $this->data['form']['id_receive'],
                             'description' => $this->data['form']['num_doc'],
 
                         ];
@@ -235,13 +235,13 @@ class Receive
                     }
 
                     // Após editar e baixar a conta, liberar o "busy"
-                    $payUpdate->clearBusy($this->data['form']['id_pay']);
+                    $receiveUpdate->clearBusy($this->data['form']['id_receive']);
 
                     $_SESSION['success'] = "Conta paga/baixada com sucesso!";
-                    header("Location: {$_ENV['URL_ADM']}view-pay/{$this->data['form']['id_pay']}");
+                    header("Location: {$_ENV['URL_ADM']}view-receive/{$this->data['form']['id_receive']}");
                 } else {
                     $this->data['errors'][] = "Conta não editada!";
-                    $this->viewPay();
+                    $this->viewReceive();
                 }
             // }
         // $_SESSION['success'] = "Conta paga/baixada com sucesso!";

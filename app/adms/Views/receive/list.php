@@ -114,7 +114,7 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_receive');
                             <th scope="col" class="d-none d-md-table-cell text-nowrap" style="min-width:110px;">Receber</th>
                             <th scope="col" class="d-none d-md-table-cell text-nowrap" style="min-width:110px;">Vencimento</th>
                             <th scope="col" class="d-none d-md-table-cell text-nowrap" style="min-width:110px;">Previsão</th>
-                            <th scope="col" class="d-none d-md-table-cell">Status</th>
+                            <th scope="col" class="d-none d-md-table-cell">Status </th>
                             <th scope="col" class="text-center">Ações</th>
                         </tr>
                     </thead>
@@ -182,7 +182,7 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_receive');
                                 <td class="d-none d-md-table-cell text-danger text-nowrap" style="min-width:110px;"><?php echo 'R$ ' . number_format($saldoReceber, 2, ',', '.'); ?></td>
                                 <td class="d-none d-md-table-cell text-nowrap" style="min-width:110px;"><?php echo date("d-m-Y", strtotime($due_date)); ?></td>
                                 <td class="d-none d-md-table-cell text-nowrap" style="min-width:110px;"><?php echo !empty($expected_date) ? date("d-m-Y", strtotime($expected_date)) : 'N/A'; ?></td>
-                                <td class="d-none d-md-table-cell text" data-status>
+                                <td class="d-none d-md-table-cell text" data-status-receive>
                                     <?php if ($busy == 1): ?>
                                         <span class="text-danger" title="Registro ocupado por:<?= $name_user_temp ?? 'usuário desconhecido' ?>">
                                             <i class="fa-solid fa-lock"></i> Ocupado
@@ -212,13 +212,13 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_receive');
                                             }
 
                                             // Botão Parcelar
-                                            if (in_array('Installments', $this->data['buttonPermission']) && !($totalRecebido > 0 && $paid != 1)) {
-                                                echo "<a href='{$base}installments/$id_receive' class='btn btn-sm me-1 mb-1 btn-parcelar acao $ocultar' data-id='$id_receive' data-busy='$busy' data-user-temp='$name_user_temp' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-custom-class='tooltip-parcelar' title='Parcelar'><i class='fa-solid fa-coins'></i></a>";
+                                            if (in_array('InstallmentsReceive', $this->data['buttonPermission']) && !($totalRecebido > 0 && $paid != 1)) {
+                                                echo "<a href='{$base}installments-receive/$id_receive' class='btn btn-sm me-1 mb-1 btn-parcelar acao $ocultar' data-id='$id_receive' data-busy='$busy' data-user-temp='$name_user_temp' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-custom-class='tooltip-parcelar' title='Parcelar'><i class='fa-solid fa-coins'></i></a>";
                                             }
 
                                             // Botão Pagar
                                             if (in_array('Receive', $this->data['buttonPermission'])) {
-                                                echo "<a href='{$base}receive/$id_receive' class='btn btn-success btn-sm me-1 mb-1 acao $ocultar' data-id='$id_receive' data-busy='$busy' data-user-temp='$name_user_temp' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-custom-class='tooltip-pagar' title='Pagar'><i class='fa-solid fa-money-bill-wave'></i></a>";
+                                                echo "<a href='{$base}receive/$id_receive' class='btn btn-success btn-sm me-1 mb-1 acao $ocultar' data-id='$id_receive' data-busy='$busy' data-user-temp='$name_user_temp' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-custom-class='tooltip-receber' title='Receber'><i class='fa-solid fa-money-bill-wave'></i></a>";
                                             }
 
                                             // Botão Excluir (formulário com POST)
@@ -412,10 +412,10 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_receive');
         new bootstrap.Tooltip(elemento);
     }
 
-    // Função para verificar os pagamentos
-    async function verificarPagamentos() {
+    // Função para verificar os recebimentos
+    async function verificarRecebimentos() {
         try {
-            const response = await fetch(`${URL_ADM}get-payments-status`, {
+            const response = await fetch(`${URL_ADM}get-receipts-status`, {
                 cache: "no-store" // evita resposta cacheada
             });
 
@@ -427,27 +427,27 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_receive');
 
             try {
                 const data = JSON.parse(cleanedText);
-                console.log('Status dos pagamentos:', data);
-                data.forEach(payment => {
-                    console.log('Objeto payment:', payment);
-                    console.log('payment.id_pay:', payment.id_pay);
-                    console.log('payment.name_user_temp:', payment.name_user_temp);
+                console.log('Status dos recebimentos:', data);
+                data.forEach(receive => {
+                    console.log('Objeto receive:', receive);
+                    console.log('receive.id_receive:', receive.id_receive);
+                    console.log('receive.name_user_temp:', receive.name_user_temp);
 
-                    if (payment && payment.ext) {
-                        console.log('Propriedade ext:', payment.ext);
+                    if (receive && receive.ext) {
+                        console.log('Propriedade ext:', receive.ext);
                     } else {
-                        console.log('A propriedade "ext" não está presente ou payment é undefined');
+                        console.log('A propriedade "ext" não está presente ou receive é undefined');
                     }
 
-                    const row = document.getElementById(`linha-${payment.id_pay}`);
-                    const statusCell = row?.querySelector('td[data-status]');
+                    const row = document.getElementById(`linha-${receive.id_receive}`);
+                    const statusCell = row?.querySelector('td[data-status-receive]');
 
                     if (statusCell) {
                         const actionButtons = row.querySelectorAll('button, a.btn');
                         let novoStatusHTML;
 
-                        if (payment.busy == 1) {
-                            novoStatusHTML = `<span class="text-danger" title="Registro ocupado por: ${payment.name_user_temp ?? 'usuário desconhecido'}">
+                        if (receive.busy == 1) {
+                            novoStatusHTML = `<span class="text-danger" title="Registro ocupado por: ${receive.name_user_temp ?? 'usuário desconhecido'}">
                                 <i class="fa-solid fa-lock"></i> Ocupado
                             </span>`;
 
@@ -490,12 +490,12 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_receive');
             }
 
         } catch (error) {
-            console.error('Erro ao buscar status de pagamentos:', error);
+            console.error('Erro ao buscar status de recebimentos:', error);
         }
     }
 
-    // Atualiza os pagamentos a cada 3 segundos
-    setInterval(verificarPagamentos, 1000);
+    // Atualiza os recebimentos a cada 3 segundos
+    setInterval(verificarRecebimentos, 1000);
 </script>
 
 

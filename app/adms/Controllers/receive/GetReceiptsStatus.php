@@ -2,7 +2,7 @@
 
 namespace App\adms\Controllers\receive;
 
-use App\adms\Models\Repository\PaymentsRepository;
+use App\adms\Models\Repository\ReceiptsRepository;
 
 class GetReceiptsStatus
 // {
@@ -22,8 +22,8 @@ class GetReceiptsStatus
         header('Content-Type: application/json; charset=utf-8');
 
         try {
-            $repo = new PaymentsRepository();
-            $dados = $repo->getPaymentsStatus();
+            $repo = new ReceiptsRepository();
+            $dados = $repo->getReceiptsStatus();
 
             // Verifica se o retorno é um array
             if (!is_array($dados)) {
