@@ -21,6 +21,7 @@ class PageLayoutService
             'ListGroupsPages',
             'ListPages',
             'ListBanks',
+            'ListMovBetweenAccounts',
             'ListPayments',
             'ListReceipts',
             'ListBalance',

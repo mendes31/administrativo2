@@ -73,6 +73,11 @@ $menus = [
                 'permission' => 'ListBanks'
             ],
             [
+                'label' => 'Bancos - Transferência entre Contas',
+                'url' => $_ENV['URL_ADM'] . 'list-mov-between-accounts',
+                'permission' => 'ListMovBetweenAccounts'
+            ],
+            [
                 'label' => 'Frequências',
                 'url' => $_ENV['URL_ADM'] . 'list-frequencies',
                 'permission' => 'ListFrequencies'

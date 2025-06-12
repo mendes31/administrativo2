@@ -93,6 +93,9 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_bank');
                     <dt class="col-sm-3">Agência: </dt>
                     <dd class="col-sm-9"><?php echo $agency; ?></dd>
 
+                    <dt class="col-sm-3">Saldo: </dt>
+                    <dd class="col-sm-9"><?php echo $balance; ?></dd>
+
                     <dt class="col-sm-3">Cadastrado: </dt>
                     <dd class="col-sm-9"><?php echo ($created_at ? date('d/m/Y H:i:s', strtotime($created_at)) : ""); ?></dd>
 

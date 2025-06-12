@@ -41,6 +41,7 @@ class LoadPageAdm
         "ListPositions", "CreatePosition", "ViewPosition", "UpdatePosition", "DeletePosition",
         "ListAccessLevelsPermissions",
         "ListBanks", "CreateBank", "ViewBank", "UpdateBank", "DeleteBank",
+        "ListMovBetweenAccounts", "CreateMovBetweenAccounts", "ViewMovBetweenAccounts", "UpdateMovBetweenAccounts", "DeleteMovBetweenAccounts",
         "ListCostCenters", "CreateCostCenter", "ViewCostCenter", "UpdateCostCenter", "DeleteCostCenter",
         "ListAccountsPlan", "CreateAccountPlan", "ViewAccountPlan", "UpdateAccountPlan", "DeleteAccountPlan",
         "ListFrequncies", "CreateFrequncy", "ViewFrequncy", "UpdateFrequncy", "DeleteFrequncy",

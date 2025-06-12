@@ -53,6 +53,7 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_bank');
                             <th scope="col">Banco</th>
                             <th scope="col">Conta</th>
                             <th scope="col">Agência</th>
+                            <th scope="col">Saldo</th>
                             <th scope="col" class="text-center">Ações</th>
                         </tr>
                     </thead>
@@ -71,6 +72,7 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_bank');
                                 <td><?php echo $bank; ?></td>
                                 <td><?php echo $account; ?></td>
                                 <td><?php echo $agency; ?></td>
+                                <td><?php echo $balance; ?></td>
                                 <td class="text-center">
 
                                     <?php

@@ -1,0 +1,191 @@
+<?php
+
+namespace App\adms\Models\Repository;
+
+use App\adms\Helpers\GenerateLog;
+use App\adms\Models\Services\DbConnection;
+use Exception;
+use PDO;
+
+class MovBetweenAccountsRepository extends DbConnection
+{
+    /**
+     * Recuperar todas as contas bancárias ordenadas por nome do banco.
+     *
+     * @return array Lista de contas com saldo.
+     */
+    public function getAllAccounts(): array
+    {
+        $sql = 'SELECT id, bank_name, account, balance FROM adms_bank_accounts ORDER BY bank_name ASC';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Recupera todas as transferências entre contas com paginação.
+     *
+     * @param int $page Página atual
+     * @param int $limit Limite de registros por página
+     * @return array Lista de transferências
+     */
+    public function getAllMovBetweenAccounts(int $page, int $limit): array
+    {
+        $page = max(1, (int)$page); // Garante que nunca será menor que 1
+        $offset = ($page - 1) * $limit;
+        
+        $sql = 'SELECT  
+                	bt.id,                
+                    ab1.bank_name as from_bank_name, 
+                    ab2.bank_name as to_bank_name,
+                    bt.amount as amount,
+                    bt.description as description,
+                    au.name as user_name,
+                    bt.created_at
+                FROM adms_bank_transfers bt
+                LEFT JOIN adms_bank_accounts ab1 ON ab1.id = bt.origin_id
+                LEFT JOIN adms_bank_accounts ab2 ON ab2.id = bt.destination_id
+                LEFT JOIN adms_users au ON au.id = bt.user_id
+                ORDER BY bt.created_at DESC
+                LIMIT :limit OFFSET :offset';
+
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Retorna a quantidade total de transferências entre contas.
+     *
+     * @return int Quantidade total de transferências
+     */
+    public function getAmountMovBetweenAccounts(): int
+    {
+        $sql = 'SELECT COUNT(*) as total FROM adms_bank_transfers';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->execute();
+        
+        return (int) $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+    }
+
+    /**
+     * Realiza uma transferência entre duas contas, garantindo atomicidade e validação de saldo.
+     *
+     * @param int $fromAccountId ID da conta de origem.
+     * @param int $toAccountId ID da conta de destino.
+     * @param float $amount Valor a ser transferido.
+     * @return bool|int ID da transferência se realizada com sucesso, `false` caso contrário.
+     */
+    public function transfer(int $fromAccountId, int $toAccountId, float $amount, string $description): bool|int
+    {
+        try {
+            // Log início repository
+            \App\adms\Helpers\GenerateLog::generateLog('debug', 'Repository: Início do método transfer', [
+                'from' => $fromAccountId, 'to' => $toAccountId, 'amount' => $amount
+            ]);
+            //echo "<pre>Repository: Início do método transfer</pre>";
+
+            $conn = $this->getConnection();
+            $conn->beginTransaction();
+
+            // Verificar saldo da conta de origem com bloqueio de linha
+            $sql = 'SELECT balance FROM adms_bank_accounts WHERE id = :id FOR UPDATE';
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([':id' => $fromAccountId]);
+            $origin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            //echo "<pre>Repository: Saldo da conta origem: "; var_dump($origin); echo "</pre>";
+            \App\adms\Helpers\GenerateLog::generateLog('debug', 'Repository: Saldo da conta origem', ['origin' => $origin]);
+
+            if (!$origin || $origin['balance'] < $amount) {
+                $conn->rollBack();
+                //echo "<pre>Repository: Saldo insuficiente ou conta não encontrada</pre>";
+                \App\adms\Helpers\GenerateLog::generateLog('debug', 'Repository: Saldo insuficiente ou conta não encontrada', ['origin' => $origin, 'amount' => $amount]);
+                return false;
+            }
+
+            // Debitar da conta de origem
+            $sql = 'UPDATE adms_bank_accounts SET balance = balance - :amount WHERE id = :id';
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(':amount', $amount, PDO::PARAM_STR);
+            $stmt->bindValue(':id', $fromAccountId, PDO::PARAM_INT);
+            $stmt->execute();
+            //echo "<pre>Repository: Débito realizado</pre>";
+
+            // Creditar na conta de destino
+            $sql = 'UPDATE adms_bank_accounts SET balance = balance + :amount WHERE id = :id';
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(':amount', $amount, PDO::PARAM_STR);
+            $stmt->bindValue(':id', $toAccountId, PDO::PARAM_INT);
+            $stmt->execute();
+            // echo "<pre>Repository: Crédito realizado</pre>";
+
+            // Registrar a transferência
+            $sql = 'INSERT INTO adms_bank_transfers (origin_id, destination_id, amount, description, user_id, created_at) 
+                    VALUES (:origin_id, :destination_id, :amount, :description, :user_id, :created_at)';
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(':origin_id', $fromAccountId, PDO::PARAM_INT);
+            $stmt->bindValue(':destination_id', $toAccountId, PDO::PARAM_INT);
+            $stmt->bindValue(':amount', $amount, PDO::PARAM_STR);
+            $stmt->bindValue(':description', $description, PDO::PARAM_STR);
+            $stmt->bindValue(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':created_at', date("Y-m-d H:i:s"));
+            $stmt->execute();
+            $transferId = $conn->lastInsertId();
+            // echo "<pre>Repository: Transferência registrada, ID: $transferId</pre>";
+            \App\adms\Helpers\GenerateLog::generateLog('debug', 'Repository: Transferência registrada', ['transferId' => $transferId]);
+
+            $conn->commit();
+            // echo "<pre>Repository: Commit realizado</pre>";
+            return $transferId;
+
+        } catch (Exception $e) {
+            if (isset($conn)) {
+                $conn->rollBack();
+            }
+            // echo "<pre>Repository: Erro na transferência: " . $e->getMessage() . "</pre>";
+            \App\adms\Helpers\GenerateLog::generateLog('error', 'Repository: Erro na transferência', [
+                'from_account' => $fromAccountId,
+                'to_account' => $toAccountId,
+                'amount' => $amount,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Recupera uma transferência específica pelo ID
+     *
+     * @param int $id ID da transferência
+     * @return array|null Dados da transferência ou null se não encontrada
+     */
+    public function getMovBetweenAccounts(int $id): ?array
+    {
+        $sql = 'SELECT bt.id as id, 
+                ab1.bank_name as origin_name,
+                ab2.bank_name as destination_name,
+                au.name as user_name,
+                bt.amount as amount,
+                au.name as user_name,
+                bt.description as description,
+                bt.created_at,
+                bt.updated_at
+                FROM adms_bank_transfers bt
+                LEFT JOIN adms_bank_accounts ab1 ON ab1.id = bt.origin_id
+                LEFT JOIN adms_bank_accounts ab2 ON ab2.id = bt.destination_id
+                LEFT JOIN adms_users au ON au.id = bt.user_id
+                WHERE bt.id = :id
+                LIMIT 1';
+
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+}

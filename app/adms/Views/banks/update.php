@@ -59,18 +59,23 @@ use App\adms\Helpers\CSRFHelper;
                 </div>
 
                 <div class="col-6">
-                    <label for="bank" class="form-label">Nome</label>
+                    <label for="bank" class="form-label">Banco</label>
                     <input type="text" name="bank" class="form-control" id="bank" placeholder="Banco" value="<?php echo $this->data['form']['bank'] ?? ''; ?>">
                 </div>
 
                 <div class="col-6">
-                    <label for="account" class="form-label">Nome</label>
+                    <label for="account" class="form-label">Conta</label>
                     <input type="text" name="account" class="form-control" id="account" placeholder="Conta" value="<?php echo $this->data['form']['account'] ?? ''; ?>">
                 </div>
 
                 <div class="col-6">
-                    <label for="agency" class="form-label">Nome</label>
-                    <input type="text" name="agency" class="form-control" id="agency" placeholder="Nome do banco" value="<?php echo $this->data['form']['agency'] ?? ''; ?>">
+                    <label for="agency" class="form-label">Agência</label>
+                    <input type="text" name="agency" class="form-control" id="agency" placeholder="Agência" value="<?php echo $this->data['form']['agency'] ?? ''; ?>">
+                </div>
+
+                <div class="col-6">
+                    <label for="balance" class="form-label">Saldo</label>
+                    <input type="text" name="balance" class="form-control" id="balance" placeholder="Saldo" value="<?php echo $this->data['form']['balance'] ?? ''; ?>">
                 </div>
 
 

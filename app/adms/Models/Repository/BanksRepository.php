@@ -35,7 +35,7 @@ class BanksRepository extends DbConnection
         $offset = max(0, ($page - 1) * $limitResult);
 
         // QUERY para recuperar os registros do banco de dados
-        $sql = 'SELECT id, bank_name, bank, account, agency
+        $sql = 'SELECT id, bank_name, bank, account, agency, balance
                 FROM adms_bank_accounts               
                 ORDER BY id ASC
                 LIMIT :limit OFFSET :offset';
@@ -84,7 +84,7 @@ class BanksRepository extends DbConnection
     public function getBank(int $id): array|bool
     {
         // QUERY para recuperar o registro do banco de dados
-        $sql = 'SELECT id, bank_name, bank, account, agency, created_at, updated_at
+        $sql = 'SELECT id, bank_name, bank, account, agency, balance, created_at, updated_at
                 FROM adms_bank_accounts
                 WHERE id = :id
                 ORDER BY id DESC';
@@ -113,7 +113,7 @@ class BanksRepository extends DbConnection
         try {
 
             // QUERY para cadastrar Banco
-            $sql = 'INSERT INTO adms_bank_accounts (bank_name, bank, account, agency, created_at) VALUES (:bank_name, :bank, :account, :agency, :created_at)';
+            $sql = 'INSERT INTO adms_bank_accounts (bank_name, bank, account, agency, balance, created_at) VALUES (:bank_name, :bank, :account, :agency, :balance, :created_at)';
 
             // Preparar a QUERY
             $stmt = $this->getConnection()->prepare($sql);
@@ -123,6 +123,7 @@ class BanksRepository extends DbConnection
             $stmt->bindValue(':bank', $data['bank'], PDO::PARAM_STR);
             $stmt->bindValue(':account', $data['account'], PDO::PARAM_STR);
             $stmt->bindValue(':agency', $data['agency'], PDO::PARAM_STR);
+            $stmt->bindValue(':balance', $data['balance'], PDO::PARAM_STR);
             $stmt->bindValue(':created_at', date("Y-m-d H:i:s"));
 
             // Executar a QUERY
@@ -152,7 +153,7 @@ class BanksRepository extends DbConnection
     {
         try {
             // QUERY para atualizar Banco
-            $sql = 'UPDATE adms_bank_accounts SET bank_name = :bank_name, bank = :bank, account = :account, agency = :agency, updated_at = :updated_at';
+            $sql = 'UPDATE adms_bank_accounts SET bank_name = :bank_name, bank = :bank, account = :account, agency = :agency, balance = :balance, updated_at = :updated_at';
 
             // Condição para indicar qual registro editar
             $sql .= ' WHERE id = :id';
@@ -165,6 +166,7 @@ class BanksRepository extends DbConnection
             $stmt->bindValue(':bank', $data['bank'], PDO::PARAM_STR);
             $stmt->bindValue(':account', $data['account'], PDO::PARAM_STR);
             $stmt->bindValue(':agency', $data['agency'], PDO::PARAM_STR);
+            $stmt->bindValue(':balance', $data['balance'], PDO::PARAM_STR);
             $stmt->bindValue(':updated_at', date("Y-m-d H:i:s"));
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
 
@@ -221,7 +223,7 @@ class BanksRepository extends DbConnection
     public function getAllBanksSelect(): array
     {
         // QUERY para recuperar os registros do banco de dados
-        $sql = 'SELECT id, bank_name, bank, account, agency
+        $sql = 'SELECT id, bank_name, bank, account, agency, balance
                 FROM adms_bank_accounts                
                 ORDER BY bank_name ASC';
 
