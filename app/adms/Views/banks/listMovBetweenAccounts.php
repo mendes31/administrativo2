@@ -71,11 +71,26 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_mov_between_accounts');
                                     if (in_array('ViewMovBetweenAccounts', $this->data['buttonPermission'])) {
                                         echo "<a href='{$_ENV['URL_ADM']}view-transfer/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a>";
                                     }
+                                    if (in_array('UpdateMovBetweenAccounts', $this->data['buttonPermission'])) {
+                                        echo "<a href='{$_ENV['URL_ADM']}update-mov-between-accounts/$id' class='btn btn-warning btn-sm me-1 mb-1'><i class='fa-solid fa-pen-to-square'></i> Editar</a>";
+                                    }
 
-                                    // Se no futuro você quiser permitir edição/deleção:
-                                    // if (in_array('UpdateMovBetweenAccounts', $this->data['buttonPermission'])) { ... }
+                                    if (in_array('DeleteMovBetweenAccounts', $this->data['buttonPermission'])) {
                                     ?>
 
+                                        <form id="formDelete<?php echo $id; ?>" action="<?php echo $_ENV['URL_ADM']; ?>delete-mov-between-accounts" method="POST" class="d-inline">
+
+                                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+
+                                            <input type="hidden" name="id" id="id" value="<?php echo $id ?? ''; ?>">
+
+                                            <input type="hidden" name="description" id="description" value="<?php echo $description ?? ''; ?>">
+
+                                            <button type="submit" class="btn btn-danger btn-sm me-1 mb-1" onclick="confirmDeletion(event, <?php echo $id; ?>)"><i class="fa-regular fa-trash-can"></i> Apagar</button>
+
+                                        </form>
+                                    <?php } ?>
+                                
                                 </td>
                             </tr>
                         <?php } ?>

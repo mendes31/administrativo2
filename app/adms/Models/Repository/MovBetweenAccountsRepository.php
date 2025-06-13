@@ -167,11 +167,12 @@ class MovBetweenAccountsRepository extends DbConnection
     public function getMovBetweenAccounts(int $id): ?array
     {
         $sql = 'SELECT bt.id as id, 
+                bt.origin_id as origin_id,
+                bt.destination_id as destination_id,
                 ab1.bank_name as origin_name,
                 ab2.bank_name as destination_name,
                 au.name as user_name,
                 bt.amount as amount,
-                au.name as user_name,
                 bt.description as description,
                 bt.created_at,
                 bt.updated_at
@@ -187,5 +188,88 @@ class MovBetweenAccountsRepository extends DbConnection
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    /**
+     * Atualiza uma transferência entre contas
+     *
+     * @param array $data Dados da transferência
+     * @return bool
+     */
+    public function updateMovBetweenAccounts(array $data): bool
+    {
+        echo "<pre>Repository: Dados da transferência: "; var_dump($data); echo "</pre>";
+        try {
+            $conn = $this->getConnection();
+            $conn->beginTransaction();
+
+            // Buscar dados da transferência original
+            $sql = 'SELECT origin_id, destination_id, amount FROM adms_bank_transfers WHERE id = :id FOR UPDATE';
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
+            $stmt->execute();
+            $originalTransfer = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$originalTransfer) {
+                $conn->rollBack();
+                return false;
+            }
+
+            // Desfazer saldo da transferência original
+            $sql = 'UPDATE adms_bank_accounts SET balance = balance + :amount WHERE id = :id';
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(':amount', $originalTransfer['amount'], PDO::PARAM_STR);
+            $stmt->bindValue(':id', $originalTransfer['origin_id'], PDO::PARAM_INT);
+            $stmt->execute();
+
+            $sql = 'UPDATE adms_bank_accounts SET balance = balance - :amount WHERE id = :id';
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(':amount', $originalTransfer['amount'], PDO::PARAM_STR);
+            $stmt->bindValue(':id', $originalTransfer['destination_id'], PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Aplicar nova transferência
+            $sql = 'UPDATE adms_bank_accounts SET balance = balance - :amount WHERE id = :id';
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(':amount', $data['value'], PDO::PARAM_STR);
+            $stmt->bindValue(':id', $data['source_account_id'], PDO::PARAM_INT);
+            $stmt->execute();
+
+            $sql = 'UPDATE adms_bank_accounts SET balance = balance + :amount WHERE id = :id';
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(':amount', $data['value'], PDO::PARAM_STR);
+            $stmt->bindValue(':id', $data['destination_account_id'], PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Atualizar registro da transferência
+            $sql = 'UPDATE adms_bank_transfers 
+                    SET origin_id = :origin_id,
+                        destination_id = :destination_id,
+                        amount = :amount,
+                        description = :description,
+                        updated_at = NOW()
+                    WHERE id = :id';
+
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(':origin_id', $data['source_account_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':destination_id', $data['destination_account_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':amount', $data['value'], PDO::PARAM_STR);
+            $stmt->bindValue(':description', $data['description'], PDO::PARAM_STR);
+            $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
+            $stmt->execute();
+
+            $conn->commit();
+            return true;
+
+        } catch (Exception $e) {
+            if (isset($conn)) {
+                $conn->rollBack();
+            }
+            GenerateLog::generateLog("error", "Erro ao atualizar transferência", [
+                'id' => $data['id'],
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
     }
 }

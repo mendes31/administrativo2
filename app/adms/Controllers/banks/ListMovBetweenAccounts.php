@@ -52,7 +52,7 @@ class ListMovBetweenAccounts
         $pageElements = [
             'title_head' => 'Listar Transferências entre Contas',
             'menu' => 'list-mov-between-accounts',
-            'buttonPermission' => ['MovBetweenAccounts', 'ViewMovBetweenAccounts','ViewTransfer', 'UpdateMovBetweenAccounts', 'DeleteMovBetweenAccounts'],
+            'buttonPermission' => ['UpdateMovBetweenAccounts', 'DeleteMovBetweenAccounts', 'MovBetweenAccounts','ViewMovBetweenAccounts','ViewTransfer'],
         ];
         $pageLayoutService = new PageLayoutService();
         $pageLayoutService->configurePageElements($pageElements);

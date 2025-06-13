@@ -7,6 +7,10 @@ use App\adms\Helpers\CSRFHelper;
 <div class="col-lg-5">
     <div class="card shadow-lg border-0 rounded-lg mt-5">
 
+        <div class="text-center mt-4">
+            <img src="/administrativo2/public/adms/image/logo/Logo-Tiaraju.png" alt="Logo Tiaraju" style="max-width: 200px;">
+        </div>
+
         <div class="card-header">
             <h3 class="text-center font-weight-light my-4">Login</h3>
         </div>
