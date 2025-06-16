@@ -13,9 +13,8 @@ class Logout
             $dataLogs = [
                 'table_name' => 'adms_users',
                 'action' => 'logout',
-                'record_id' => 0,
+                'record_id' => $_SESSION['user_id'] ?? 0,
                 'description' => 'logout',
-
             ];
             // Instanciar a classe validar  o usuário
             $insertLogs = new LogsRepository();
