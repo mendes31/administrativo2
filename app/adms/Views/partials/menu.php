@@ -103,6 +103,11 @@ $menus = [
                 'permission' => 'ListReceipts'
             ],
             [
+                'label' => 'Rel Centro de Custo',
+                'url' => $_ENV['URL_ADM'] . 'cost-center-summary',
+                'permission' => 'CostCenterSummary'
+            ],
+            [
                 'label' => 'Rel Extrato Caixa',
                 'url' => $_ENV['URL_ADM'] . 'movements',
                 'permission' => 'Movements'
