@@ -113,14 +113,14 @@ $menus = [
                 'permission' => 'Movements'
             ],
             [
-                'label' => 'Rel Fluxo de Caixa',
+                'label' => 'Rel Fluxo de Caixa Diário',
                 'url' => $_ENV['URL_ADM'] . 'cash-flow',
                 'permission' => 'CashFlow'
             ],
             [
-                'label' => 'Relatório Fianceiro',
-                'url' => $_ENV['URL_ADM'] . 'financial-report',
-                'permission' => 'FinancialReport'
+                'label' => 'Relatório Resumo Fianceiro',
+                'url' => $_ENV['URL_ADM'] . 'flow-cash-competence',
+                'permission' => 'FlowCashCompetence'
             ],
         ]
     ],

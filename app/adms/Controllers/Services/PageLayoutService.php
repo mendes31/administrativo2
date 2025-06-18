@@ -36,6 +36,7 @@ class PageLayoutService
             "CashFlow",
             "ExportPdfCashFlow",
             "CostCenterSummary",
+            "FlowCashCompetence",
             // Adicione aqui outras permissões de páginas/submenus que possam existir no futuro
         ];
 
