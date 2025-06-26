@@ -51,7 +51,9 @@ class LoadPageAdm
         "ListPayments", "CreatePay", "ViewPay", "UpdatePay", "DeletePay", "Payment", "Installments", "ListPartialValues", "ClearBusyPay", "CheckBusy", "GetPaymentsStatus",
         "ListReceipts", "CreateReceive", "ViewReceive", "UpdateReceive", "DeleteReceive", "Receive", "Installments", "ListPartialValues", "ClearBusyReceive", "CheckBusy", "GetReceiptsStatus",
         "Movements","CashFlow","ExportPdfCashFlow",
-        "EditMovement", "DeleteMovement"
+        "EditMovement", "DeleteMovement",
+        "ListTrainings", "CreateTraining", "UpdateTraining", "DeleteTraining",
+        "UpdateTrainingMatrix"
     ];
 
     /** @var array $listDirectory Recebe a lista de diretórios com as controllers */
@@ -77,7 +79,9 @@ class LoadPageAdm
         "supplier",
         "paymentMethod",
         "financialReports",
-        "movement"
+        "movement",
+        "qualityAssurance",
+        "trainings"
     ];
 
     /** @var array $listPackages Recebe a lista de pacotes com as controllers */

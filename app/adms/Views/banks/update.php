@@ -64,6 +64,14 @@ use App\adms\Helpers\CSRFHelper;
                 </div>
 
                 <div class="col-6">
+                    <label for="type" class="form-label">Tipo</label>
+                    <select name="type" class="form-select" id="type">
+                        <option value="Corrente" <?= ($this->data['form']['type'] ?? '') === 'Corrente' ? 'selected' : '' ?>>Corrente</option>
+                        <option value="Aplicação" <?= ($this->data['form']['type'] ?? '') === 'Aplicação' ? 'selected' : '' ?>>Aplicação</option>
+                    </select>
+                </div>
+
+                <div class="col-6">
                     <label for="account" class="form-label">Conta</label>
                     <input type="text" name="account" class="form-control" id="account" placeholder="Conta" value="<?php echo $this->data['form']['account'] ?? ''; ?>">
                 </div>

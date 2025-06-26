@@ -36,24 +36,28 @@ function money($v) { return 'R$ ' . number_format($v, 2, ',', '.'); }
                     'Saldo Inicial', 'Saldo Limites', 'Saldo Aplicacoes', 'Receita', 'Despesa', 'Saldo Financeiro', 'Acumulado'
                 ];
                 $acumulado = 0;
+                $totalReceita = 0;
+                $totalDespesa = 0;
                 foreach ($linhas as $linha):
                 ?>
                 <tr>
                     <td style="background:#4a90e2;color:#fff;"> <?= $linha ?> </td>
                     <?php
                     $totalLinha = 0;
+                    $valorDezembro = 0;
                     for ($i=1; $i<=12; $i++):
                         $valor = 0;
                         switch ($linha) {
-                            case 'Saldo Inicial': $valor = $cashFlow[$i]['saldo_inicial']; break;
+                            case 'Saldo Inicial': $valor = $cashFlow[$i]['saldo_inicial']; if($i==12) $valorDezembro = $valor; break;
                             case 'Saldo Limites': $valor = $cashFlow[$i]['saldo_limites']; break;
                             case 'Saldo Aplicacoes': $valor = $cashFlow[$i]['saldo_aplicacoes']; break;
-                            case 'Receita': $valor = $cashFlow[$i]['receita']; break;
-                            case 'Despesa': $valor = $cashFlow[$i]['despesa']; break;
+                            case 'Receita': $valor = $cashFlow[$i]['receita']; $totalReceita += $valor; break;
+                            case 'Despesa': $valor = $cashFlow[$i]['despesa']; $totalDespesa += $valor; break;
                             case 'Saldo Financeiro': $valor = $cashFlow[$i]['saldo_financeiro']; break;
                             case 'Acumulado':
                                 $acumulado = ($i == 1 ? $cashFlow[$i]['saldo_inicial'] : $acumulado) + $cashFlow[$i]['saldo_financeiro'];
                                 $valor = $acumulado;
+                                if($i==12) $valorDezembro = $valor;
                                 break;
                         }
                         $totalLinha += $valor;
@@ -65,7 +69,19 @@ function money($v) { return 'R$ ' . number_format($v, 2, ',', '.'); }
                     ?>
                         <td style="background:#eaf3fa;<?= $cor ?>"> <?= money($valor) ?> </td>
                     <?php endfor; ?>
-                    <td style="background:#eaf3fa;<?= $cor ?? '' ?>"> <?= money($totalLinha) ?> </td>
+                    <td style="background:#eaf3fa;<?= $cor ?? '' ?>">
+                        <?php
+                        switch ($linha) {
+                            case 'Saldo Inicial': echo money($valorDezembro); break;
+                            case 'Saldo Aplicacoes': echo money($totalLinha); break;
+                            case 'Receita': echo money($totalReceita); break;
+                            case 'Despesa': echo money($totalDespesa); break;
+                            case 'Saldo Financeiro': echo money($totalReceita - $totalDespesa); break;
+                            case 'Acumulado': echo money($valorDezembro); break;
+                            default: echo money($totalLinha); break;
+                        }
+                        ?>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

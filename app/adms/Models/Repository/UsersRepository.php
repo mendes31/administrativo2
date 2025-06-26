@@ -485,4 +485,12 @@ class UsersRepository extends DbConnection
         // Ler os registros e retornar
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getAllUsersSelect(): array
+    {
+        $sql = 'SELECT id, name FROM adms_users ORDER BY name ASC';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

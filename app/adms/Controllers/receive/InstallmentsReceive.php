@@ -192,12 +192,11 @@ class InstallmentsReceive
         $this->data['form']['value'] = number_format($this->data['form']['original_value'], 2, '.', '');
 
         for ($i = 1; $i <= (int) $this->data['form']['installments']; $i++) {
-
             // Validar os dados do formulário
             $this->data['errors'] = $validationReceiveInstallments->validate($this->data['form']);
 
-
-            $nova_num_doc = $resultReceiveIds['0']['num_doc'] . ' - Parcela ' . $i;
+            $nova_num_doc = $resultReceiveIds['0']['num_doc'];
+            $nova_descricao = (!empty($resultReceiveIds['0']['description']) ? $resultReceiveIds['0']['description'] : '') . ' - Parcela ' . $i;
             $novo_valor = $resultReceiveIds['0']['original_value'] / $this->data['form']['installments'];
             $dias_parcela = $i - 1;
             $dias_parcela_2 = ($i - 1) * $this->data['listFrequencies']['0']['days'];
@@ -214,7 +213,6 @@ class InstallmentsReceive
                 $novo_vencimento = date('Y/m/d', strtotime("+$dias_parcela month", strtotime($resultReceiveIds['0']['due_date'])));
             }
 
-
             $novo_valor = number_format($novo_valor, 2, ',', '.');
             $novo_valor = str_replace('.', '', $novo_valor);
             $novo_valor = str_replace(',', '.', $novo_valor);
@@ -225,7 +223,9 @@ class InstallmentsReceive
                 $novo_valor = $novo_valor + $resto_conta;
             }
 
-            $result = $receiveInstallmentsUpdate->createReceive($this->data, $resultReceiveIds, $nova_num_doc, $novo_vencimento, $novo_valor);
+            // Passar a nova descrição para o campo description
+            $this->data['form']['description'] = $nova_descricao;
+            $result = $receiveInstallmentsUpdate->createReceive($this->data, $resultReceiveIds, $nova_num_doc, $novo_vencimento, $novo_valor, $i);
 
             // var_dump([
             //     'this->data' => $this->data,

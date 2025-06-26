@@ -229,4 +229,14 @@ class PositionsRepository extends DbConnection
         // Ler os registros e retornar
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getPositionsByUser(int $userId): array
+    {
+        $sql = 'SELECT user_position_id FROM adms_users WHERE id = :user_id';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_COLUMN, 0);
+        return $result ? [$result] : [];
+    }
 }

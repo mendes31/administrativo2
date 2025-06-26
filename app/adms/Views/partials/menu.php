@@ -125,6 +125,50 @@ $menus = [
         ]
     ],
     [
+        'id' => 'garantia',
+        'icon' => 'fa-solid fa-coins',
+        'label' => 'Garantia da Qualidade',
+        'submenu' => [
+            [
+                'label' => 'Documentos',
+                'url' => $_ENV['URL_ADM'] . 'list-documents',
+                'permission' => 'ListDocuments'
+            ],
+            [
+                'label' => 'Treinamentos Obrigatórios',
+                'url' => $_ENV['URL_ADM'] . 'list-mandatory-trainings',
+                'permission' => 'ListMandatoryTrainings'
+            ],
+            // [
+            //     'label' => 'Treinamentos',
+            //     'url' => $_ENV['URL_ADM'] . 'list-trainings',
+            //     'permission' => 'ListTrainings'
+            // ],
+            ]
+    ],
+    [
+        'id' => 'gestao_treinamentos',
+        'icon' => 'fa-solid fa-chalkboard-teacher',
+        'label' => 'Gestão de Treinamentos',
+        'submenu' => [
+            [
+                'label' => 'Treinamentos',
+                'url' => $_ENV['URL_ADM'] . 'list-trainings',
+                'permission' => 'ListTrainings'
+            ],
+            [
+                'label' => 'Atualizar Matriz de Treinamentos',
+                'url' => $_ENV['URL_ADM'] . 'update-training-matrix',
+                'permission' => 'UpdateTrainingMatrix'
+            ],
+            [
+                'label' => 'Status de Treinamentos',
+                'url' => $_ENV['URL_ADM'] . 'list-training-status',
+                'permission' => 'ListTrainingStatus'
+            ],
+        ]
+    ],
+    [
         'id' => 'parceiros',
         'icon' => 'fa-solid fa-handshake-simple',
         'label' => 'Parceiros',
@@ -141,6 +185,7 @@ $menus = [
             ],
         ]
     ],
+    
     [
         'id' => 'logout',
         'icon' => 'fa-solid fa-arrow-right-from-bracket',

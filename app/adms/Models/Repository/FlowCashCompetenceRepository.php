@@ -12,9 +12,14 @@ class FlowCashCompetenceRepository extends DbConnection
         $months = range(1, 12);
         $result = [];
 
-        $stmt = $conn->query('SELECT SUM(balance) as saldo_inicial FROM adms_bank_accounts');
+        // Saldo Inicial: apenas contas Corrente
+        $stmt = $conn->query("SELECT SUM(balance) as saldo_inicial FROM adms_bank_accounts WHERE type = 'Corrente'");
         $saldoInicial = (float) $stmt->fetch(PDO::FETCH_ASSOC)['saldo_inicial'];
+        // Saldo Aplicacoes: apenas contas Aplicação
+        $stmt = $conn->query("SELECT SUM(balance) as saldo_aplicacoes FROM adms_bank_accounts WHERE type = 'Aplicação'");
+        $saldoAplicacoes = (float) $stmt->fetch(PDO::FETCH_ASSOC)['saldo_aplicacoes'];
 
+        $acumulado = 0;
         foreach ($months as $m) {
             $mes = str_pad($m, 2, '0', STR_PAD_LEFT);
 
@@ -26,13 +31,19 @@ class FlowCashCompetenceRepository extends DbConnection
             $stmt->execute(['year' => $year, 'month' => $mes]);
             $despesa = (float) $stmt->fetch(PDO::FETCH_ASSOC)['despesa'];
 
+            // Saldo Inicial: mês 1 = saldo das contas Corrente, demais meses = acumulado do mês anterior
+            $saldoInicialMes = ($m == 1) ? $saldoInicial : $acumulado;
+            $saldoAplicacoesMes = ($m == 1) ? $saldoAplicacoes : 0;
+            $saldoFinanceiro = $receita - $despesa;
+            $acumulado = $saldoInicialMes + $saldoFinanceiro;
+
             $result[$m] = [
-                'saldo_inicial' => $m == 1 ? $saldoInicial : 0,
+                'saldo_inicial' => $saldoInicialMes,
                 'saldo_limites' => 0,
-                'saldo_aplicacoes' => 0,
+                'saldo_aplicacoes' => $saldoAplicacoesMes,
                 'receita' => $receita,
                 'despesa' => $despesa,
-                'saldo_financeiro' => $receita - $despesa,
+                'saldo_financeiro' => $saldoFinanceiro,
             ];
         }
         return $result;

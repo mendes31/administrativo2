@@ -37,6 +37,10 @@ class PageLayoutService
             "ExportPdfCashFlow",
             "CostCenterSummary",
             "FlowCashCompetence",
+            "ListDocuments",
+            "ListTrainings",   
+            "UpdateTrainingMatrix",
+            'ListTrainingStatus',
             // Adicione aqui outras permissões de páginas/submenus que possam existir no futuro
         ];
 

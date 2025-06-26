@@ -195,7 +195,8 @@ class Installments
         $sucesso = true;
         for ($i = 1; $i <= (int) $this->data['form']['installments']; $i++) {
             // NÃO validar dentro do loop!
-            $nova_num_doc = $resultPayIds['0']['num_doc'] . ' - Parcela ' . $i;
+            $nova_num_doc = $resultPayIds['0']['num_doc'];
+            $nova_descricao = (!empty($resultPayIds['0']['description']) ? $resultPayIds['0']['description'] : '') . ' - Parcela ' . $i;
             $novo_valor = $resultPayIds['0']['original_value'] / $this->data['form']['installments'];
             $dias_parcela = $i - 1;
             $dias_parcela_2 = ($i - 1) * $this->data['listFrequencies']['0']['days'];
@@ -222,7 +223,9 @@ class Installments
                 $novo_valor = $novo_valor + $resto_conta;
             }
 
-            $result = $payInstallmentsUpdate->createPay($this->data, $resultPayIds, $nova_num_doc, $novo_vencimento, $novo_valor);
+            // Passar a nova descrição para o campo description
+            $this->data['form']['description'] = $nova_descricao;
+            $result = $payInstallmentsUpdate->createPay($this->data, $resultPayIds, $nova_num_doc, $novo_vencimento, $novo_valor, $i);
             // var_dump($result);
             // Verificar o resultado da atualização
             if (!$result) {

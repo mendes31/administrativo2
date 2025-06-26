@@ -90,8 +90,8 @@ use App\adms\Helpers\CSRFHelper;
 
                 <div class="col-4">
                     <label for="installments" class="form-label">Parcelas</label>
-                    <input type="text" name="installments" class="form-control" id="installments" placeholder="Nº Parcelas"
-                        value="">
+                    <input type="number" name="installments" class="form-control" id="installments" placeholder="Nº Parcelas" value="<?php echo $this->data['form']['installments'] ?? ''; ?>" min="1" max="99" onchange="atualizarExemploParcelas()">
+                    <small id="exemploParcelas" class="form-text text-muted"></small>
                 </div>
 
 
@@ -136,4 +136,20 @@ use App\adms\Helpers\CSRFHelper;
         }
     });
 </script> -->
+
+<script>
+function atualizarExemploParcelas() {
+    var n = document.getElementById('installments').value;
+    var exemplo = '';
+    n = parseInt(n);
+    if (n > 1 && n <= 99) {
+        for (var i = 1; i <= n; i++) {
+            exemplo += i + '/' + n + (i < n ? ', ' : '');
+        }
+    }
+    document.getElementById('exemploParcelas').innerText = exemplo ? 'Exemplo: ' + exemplo : '';
+}
+document.getElementById('installments').addEventListener('input', atualizarExemploParcelas);
+window.onload = atualizarExemploParcelas;
+</script>
 

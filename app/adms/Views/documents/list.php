@@ -3,20 +3,20 @@
 use App\adms\Helpers\CSRFHelper;
 
 // Gera o token CSRF para proteger o formulário de deleção
-$csrf_token = CSRFHelper::generateCSRFToken('form_delete_bank');
+$csrf_token = CSRFHelper::generateCSRFToken('form_delete_document');
 
 ?>
 
 <div class="container-fluid px-4">
 
     <div class="mb-1 hstack gap-2">
-        <h2 class="mt-3">Bancos</h2>
+        <h2 class="mt-3">Documentos</h2>
 
         <ol class="breadcrumb mb-3 mt-3 ms-auto">
             <li class="breadcrumb-item">
                 <a href="<?php echo $_ENV['URL_ADM']; ?>dashboard" class="text-decoration-none">Dashboard</a>
             </li>
-            <li class="breadcrumb-item">Bancos</li>
+            <li class="breadcrumb-item">Documentos</li>
 
         </ol>
 
@@ -28,9 +28,9 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_bank');
             <span>Listar</span>
 
             <span class="ms-auto">
-            <?php
-                if (in_array('CreateBank', $this->data['buttonPermission'])) {
-                    echo "<a href='{$_ENV['URL_ADM']}create-bank' class='btn btn-success btn-sm'><i class='fa-regular fa-square-plus'></i> Cadastrar</a> ";
+                <?php
+                if (in_array('CreateDocument', $this->data['buttonPermission'])) {
+                    echo "<a href='{$_ENV['URL_ADM']}create-document' class='btn btn-success btn-sm'><i class='fa-regular fa-square-plus'></i> Cadastrar</a> ";
                 }
                 ?>
             </span>
@@ -41,20 +41,18 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_bank');
             <?php // Inclui o arquivo que exibe mensagens de sucesso e erro
             include './app/adms/Views/partials/alerts.php';
 
-            // Verifica se há banco no array
-            if ($this->data['banks'] ?? false) {
+            // Verifica se há documento no array
+            if ($this->data['documents'] ?? false) {
             ?>
 
                 <table class="table table-striped table-hover" id="tabela">
                     <thead>
                         <tr>
                             <th scope="col">ID</th>
+                            <th scope="col">Código</th>
                             <th scope="col">Nome</th>
-                            <th scope="col">Banco</th>
-                            <th scope="col">Tipo</th>
-                            <th scope="col">Conta</th>
-                            <th scope="col">Agência</th>
-                            <th scope="col">Saldo</th>
+                            <th scope="col">Versão</th>
+                            <th scope="col" class="d-none d-md-table-cell">Status</th>
                             <th scope="col" class="text-center">Ações</th>
                         </tr>
                     </thead>
@@ -62,47 +60,46 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_bank');
                     <tbody>
 
                         <?php
-                        // Percorre o array de cargo
-                        foreach ($this->data['banks'] as $bank) {
+                        // Percorre o array de documento
+                        foreach ($this->data['documents'] as $document) {
 
-                            // Extrai variáveis do array de cargos
-                            extract($bank); ?>
+                            // Extrai variáveis do array de documento
+                            extract($document); ?>
                             <tr>
                                 <td><?php echo $id; ?></td>
-                                <td><?php echo $bank_name; ?></td>
-                                <td><?php echo $bank; ?></td>
-                                <td><?php echo $type; ?></td>
-                                <td><?php echo $account; ?></td>
-                                <td><?php echo $agency; ?></td>
-                                <td><?php echo $balance; ?></td>
+                                <td><?php echo $cod_doc; ?></td>
+                                <td><?php echo $name_doc; ?></td>
+                                <td><?php echo $version; ?></td>
+                                <td class="d-none d-md-table-cell">
+                                    <?php echo $active ? "<span class='badge text-bg-success'>Ativa</span>" : "<span class='badge text-bg-danger'>Inativa</span>"; ?>
+                                </td>
+
+
                                 <td class="text-center">
-
                                     <?php
-
-                                    if (in_array('ViewBank', $this->data['buttonPermission'])) {
-                                        echo "<a href='{$_ENV['URL_ADM']}view-bank/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a>";
+                                     if (in_array('ListDocumentPositions', $this->data['buttonPermission'])) {
+                                        echo "<a href='{$_ENV['URL_ADM']}list-document-positions/$id' class='btn btn-info btn-sm me-1 mb-1'><i class='fa-solid fa-lock-open'></i> Cargos/Treinamentos</a>";
+                                    }
+                                        if (in_array('ViewDocument', $this->data['buttonPermission'])) {
+                                        echo "<a href='{$_ENV['URL_ADM']}view-document/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a>";
                                     }
 
-                                    if (in_array('UpdateBank', $this->data['buttonPermission'])) {
-                                        echo "<a href='{$_ENV['URL_ADM']}update-bank/$id' class='btn btn-warning btn-sm me-1 mb-1'><i class='fa-solid fa-pen-to-square'></i> Editar</a>";
+                                    if (in_array('UpdateDocument', $this->data['buttonPermission'])) {
+                                        echo "<a href='{$_ENV['URL_ADM']}update-document/$id' class='btn btn-warning btn-sm me-1 mb-1'><i class='fa-solid fa-pen-to-square'></i> Editar</a>";
                                     }
 
-                                    if (in_array('DeleteBank', $this->data['buttonPermission'])) {
+                                    if (in_array('DeleteDocument', $this->data['buttonPermission'])) {
                                     ?>
-
-                                        <form id="formDelete<?php echo $id; ?>" action="<?php echo $_ENV['URL_ADM']; ?>delete-bank" method="POST" class="d-inline">
+                                        <form id="formDelete<?php echo $id; ?>" action="<?php echo $_ENV['URL_ADM']; ?>delete-document" method="POST" class="d-inline">
 
                                             <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
 
                                             <input type="hidden" name="id" id="id" value="<?php echo $id ?? ''; ?>">
 
-                                            <input type="hidden" name="bank_name" id="bank_name" value="<?php echo $bank_name ?? ''; ?>">
-
                                             <button type="submit" class="btn btn-danger btn-sm me-1 mb-1" onclick="confirmDeletion(event, <?php echo $id; ?>)"><i class="fa-regular fa-trash-can"></i> Apagar</button>
 
                                         </form>
                                     <?php } ?>
-
                                 </td>
                             </tr>
 
@@ -115,8 +112,8 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_bank');
             <?php
                 // Inclui o arquivo de paginação
                 include_once './app/adms/Views/partials/pagination.php';
-            } else { // Exibe mensagem se nenhum banco for encontrado
-                echo "<div class='alert alert-danger' role='alert'>Nenhum Banco encontrado!</div>";
+            } else { // Exibe mensagem se nenhum página for encontrado
+                echo "<div class='alert alert-danger' role='alert'>Documento não encontrado!</div>";
             } ?>
 
         </div>

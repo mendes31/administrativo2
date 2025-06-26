@@ -87,6 +87,9 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_bank');
                     <dt class="col-sm-3">Banco: </dt>
                     <dd class="col-sm-9"><?php echo $bank; ?></dd>
 
+                    <dt class="col-sm-3">Tipo: </dt>
+                    <dd class="col-sm-9"><?php echo $type; ?></dd>
+
                     <dt class="col-sm-3">Conta: </dt>
                     <dd class="col-sm-9"><?php echo $account; ?></dd>
 
