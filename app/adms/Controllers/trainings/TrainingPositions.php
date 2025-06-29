@@ -15,26 +15,60 @@ class TrainingPositions
     public function index(int $trainingId): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $obrigatorio = $_POST['obrigatorio'] ?? [];
-            $trainingPositionsRepo = new TrainingPositionsRepository();
-            $trainingPositionsRepo->saveTrainingPositions($trainingId, $obrigatorio);
-            $_SESSION['msg'] = '<div class="alert alert-success">Vínculos atualizados com sucesso!</div>';
-            header('Location: ' . $_ENV['URL_ADM'] . 'training-positions/' . $trainingId);
-            exit;
+            $this->saveTrainingPositions($trainingId);
         }
 
+        $this->loadTrainingPositionsData($trainingId);
+        $this->loadView();
+    }
+
+    private function saveTrainingPositions(int $trainingId): void
+    {
+        $obrigatorio = $_POST['obrigatorio'] ?? [];
+        $reciclagem = $_POST['reciclagem'] ?? [];
+        
+        $trainingPositionsRepo = new TrainingPositionsRepository();
+        $result = $trainingPositionsRepo->saveTrainingPositions($trainingId, $obrigatorio, $reciclagem);
+        
+        if ($result) {
+            $_SESSION['success'] = 'Vínculos atualizados com sucesso!';
+            
+            // Atualizar matriz de obrigatoriedade para todos os usuários
+            $this->updateTrainingMatrix();
+        } else {
+            $_SESSION['error'] = 'Erro ao atualizar vínculos!';
+        }
+        
+        header('Location: ' . $_ENV['URL_ADM'] . 'training-positions/' . $trainingId);
+        exit;
+    }
+
+    private function loadTrainingPositionsData(int $trainingId): void
+    {
         $trainingsRepo = new TrainingsRepository();
         $positionsRepo = new PositionsRepository();
         $trainingPositionsRepo = new TrainingPositionsRepository();
 
         $training = $trainingsRepo->getTraining($trainingId);
+        
+        if (!$training) {
+            $_SESSION['error'] = 'Treinamento não encontrado!';
+            header('Location: ' . $_ENV['URL_ADM'] . 'list-trainings');
+            exit;
+        }
+
         $positions = $positionsRepo->getAllPositions(1, 1000);
         $linkedPositions = $trainingPositionsRepo->getPositionsByTraining($trainingId);
+        $linkedPositionIds = array_column($linkedPositions, 'adms_position_id');
 
         $this->data['training'] = $training;
         $this->data['positions'] = $positions;
         $this->data['linkedPositions'] = $linkedPositions;
+        $this->data['linkedPositionIds'] = $linkedPositionIds;
+    }
 
+    private function loadView(): void
+    {
         $pageElements = [
             'title_head' => 'Vincular Cargos ao Treinamento',
             'menu' => 'list-trainings',
@@ -45,5 +79,16 @@ class TrainingPositions
 
         $loadView = new LoadViewService('adms/Views/trainings/trainingPositions', $this->data);
         $loadView->loadView();
+    }
+
+    private function updateTrainingMatrix(): void
+    {
+        try {
+            $matrixService = new \App\adms\Controllers\trainings\TrainingMatrixService();
+            $matrixService->updateMatrixForAllUsers();
+        } catch (\Exception $e) {
+            // Log do erro, mas não interrompe o fluxo
+            error_log('Erro ao atualizar matriz de treinamentos: ' . $e->getMessage());
+        }
     }
 } 

@@ -17,7 +17,6 @@ class AddAdmsPages extends AbstractSeed
      */
     public function run(): void
     {
-
         // Variável para receber os dados a serem inseridos
         $data = [];
 
@@ -193,44 +192,69 @@ class AddAdmsPages extends AbstractSeed
             ['name'=> 'Pagina listar Documentos VS Cargos', 'controller' => 'ListDocumentPositions', 'controller_url' => 'list-document-positions', 'directory' => 'documents', 'obs' => 'Pagina listar Documentos VS Cargos', 'public_page' => 1, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 23],
             
             // ===== GRUPO 24: TREINAMENTOS =====
-            ['name'=> 'Cadastrar Treinamento', 'controller' => 'CreateTraining', 'controller_url' => 'create-training', 'directory' => 'trainings', 'obs' => 'Página com o formulário cadastrar Treinamento.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
+            ['name'=> 'Cadastrar Treinamento', 'controller' => 'CreateTraining', 'controller_url' => 'create-training', 'directory' => 'trainings', 'obs' => 'Páginas com o formulário cadastrar Treinamento.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
             ['name'=> 'Listar Treinamentos', 'controller' => 'ListTrainings', 'controller_url' => 'list-trainings', 'directory' => 'trainings', 'obs' => 'Página para listar os Treinamentos.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
             ['name'=> 'Editar Treinamento', 'controller' => 'UpdateTraining', 'controller_url' => 'update-training', 'directory' => 'trainings', 'obs' => 'Página com o formulário editar Treinamento.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
             ['name'=> 'Apagar Treinamento', 'controller' => 'DeleteTraining', 'controller_url' => 'delete-training', 'directory' => 'trainings', 'obs' => 'Página para apagar o Treinamento do banco de dados.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
             ['name'=> 'Vincular Cargos a Treinamento', 'controller' => 'TrainingPositions', 'controller_url' => 'training-positions', 'directory' => 'trainings', 'obs' => 'Página para vincular cargos a treinamento.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24, 'order' => 5, 'icon' => 'fa-link', 'visible' => 1],
-            ['name'=> 'Salvar Vínculo Cargos/Treinamento', 'controller' => 'TrainingPositions', 'controller_url' => 'training-positions', 'directory' => 'trainings', 'obs' => 'Página para salvar o vínculo entre cargos e treinamento.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24, 'order' => 6, 'icon' => 'fa-save', 'visible' => 0],
-            ['name'=> 'Atualizar Matriz de Treinamentos', 'controller' => 'UpdateTrainingMatrix', 'controller_url' => 'update-training-matrix', 'directory' => 'trainings', 'obs' => 'Página para atualizar a matriz de treinamentos.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24, 'order' => 7, 'icon' => 'fa-sync', 'visible' => 0],
-            ['name'=> 'Status de Treinamentos', 'controller' => 'ListTrainingStatus', 'controller_url' => 'list-training-status', 'directory' => 'trainings', 'obs' => 'Página para visualizar o status dos treinamentos obrigatórios por colaborador.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
+            ['name'=> 'Agendar Treinamento', 'controller' => 'ScheduleTraining', 'controller_url' => 'schedule-training', 'directory' => 'trainings', 'obs' => 'Página para agendar treinamentos para usuários.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
+            ['name'=> 'Aplicar Treinamento', 'controller' => 'ApplyTraining', 'controller_url' => 'apply-training', 'directory' => 'trainings', 'obs' => 'Página para registrar a aplicação de treinamentos.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
+            ['name'=> 'Histórico de Treinamentos', 'controller' => 'ViewTrainingHistory', 'controller_url' => 'training-history', 'directory' => 'trainings', 'obs' => 'Página para visualizar o histórico de aplicações/agendamentos de treinamentos.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
+            ['name'=> 'Matriz por Colaborador', 'controller' => 'MatrixByUser', 'controller_url' => 'matrix-by-user', 'directory' => 'trainings', 'obs' => 'Matriz de treinamentos obrigatórios por colaborador', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24, 'order' => 2, 'icon' => 'fa-users', 'visible' => 1],
+            ['name'=> 'Histórico de Reciclagem', 'controller' => 'TrainingHistory', 'controller_url' => 'training-history', 'directory' => 'trainings', 'obs' => 'Histórico detalhado de aplicações/reciclagens', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24, 'order' => 3, 'icon' => 'fa-history', 'visible' => 1],
+            ['name'=> 'Status dos Treinamentos', 'controller' => 'ListTrainingStatus', 'controller_url' => 'list-training-status', 'directory' => 'trainings', 'obs' => 'Página para visualizar o status dos treinamentos dos colaboradores.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
+
+            // ===== GRUPO 25: AVALIAÇÕES =====
+            ['name'=> 'Listar Modelos de Avaliação', 'controller' => 'ListEvaluationModels', 'controller_url' => 'list-evaluation-models', 'directory' => 'evaluations', 'obs' => 'Página para listar os modelos de avaliação.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Cadastrar Modelo de Avaliação', 'controller' => 'CreateEvaluationModel', 'controller_url' => 'create-evaluation-model', 'directory' => 'evaluations', 'obs' => 'Página com o formulário cadastrar modelo de avaliação.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Visualizar Modelo de Avaliação', 'controller' => 'ViewEvaluationModel', 'controller_url' => 'view-evaluation-model', 'directory' => 'evaluations', 'obs' => 'Página para visualizar detalhes do modelo de avaliação.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Editar Modelo de Avaliação', 'controller' => 'UpdateEvaluationModel', 'controller_url' => 'update-evaluation-model', 'directory' => 'evaluations', 'obs' => 'Página com o formulário editar modelo de avaliação.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Apagar Modelo de Avaliação', 'controller' => 'DeleteEvaluationModel', 'controller_url' => 'delete-evaluation-model', 'directory' => 'evaluations', 'obs' => 'Página para apagar modelo de avaliação do banco de dados.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Listar Perguntas de Avaliação', 'controller' => 'ListEvaluationQuestions', 'controller_url' => 'list-evaluation-questions', 'directory' => 'evaluations', 'obs' => 'Página para listar as perguntas de avaliação.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Cadastrar Pergunta de Avaliação', 'controller' => 'CreateEvaluationQuestion', 'controller_url' => 'create-evaluation-question', 'directory' => 'evaluations', 'obs' => 'Página com o formulário cadastrar pergunta de avaliação.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Editar Pergunta de Avaliação', 'controller' => 'UpdateEvaluationQuestion', 'controller_url' => 'update-evaluation-question', 'directory' => 'evaluations', 'obs' => 'Página com o formulário editar pergunta de avaliação.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Apagar Pergunta de Avaliação', 'controller' => 'DeleteEvaluationQuestion', 'controller_url' => 'delete-evaluation-question', 'directory' => 'evaluations', 'obs' => 'Página para apagar pergunta de avaliação do banco de dados.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Aplicar Avaliação', 'controller' => 'ApplyEvaluation', 'controller_url' => 'apply-evaluation', 'directory' => 'evaluations', 'obs' => 'Página para aplicar avaliação ao usuário.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Visualizar Resultado de Avaliação', 'controller' => 'ViewEvaluationResult', 'controller_url' => 'view-evaluation-result', 'directory' => 'evaluations', 'obs' => 'Página para visualizar resultado de avaliação.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Listar Respostas de Avaliação', 'controller' => 'ListEvaluationAnswers', 'controller_url' => 'list-evaluation-answers', 'directory' => 'evaluations', 'obs' => 'Página para listar respostas de avaliação.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Cadastrar Resposta de Avaliação', 'controller' => 'CreateEvaluationAnswer', 'controller_url' => 'create-evaluation-answer', 'directory' => 'evaluations', 'obs' => 'Página com o formulário cadastrar resposta de avaliação.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Editar Resposta de Avaliação', 'controller' => 'UpdateEvaluationAnswer', 'controller_url' => 'update-evaluation-answer', 'directory' => 'evaluations', 'obs' => 'Página com o formulário editar resposta de avaliação.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Apagar Resposta de Avaliação', 'controller' => 'DeleteEvaluationAnswer', 'controller_url' => 'delete-evaluation-answer', 'directory' => 'evaluations', 'obs' => 'Página para apagar resposta de avaliação do banco de dados.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Visualizar Resposta de Avaliação', 'controller' => 'ViewEvaluationAnswer', 'controller_url' => 'view-evaluation-answer', 'directory' => 'evaluations', 'obs' => 'Página para visualizar detalhes da resposta de avaliação.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+            ['name'=> 'Buscar Perguntas por Modelo', 'controller' => 'GetQuestionsByModel', 'controller_url' => 'get-questions-by-model', 'directory' => 'evaluations', 'obs' => 'Página para buscar perguntas por modelo via AJAX.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 25],
+
+            // ===== GRUPO 26: CONFIGURAÇÕES =====
+            ['name'=> 'Configuração de E-mail', 'controller' => 'EmailConfig', 'controller_url' => 'email-config', 'directory' => 'settings', 'obs' => 'Página para configurar servidor de e-mail SMTP.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 26],
         ];
 
         // Percorrer o array com dados que devem ser validados antes de cadastrar
         foreach ($pages as $page) {
-
-            // Verifica se a página com o name especificado já existe
+            // Verificar se o registro já existe no banco de dados
             $existingRecord = $this->query('SELECT id FROM adms_pages WHERE name=:name', ['name' => $page['name']])->fetch();
 
-             // Se a página não existir, adiciona seus dados ao array $data
+            // Se o registro não existir, insere os dados na variável $data para em seguida cadastrar na tabela
             if (!$existingRecord) {
+                // Criar o array com os dados da página
                 $data[] = [
                     'name' => $page['name'],
                     'controller' => $page['controller'],
                     'controller_url' => $page['controller_url'],
                     'directory' => $page['directory'],
                     'obs' => $page['obs'],
-                    'public_page' => $page['public_page'], 
+                    'public_page' => $page['public_page'],
                     'page_status' => $page['page_status'],
                     'adms_packages_page_id' => $page['adms_packages_page_id'],
                     'adms_groups_page_id' => $page['adms_groups_page_id'],
                     'created_at' => date("Y-m-d H:i:s"),
+                    'updated_at' => date("Y-m-d H:i:s")
                 ];
             }
         }
 
-        // Obtém a tabela 'adms_pages' para inserir os registros
+        // Indicar em qual tabela deve salvar
         $adms_pages = $this->table('adms_pages');
 
-        // Insere os registros na tabela
+        // Inserir os registros na tabela
         $adms_pages->insert($data)->save();
-
     }
 }

@@ -488,9 +488,42 @@ class UsersRepository extends DbConnection
 
     public function getAllUsersSelect(): array
     {
-        $sql = 'SELECT id, name FROM adms_users ORDER BY name ASC';
+        // QUERY para recuperar os registros do banco de dados
+        $sql = 'SELECT id, name, email FROM adms_users ORDER BY name ASC';
+
+        // Preparar a QUERY
+        $stmt = $this->getConnection()->prepare($sql);
+
+        // Executar a QUERY
+        $stmt->execute();
+
+        // Ler os registros e retornar
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Retorna usuários por cargo específico
+     */
+    public function getUsersByPosition(int $positionId): array
+    {
+        $sql = 'SELECT id, name, email, user_department_id, user_position_id 
+                FROM adms_users 
+                WHERE user_position_id = :position_id 
+                ORDER BY name ASC';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':position_id', $positionId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    /**
+     * Retorna o total de usuários
+     */
+    public function getTotalUsers(): int
+    {
+        $sql = 'SELECT COUNT(*) as total FROM adms_users';
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return (int) $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
     }
 }

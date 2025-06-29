@@ -12,24 +12,23 @@ class TrainingMatrixService
     public function updateMatrixForUser(int $userId): void
     {
         $usersRepo = new UsersRepository();
-        $positionsRepo = new PositionsRepository();
         $trainingPositionsRepo = new TrainingPositionsRepository();
         $trainingUsersRepo = new TrainingUsersRepository();
 
         $user = $usersRepo->getUser($userId);
-        $userPositions = $positionsRepo->getPositionsByUser($userId); // array de IDs
-        $mandatoryTrainings = [];
-        foreach ($userPositions as $positionId) {
-            $trainings = $trainingPositionsRepo->getTrainingsByPosition($positionId); // array de IDs obrigatórios
-            $mandatoryTrainings = array_merge($mandatoryTrainings, $trainings);
-        }
+        $userPosition = $user['user_position_id']; // cargo único do usuário
+
+        // Treinamentos obrigatórios para o cargo do usuário
+        $mandatoryTrainings = $trainingPositionsRepo->getTrainingsByPosition($userPosition);
         $mandatoryTrainings = array_unique($mandatoryTrainings);
-        // Atualiza matriz: insere/atualiza obrigatórios
+
+        // Remove todos os vínculos que não são mais obrigatórios
+        $trainingUsersRepo->deleteByUserAndNotInTrainings($userId, $mandatoryTrainings);
+
+        // Garante que todos os obrigatórios estejam na matriz
         foreach ($mandatoryTrainings as $trainingId) {
             $trainingUsersRepo->insertOrUpdate($userId, $trainingId, 'pendente');
         }
-        // Remove vínculos que não são mais obrigatórios
-        $trainingUsersRepo->deleteByUserAndNotInTrainings($userId, $mandatoryTrainings);
     }
 
     public function updateMatrixForAllUsers(): void

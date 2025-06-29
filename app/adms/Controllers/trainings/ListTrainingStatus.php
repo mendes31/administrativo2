@@ -16,37 +16,35 @@ class ListTrainingStatus
 
     public function index(): void
     {
-        $filters = $_GET;
+        $trainingUsersRepo = new TrainingUsersRepository();
         $usersRepo = new UsersRepository();
         $departmentsRepo = new DepartmentsRepository();
         $positionsRepo = new PositionsRepository();
         $trainingsRepo = new TrainingsRepository();
-        $trainingUsersRepo = new TrainingUsersRepository();
 
-        // Filtros
-        $this->data['filters'] = [
-            'colaborador' => $filters['colaborador'] ?? '',
-            'departamento' => $filters['departamento'] ?? '',
-            'cargo' => $filters['cargo'] ?? '',
-            'status' => $filters['status'] ?? '',
-            'treinamento' => $filters['treinamento'] ?? '',
+        // Filtros da URL
+        $filters = [
+            'colaborador' => $_GET['colaborador'] ?? null,
+            'departamento' => $_GET['departamento'] ?? null,
+            'cargo' => $_GET['cargo'] ?? null,
+            'treinamento' => $_GET['treinamento'] ?? null,
         ];
 
-        // Listas para selects
-        $this->data['listDepartments'] = $departmentsRepo->getAllDepartmentsSelect();
-        $this->data['listPositions'] = $positionsRepo->getAllPositionsSelect();
-        $this->data['listTrainings'] = $trainingsRepo->getAllTrainingsSelect();
-        $this->data['listUsers'] = $usersRepo->getAllUsersSelect();
-
-        // Buscar status dos treinamentos obrigatórios por colaborador
-        $this->data['trainingStatus'] = $trainingUsersRepo->getTrainingStatusByUser($this->data['filters']);
-
-        // Ordenar por nome do colaborador
-        usort($this->data['trainingStatus'], fn($a, $b) => strcmp($a['user_name'], $b['user_name']));
+        // Dados para a view
+        $this->data = [
+            'filters' => $filters,
+            'matrix' => $trainingUsersRepo->getTrainingStatusByUser($filters),
+            'summary' => $trainingUsersRepo->getSummary(),
+            'expiring' => $trainingUsersRepo->getExpiringTrainings(30),
+            'listDepartments' => $departmentsRepo->getAllDepartmentsSelect(),
+            'listPositions' => $positionsRepo->getAllPositionsSelect(),
+            'listTrainings' => $trainingsRepo->getAllTrainingsSelect(),
+            'listUsers' => $usersRepo->getAllUsersSelect(),
+        ];
 
         // Elementos de página
         $pageElements = [
-            'title_head' => 'Status de Treinamentos por Colaborador',
+            'title_head' => 'Matriz de Treinamentos',
             'menu' => 'list-training-status',
             'buttonPermission' => ['ListTrainingStatus'],
         ];

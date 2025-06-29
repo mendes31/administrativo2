@@ -100,6 +100,8 @@ class CreatePosition
 
         // Se a criação do cargo for bem-sucedida
         if ($result) {
+            $matrixService = new \App\adms\Controllers\trainings\TrainingMatrixService();
+            $matrixService->updateMatrixForAllUsers();
             // Mensagem de sucesso
             $_SESSION['success'] = "Cargo cadastrado com sucesso!";
 

@@ -1,14 +1,110 @@
-<?php
+    <?php
 // Filtros
 ?>
+<style>
+.table-sticky-header thead th {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 2;
+    box-shadow: 0 2px 2px -1px rgba(0,0,0,0.04);
+}
+.sticky-cards {
+    position: static;
+}
+.sticky-top-bloco {
+    position: static;
+    background: #fff;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    box-shadow: 0 2px 4px -2px rgba(0,0,0,0.04);
+}
+.table-scroll {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+</style>
 <div class="container-fluid px-4">
-    <div class="mb-1 hstack gap-2">
-        <h2 class="mt-3">Status de Treinamentos por Colaborador</h2>
-        <ol class="breadcrumb mb-3 mt-3 ms-auto">
-            <li class="breadcrumb-item"><a href="<?= $_ENV['URL_ADM'] ?>dashboard" class="text-decoration-none">Dashboard</a></li>
-            <li class="breadcrumb-item">Status de Treinamentos</li>
-        </ol>
+    <div class="sticky-top-bloco">
+        <div class="mb-1 hstack gap-2">
+            <h2 class="mt-3">Status de Treinamentos por Colaborador</h2>
+            <ol class="breadcrumb mb-3 mt-3 ms-auto">
+                <li class="breadcrumb-item"><a href="<?= $_ENV['URL_ADM'] ?>dashboard" class="text-decoration-none">Dashboard</a></li>
+                <li class="breadcrumb-item">Status de Treinamentos</li>
+            </ol>
+        </div>
+
+        <!-- Cards de Estatísticas por Status -->
+        <div class="row mb-4 sticky-cards">
+            <div class="col-md-2">
+                <div class="card border-warning">
+                    <div class="card-body text-center">
+                        <h3 class="text-warning">
+                            <i class="fas fa-clock"></i>
+                            <?= number_format($this->data['summary']['pendente_count'] ?? 0) ?>
+                        </h3>
+                        <p class="card-text">Pendentes</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-success">
+                    <div class="card-body text-center">
+                        <h3 class="text-success">
+                            <i class="fas fa-check-circle"></i>
+                            <?= number_format($this->data['summary']['concluido_count'] ?? 0) ?>
+                        </h3>
+                        <p class="card-text">Concluídos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-danger">
+                    <div class="card-body text-center">
+                        <h3 class="text-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <?= number_format($this->data['summary']['vencido_count'] ?? 0) ?>
+                        </h3>
+                        <p class="card-text">Vencidos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-info">
+                    <div class="card-body text-center">
+                        <h3 class="text-info">
+                            <i class="fas fa-calendar-alt"></i>
+                            <?= number_format($this->data['summary']['agendado_count'] ?? 0) ?>
+                        </h3>
+                        <p class="card-text">Agendados</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-warning">
+                    <div class="card-body text-center">
+                        <h3 class="text-warning">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <?= number_format($this->data['summary']['proximo_vencimento_count'] ?? 0) ?>
+                        </h3>
+                        <p class="card-text">Próximo Vencimento</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <h3 class="text-primary">
+                            <i class="fas fa-users"></i>
+                            <?= number_format($this->data['summary']['total_users'] ?? 0) ?>
+                        </h3>
+                        <p class="card-text">Total</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
     <div class="card mb-4 border-light shadow">
         <div class="card-header hstack gap-2">
             <span>Listar</span>
@@ -57,6 +153,8 @@
                         <option value="">Todos</option>
                         <option value="pendente" <?= ($this->data['filters']['status'] ?? '') == 'pendente' ? 'selected' : '' ?>>Pendente</option>
                         <option value="concluido" <?= ($this->data['filters']['status'] ?? '') == 'concluido' ? 'selected' : '' ?>>Concluído</option>
+                        <option value="valido" <?= ($this->data['filters']['status'] ?? '') == 'valido' ? 'selected' : '' ?>>Válido</option>
+                        <option value="proximo_vencimento" <?= ($this->data['filters']['status'] ?? '') == 'proximo_vencimento' ? 'selected' : '' ?>>Próximo do Vencimento</option>
                         <option value="vencido" <?= ($this->data['filters']['status'] ?? '') == 'vencido' ? 'selected' : '' ?>>Vencido</option>
                     </select>
                 </div>
@@ -67,45 +165,79 @@
                     <a href="<?= $_ENV['URL_ADM'] ?>list-training-status" class="btn btn-secondary w-100">Limpar</a>
                 </div>
             </form>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
+            <div class="table-responsive table-scroll">
+                <table class="table table-striped table-hover table-sticky-header">
                     <thead>
                         <tr>
                             <th>Colaborador</th>
                             <th>Departamento</th>
                             <th>Cargo</th>
                             <th>Treinamento</th>
-                            <th>Validade</th>
-                            <th>Status</th>
                             <th>Data Realização</th>
+                            <th>Data Agendada</th>
+                            <th>Vencimento</th>
+                            <th>Status</th>
                             <th>Nota</th>
+                            <th style="width:100px;" class="text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (!empty($this->data['trainingStatus'])): ?>
-                            <?php foreach ($this->data['trainingStatus'] as $row): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($row['user_name']) ?></td>
-                                    <td><?= htmlspecialchars($row['department']) ?></td>
-                                    <td><?= htmlspecialchars($row['position']) ?></td>
-                                    <td><?= htmlspecialchars($row['training_name']) ?></td>
-                                    <td><?= htmlspecialchars($row['validade']) ?></td>
-                                    <td>
-                                        <?php
-                                        $status = $row['status'] ?? 'pendente';
-                                        $badge = 'secondary';
-                                        if ($status == 'concluido') $badge = 'success';
-                                        elseif ($status == 'pendente') $badge = 'warning';
-                                        elseif ($status == 'vencido') $badge = 'danger';
+                        <?php 
+                        $matrix = $this->data['matrix'] ?? $this->data['trainingStatus'] ?? [];
+                        $temPendentes = false;
+                        ?>
+                        <?php foreach ($matrix as $row): ?>
+                            <?php 
+                            $status = $row['status_dinamico'] ?? $row['status'] ?? 'pendente';
+                            if ($status !== 'pendente') continue;
+                            $temPendentes = true;
+                            ?>
+                            <tr>
+                                <td><?= htmlspecialchars($row['user_name']) ?></td>
+                                <td><?= htmlspecialchars($row['department']) ?></td>
+                                <td><?= htmlspecialchars($row['position']) ?></td>
+                                <td>
+                                    <strong><?= htmlspecialchars($row['training_name']) ?></strong>
+                                    <br><small class="text-muted"><?= htmlspecialchars($row['codigo']) ?></small>
+                                </td>
+                                <td>
+                                    <?php if (!empty($row['data_realizacao'])): ?>
+                                        <?= (new DateTime($row['data_realizacao']))->format('d/m/Y') ?>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if (!empty($row['data_agendada'])): ?>
+                                        <?= (new DateTime($row['data_agendada']))->format('d/m/Y') ?>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if (!empty($row['reciclagem']) && !empty($row['reciclagem_periodo']) && !empty($row['data_realizacao'])): ?>
+                                        <?php 
+                                        $dataVencimento = new DateTime($row['data_realizacao']);
+                                        $dataVencimento->add(new DateInterval('P' . $row['reciclagem_periodo'] . 'M'));
+                                        echo $dataVencimento->format('d/m/Y');
                                         ?>
-                                        <span class="badge bg-<?= $badge ?> text-uppercase"><?= $status ?></span>
-                                    </td>
-                                    <td><?= htmlspecialchars($row['data_realizacao'] ?? '-') ?></td>
-                                    <td><?= htmlspecialchars($row['nota'] ?? '-') ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr><td colspan="8" class="text-center">Nenhum registro encontrado.</td></tr>
+                                    <?php else: ?>
+                                        <span class="text-muted">N/A</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <span class="badge bg-warning text-dark">Pendente</span>
+                                </td>
+                                <td><?= htmlspecialchars($row['nota'] ?? '-') ?></td>
+                                <td class="text-center">
+                                    <a href="<?= $_ENV['URL_ADM'] ?>schedule-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-info mb-1" title="Agendar"><i class="fas fa-calendar-plus"></i></a>
+                                    <a href="<?= $_ENV['URL_ADM'] ?>apply-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-success mb-1" title="Aplicar"><i class="fas fa-check"></i></a>
+                                    <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $row['user_id'] ?>-<?= $row['training_id'] ?>" class="btn btn-sm btn-secondary mb-1" title="Histórico"><i class="fas fa-history"></i></a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <?php if (!$temPendentes): ?>
+                            <tr><td colspan="10" class="text-center">Nenhum treinamento pendente encontrado.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>

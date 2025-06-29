@@ -5,6 +5,7 @@ namespace App\adms\Controllers\users;
 use App\adms\Helpers\CSRFHelper;
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Repository\UsersRepository;
+use App\adms\Models\Repository\TrainingUsersRepository;
 
 /**
  * Controller para exclusão de usuário
@@ -72,6 +73,8 @@ class DeleteUser
 
         // Acessa o IF se o repository retornou TRUE
         if ($result) {
+            $trainingUsersRepo = new TrainingUsersRepository();
+            $trainingUsersRepo->deleteByUserAndNotInTrainings($this->data['form']['id'], []);
             // Criar a mensagem de sucesso
             $_SESSION['success'] = "Usuário apagado com suscesso!";
         } else {

@@ -52,8 +52,13 @@ class LoadPageAdm
         "ListReceipts", "CreateReceive", "ViewReceive", "UpdateReceive", "DeleteReceive", "Receive", "Installments", "ListPartialValues", "ClearBusyReceive", "CheckBusy", "GetReceiptsStatus",
         "Movements","CashFlow","ExportPdfCashFlow",
         "EditMovement", "DeleteMovement",
-        "ListTrainings", "CreateTraining", "UpdateTraining", "DeleteTraining",
-        "UpdateTrainingMatrix"
+        "ListTrainings", "CreateTraining", "UpdateTraining", "DeleteTraining", "ViewTraining", "TrainingPositions", "TrainingMatrixManager", "ListTrainingStatus", "ApplyTraining",
+        "UpdateTrainingMatrix",
+        "ListEvaluationModels", "CreateEvaluationModel", "UpdateEvaluationModel", "DeleteEvaluationModel", "ViewEvaluationModel",
+        "ListEvaluationQuestions", "CreateEvaluationQuestion", "UpdateEvaluationQuestion", "DeleteEvaluationQuestion", "ViewEvaluationQuestion",
+        "ListEvaluationAnswers", "CreateEvaluationAnswer", "UpdateEvaluationAnswer", "DeleteEvaluationAnswer", "ViewEvaluationAnswer",
+        "GetQuestionsByModel",
+        "ScheduleTraining", "ApplyTraining", "ListTrainingStatus", "TrainingPositions", "TrainingMatrixManager", "ListTrainings", "CreateTraining", "UpdateTraining", "DeleteTraining", "ViewTraining", "UpdateTrainingMatrix"
     ];
 
     /** @var array $listDirectory Recebe a lista de diretórios com as controllers */
@@ -81,7 +86,9 @@ class LoadPageAdm
         "financialReports",
         "movement",
         "qualityAssurance",
-        "trainings"
+        "trainings",
+        "evaluations",  
+        "settings"
     ];
 
     /** @var array $listPackages Recebe a lista de pacotes com as controllers */

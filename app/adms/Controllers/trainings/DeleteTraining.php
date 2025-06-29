@@ -11,6 +11,8 @@ class DeleteTraining
         $repo = new TrainingsRepository();
         $result = $repo->deleteTraining($id);
         if ($result) {
+            $matrixService = new \App\adms\Controllers\trainings\TrainingMatrixService();
+            $matrixService->updateMatrixForAllUsers();
             $_SESSION['success'] = 'Treinamento excluído com sucesso!';
         } else {
             $_SESSION['error'] = 'Erro ao excluir treinamento!';

@@ -65,7 +65,8 @@ class PageController
             }
             // Verificar se existe o parametro na URL
             if (isset($this->urlArray[1])) {
-                $this->urlParameter = $this->urlArray[1];
+                // Junta todos os parâmetros após o nome da controller, separados por "/"
+                $this->urlParameter = implode('/', array_slice($this->urlArray, 1));
             }
         } else {
             $this->urlController = SlugController::slugController("Login");

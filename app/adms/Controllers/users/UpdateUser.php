@@ -141,6 +141,8 @@ class UpdateUser
 
         // Acessa o IF se o repository retornou TRUE
         if($result){
+            $matrixService = new \App\adms\Controllers\trainings\TrainingMatrixService();
+            $matrixService->updateMatrixForUser($this->data['form']['id']);
             // Criar a mensagem de sucesso
             $_SESSION['success'] = "Usuário editado com suscesso!";
 

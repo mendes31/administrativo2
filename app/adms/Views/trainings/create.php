@@ -44,8 +44,29 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_create_training');
                     <input type="text" name="tipo" class="form-control" id="tipo" value="<?php echo $this->data['form']['tipo'] ?? ''; ?>">
                 </div>
                 <div class="col-md-3">
-                    <label for="instrutor" class="form-label">Instrutor</label>
+                    <label for="instructor_type" class="form-label">Tipo de Instrutor</label>
+                    <select name="instructor_type" id="instructor_type" class="form-select" onchange="toggleInstructorFields()">
+                        <option value="">Selecione...</option>
+                        <option value="internal" <?php echo (isset($this->data['form']['instructor_type']) && $this->data['form']['instructor_type'] == 'internal') ? 'selected' : ''; ?>>Colaborador Interno</option>
+                        <option value="external" <?php echo (isset($this->data['form']['instructor_type']) && $this->data['form']['instructor_type'] == 'external') ? 'selected' : ''; ?>>Instrutor Externo</option>
+                    </select>
+                </div>
+                <div class="col-md-3" id="instructor_user_div" style="display: none;">
+                    <label for="instructor_user_id" class="form-label">Instrutor (Colaborador Interno)</label>
+                    <select name="instructor_user_id" id="instructor_user_id" class="form-select" onchange="fillInstructorEmail()">
+                        <option value="">Selecione um usuário...</option>
+                        <?php foreach (($this->data['listUsers'] ?? []) as $user): ?>
+                            <option value="<?php echo $user['id']; ?>" data-email="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" <?php echo (isset($this->data['form']['instructor_user_id']) && $this->data['form']['instructor_user_id'] == $user['id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($user['name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3" id="instructor_name_div" style="display: none;">
+                    <label for="instrutor" class="form-label">Nome do Instrutor Externo</label>
                     <input type="text" name="instrutor" class="form-control" id="instrutor" value="<?php echo $this->data['form']['instrutor'] ?? ''; ?>">
+                </div>
+                <div class="col-md-3" id="instructor_email_div" style="display: none;">
+                    <label for="instructor_email" class="form-label">E-mail do Instrutor</label>
+                    <input type="email" name="instructor_email" class="form-control" id="instructor_email" value="<?php echo $this->data['form']['instructor_email'] ?? ''; ?>">
                 </div>
                 <div class="col-md-3">
                     <label for="carga_horaria" class="form-label">Carga Horária</label>
@@ -58,10 +79,91 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_create_training');
                         <option value="0" <?php echo (isset($this->data['form']['ativo']) && $this->data['form']['ativo'] == 0) ? 'selected' : ''; ?>>Inativo</option>
                     </select>
                 </div>
+                <div class="col-md-3">
+                    <label for="reciclagem" class="form-label">Necessita Reciclagem?</label>
+                    <select name="reciclagem" id="reciclagem" class="form-select" onchange="toggleReciclagemPeriodo()">
+                        <option value="0" <?php echo (isset($this->data['form']['reciclagem']) && !$this->data['form']['reciclagem']) ? 'selected' : ''; ?>>Não</option>
+                        <option value="1" <?php echo (isset($this->data['form']['reciclagem']) && $this->data['form']['reciclagem']) ? 'selected' : ''; ?>>Sim</option>
+                    </select>
+                </div>
+                <div class="col-md-3" id="reciclagem_periodo_div" style="display: none;">
+                    <label for="reciclagem_periodo" class="form-label">Período de Reciclagem</label>
+                    <input type="number" name="reciclagem_periodo" class="form-control" id="reciclagem_periodo" min="1" value="<?php echo $this->data['form']['reciclagem_periodo'] ?? ''; ?>">
+                </div>
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary btn-sm">Cadastrar</button>
                 </div>
             </form>
         </div>
     </div>
-</div> 
+</div>
+<script>
+function toggleInstructorFields() {
+    var typeSelect = document.getElementById('instructor_type');
+    var userDiv = document.getElementById('instructor_user_div');
+    var nameDiv = document.getElementById('instructor_name_div');
+    var emailDiv = document.getElementById('instructor_email_div');
+    var userSelect = document.getElementById('instructor_user_id');
+    var emailInput = document.getElementById('instructor_email');
+    var nameInput = document.getElementById('instrutor');
+
+    if (typeSelect.value === 'internal') {
+        userDiv.style.display = 'block';
+        nameDiv.style.display = 'none';
+        emailDiv.style.display = 'block';
+        emailInput.readOnly = true;
+        nameInput.value = '';
+        setTimeout(fillInstructorEmail, 10);
+    } else if (typeSelect.value === 'external') {
+        userDiv.style.display = 'none';
+        nameDiv.style.display = 'block';
+        emailDiv.style.display = 'block';
+        emailInput.readOnly = false;
+        userSelect.value = '';
+        emailInput.value = '';
+    } else {
+        userDiv.style.display = 'none';
+        nameDiv.style.display = 'none';
+        emailDiv.style.display = 'none';
+        userSelect.value = '';
+        emailInput.value = '';
+        nameInput.value = '';
+    }
+}
+
+function fillInstructorEmail() {
+    var userSelect = document.getElementById('instructor_user_id');
+    var emailInput = document.getElementById('instructor_email');
+    if (!userSelect || !emailInput) return;
+    var selectedOption = userSelect.options[userSelect.selectedIndex];
+    if (userSelect.value && selectedOption && selectedOption.getAttribute('data-email')) {
+        emailInput.value = selectedOption.getAttribute('data-email');
+    } else {
+        emailInput.value = '';
+    }
+}
+
+function toggleReciclagemPeriodo() {
+    var reciclagemSelect = document.getElementById('reciclagem');
+    var periodoDiv = document.getElementById('reciclagem_periodo_div');
+    if (reciclagemSelect.value == '1') {
+        periodoDiv.style.display = 'block';
+    } else {
+        periodoDiv.style.display = 'none';
+        document.getElementById('reciclagem_periodo').value = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var userSelect = document.getElementById('instructor_user_id');
+    if (userSelect) {
+        userSelect.addEventListener('change', fillInstructorEmail);
+    }
+    toggleInstructorFields();
+    var typeSelect = document.getElementById('instructor_type');
+    if (typeSelect && typeSelect.value === 'internal') {
+        fillInstructorEmail();
+    }
+    toggleReciclagemPeriodo();
+});
+</script> 

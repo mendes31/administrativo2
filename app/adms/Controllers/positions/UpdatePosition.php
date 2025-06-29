@@ -117,6 +117,8 @@ class UpdatePOsition
 
         // Verificar o resultado da atualização
         if ($result) {
+            $matrixService = new \App\adms\Controllers\trainings\TrainingMatrixService();
+            $matrixService->updateMatrixForAllUsers();
             $_SESSION['success'] = "Cargo editado com sucesso!";
             header("Location: {$_ENV['URL_ADM']}view-position/{$this->data['form']['id']}");
         } else {

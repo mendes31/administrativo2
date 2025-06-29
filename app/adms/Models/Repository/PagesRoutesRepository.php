@@ -33,7 +33,6 @@ class PagesRoutesRepository extends DbConnection
 
     public function checkUserPagePermission(int $pageId)
     {
-
         // QUERY para verificar a permissão do usuário em relação à página
         $sql = 'SELECT 
                     CASE
@@ -50,17 +49,13 @@ class PagesRoutesRepository extends DbConnection
                     AND (aulp.adms_access_level_id = 1 OR alp.permission = 1)
                 LIMIT 1';
 
-        // Preparar a QUERY
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->bindValue(':adms_user_id', $_SESSION['user_id'], PDO::PARAM_INT);
         $stmt->bindValue(':adms_page_id', $pageId, PDO::PARAM_INT);
-
-        // Executar a QUERY
         $stmt->execute();
 
-        // Ler o registro e retornar
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return ($result && isset($result['permission']) && $result['permission'] == 1) ? true : false;
     }
 
 }

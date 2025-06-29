@@ -310,7 +310,29 @@ class AddAdmsGroupsPages extends AbstractSeed
             ];
         }
 
+        // Verifica se o grupo de página com o name especificado já existe
+        $existingRecord = $this->query('SELECT id FROM adms_groups_pages WHERE name=:name', ['name' => 'Avaliações'])->fetch();
 
+        // Se o usuário não existir, adiciona seus dados ao array $data Nº 25
+        if (!$existingRecord) {
+            $data[] = [
+                'name' => 'Avaliações',
+                'obs' => '',
+                'created_at' => date("Y-m-d H:i:s"),
+            ];
+        }
+
+        // Verifica se o grupo de página com o name especificado já existe
+        $existingRecord = $this->query('SELECT id FROM adms_groups_pages WHERE name=:name', ['name' => 'Configurações'])->fetch();
+
+        // Se o grupo não existir, adiciona seus dados ao array $data
+        if (!$existingRecord) {
+            $data[] = [
+                'name' => 'Configurações',
+                'obs' => 'Grupo para páginas de configuração do sistema.',
+                'created_at' => date("Y-m-d H:i:s"),
+            ];
+        }
 
         // Obtém a tabela 'adms_groups_pages' para inserir os registros
         $adms_groups_pages = $this->table('adms_groups_pages');

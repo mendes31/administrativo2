@@ -41,6 +41,25 @@ class PageLayoutService
             "ListTrainings",   
             "UpdateTrainingMatrix",
             'ListTrainingStatus',
+            "MatrixByUser",
+            "TrainingMatrixManager",
+            "ListEvaluationModels",
+            "CreateEvaluationModel",
+            "ViewEvaluationModel",
+            "UpdateEvaluationModel",
+            "DeleteEvaluationModel",
+            "ListEvaluationQuestions",
+            "CreateEvaluationQuestion",
+            "UpdateEvaluationQuestion",
+            "DeleteEvaluationQuestion",
+            "ListEvaluationAnswers",
+            "CreateEvaluationAnswer",
+            "UpdateEvaluationAnswer",
+            "DeleteEvaluationAnswer",
+            "ViewEvaluationAnswer",
+            "GetQuestionsByModel",
+            "EmailConfig",
+
             // Adicione aqui outras permissões de páginas/submenus que possam existir no futuro
         ];
 

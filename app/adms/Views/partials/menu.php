@@ -28,6 +28,17 @@ $menus = [
                 'url' => $_ENV['URL_ADM'] . 'list-pages',
                 'permission' => 'ListPages'
             ],
+                [
+                'label' => 'Configurações',
+                'icon' => 'fa-solid fa-sliders',
+                'submenu' => [
+                    [
+                        'label' => 'Configuração de E-mail',
+                        'url' => $_ENV['URL_ADM'] . 'email-config',
+                        'permission' => 'EmailConfig'
+                    ],
+                ]
+            ],
         ]
     ],
     [
@@ -152,6 +163,21 @@ $menus = [
         'label' => 'Gestão de Treinamentos',
         'submenu' => [
             [
+                'label' => 'Matriz por Colaborador',
+                'url' => $_ENV['URL_ADM'] . 'matrix-by-user',
+                'permission' => 'MatrixByUser'
+            ],
+            [
+                'label' => 'Dashboard de Treinamentos',
+                'url' => $_ENV['URL_ADM'] . 'training-dashboard',
+                'permission' => 'TrainingDashboard'
+            ],
+            [
+                'label' => 'Histórico de Reciclagem',
+                'url' => $_ENV['URL_ADM'] . 'training-history',
+                'permission' => 'TrainingHistory'
+            ],
+            [
                 'label' => 'Treinamentos',
                 'url' => $_ENV['URL_ADM'] . 'list-trainings',
                 'permission' => 'ListTrainings'
@@ -166,6 +192,39 @@ $menus = [
                 'url' => $_ENV['URL_ADM'] . 'list-training-status',
                 'permission' => 'ListTrainingStatus'
             ],
+            // Atalhos para testes
+            [
+                'label' => 'Testar Notificações',
+                'url' => $_ENV['URL_ADM'] . 'test-notification',
+                'permission' => 'TestNotification'
+            ],
+            [
+                'label' => 'Criar Dados de Teste',
+                'url' => $_ENV['URL_ADM'] . 'create-test-data',
+                'permission' => 'CreateTestData'
+            ],
+            [
+                'label' => 'Avaliações',
+                'url' => '#',
+                'permission' => 'ListEvaluationModels',
+                'submenu' => [
+                    [
+                        'label' => 'Modelos de Avaliação',
+                        'url' => $_ENV['URL_ADM'] . 'list-evaluation-models',
+                        'permission' => 'ListEvaluationModels'
+                    ],
+                    [
+                        'label' => 'Perguntas de Avaliação',
+                        'url' => $_ENV['URL_ADM'] . 'list-evaluation-questions',
+                        'permission' => 'ListEvaluationQuestions'
+                    ],
+                    [
+                        'label' => 'Respostas de Avaliação',
+                        'url' => $_ENV['URL_ADM'] . 'list-evaluation-answers',
+                        'permission' => 'ListEvaluationAnswers'
+                    ]
+                ]
+            ]
         ]
     ],
     [
@@ -217,48 +276,53 @@ $menus = [
                         return false;
                     }
                 }
-                // Renderização dinâmica dos menus
-                foreach ($menus as $menu) {
-                    // Se não houver submenu, verifica permissão direta
-                    if (empty($menu['submenu'])) {
-                        if (isset($menu['permission']) && in_array($menu['permission'], $this->data['menuPermission'])) {
-                            echo '<a href="' . $menu['url'] . '" class="nav-link ' . (($this->data['menu'] ?? false) == $menu['id'] ? 'active' : '') . '">';
-                            echo '<div class="sb-nav-link-icon"><i class="' . $menu['icon'] . '"></i></div> ' . $menu['label'];
-                            echo '</a>';
-                        }
-                    } else {
-                        // Só exibe o menu se houver pelo menos um submenu permitido
-                        if (hasPermittedSubmenu($menu['submenu'], $this->data['menuPermission'])) {
-                            $submenuId = 'collapse' . ucfirst($menu['id']);
-                            // Verifica se algum submenu está ativo
-                            $submenuActive = false;
-                            $menuAtivo = $this->data['menu'] ?? false;
-                            foreach ($menu['submenu'] as $submenu) {
-                                if (isset($submenu['permission']) && in_array($submenu['permission'], $this->data['menuPermission'])) {
-                                    // Considera ativo se menu principal ou url do submenu estiver ativo
-                                    if ($menuAtivo == $menu['id'] || (isset($submenu['url']) && $menuAtivo == basename($submenu['url']))) {
-                                        $submenuActive = true;
-                                        break;
+                // Função recursiva para renderizar submenus aninhados
+                if (!function_exists('renderMenu')) {
+                    function renderMenu($menus, $menuPermission, $menuAtivo = null, $nivel = 0, $parentId = 'sidenavAccordion') {
+                        foreach ($menus as $index => $menu) {
+                            $hasSubmenu = !empty($menu['submenu']);
+                            $hasPermitted = isset($menu['permission']) ? in_array($menu['permission'], $menuPermission) : false;
+                            if ($hasSubmenu) {
+                                $permittedSubmenus = array_filter($menu['submenu'], function($submenu) use ($menuPermission) {
+                                    return isset($submenu['permission']) && in_array($submenu['permission'], $menuPermission);
+                                });
+                                if (count($permittedSubmenus) > 0) {
+                                    // Gera um id único para cada submenu
+                                    $submenuId = 'collapse' . md5(($menu['label'] ?? 'submenu') . $nivel . $index);
+                                    $submenuActive = false;
+                                    foreach ($menu['submenu'] as $submenu) {
+                                        if (isset($submenu['permission']) && in_array($submenu['permission'], $menuPermission)) {
+                                            if ((isset($menu['id']) && $menuAtivo == $menu['id']) || (isset($submenu['url']) && $menuAtivo == basename($submenu['url']))) {
+                                                $submenuActive = true;
+                                                break;
+                                            }
+                                        }
                                     }
+                                    $isOpen = $submenuActive ? 'show' : '';
+                                    echo '<a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#' . $submenuId . '" aria-expanded="' . ($isOpen ? 'true' : 'false') . '" aria-controls="' . $submenuId . '">';
+                                    if ($nivel == 0 && isset($menu['icon'])) {
+                                        echo '<div class="sb-nav-link-icon"><i class="' . $menu['icon'] . '"></i></div> ';
+                                    }
+                                    echo $menu['label'];
+                                    echo '<div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>';
+                                    echo '</a>';
+                                    echo '<div class="collapse' . ($isOpen ? ' show' : '') . '" id="' . $submenuId . '" data-bs-parent="#' . $parentId . '">';
+                                    echo '<nav class="sb-sidenav-menu-nested nav">';
+                                    renderMenu($menu['submenu'], $menuPermission, $menuAtivo, $nivel + 1, $submenuId);
+                                    echo '</nav></div>';
+                                }
+                            } else {
+                                if ($hasPermitted) {
+                                    $active = ($menuAtivo == basename($menu['url'])) ? 'active' : '';
+                                    echo '<a href="' . $menu['url'] . '" class="nav-link ' . $active . '">' . ($nivel == 0 && isset($menu['icon']) ? '<div class="sb-nav-link-icon"><i class="' . $menu['icon'] . '"></i></div> ' : '') . $menu['label'] . '</a>';
                                 }
                             }
-                            $isOpen = $submenuActive ? 'show' : '';
-                            echo '<a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#' . $submenuId . '" aria-expanded="' . ($isOpen ? 'true' : 'false') . '" aria-controls="' . $submenuId . '">';
-                            echo '<div class="sb-nav-link-icon"><i class="' . $menu['icon'] . '"></i></div> ' . $menu['label'];
-                            echo '<div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>';
-                            echo '</a>';
-                            echo '<div class="collapse' . ($isOpen ? ' show' : '') . '" id="' . $submenuId . '" data-bs-parent="#sidenavAccordion">';
-                            echo '<nav class="sb-sidenav-menu-nested nav">';
-                            foreach ($menu['submenu'] as $submenu) {
-                                if (isset($submenu['permission']) && in_array($submenu['permission'], $this->data['menuPermission'])) {
-                                    $active = ($menuAtivo == basename($submenu['url'])) ? 'active' : '';
-                                    echo '<a href="' . $submenu['url'] . '" class="nav-link ' . $active . '">' . $submenu['label'] . '</a>';
-                                }
-                            }
-                            echo '</nav></div>';
                         }
                     }
                 }
+                // Renderização dinâmica dos menus
+                $menuAtivo = $this->data['menu'] ?? false;
+                renderMenu($menus, $this->data['menuPermission'], $menuAtivo);
                 ?>
             </div>
         </div>

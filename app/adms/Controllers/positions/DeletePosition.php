@@ -71,6 +71,8 @@ class DeletePosition
 
         // Verificar se a exclusão foi bem-sucedida
         if ($result) {
+            $matrixService = new \App\adms\Controllers\trainings\TrainingMatrixService();
+            $matrixService->updateMatrixForAllUsers();
             // Criar a mensagem de sucesso
             $_SESSION['success'] = "Cargo apagado com sucesso!";
         } else {

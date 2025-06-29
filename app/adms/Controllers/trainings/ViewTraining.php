@@ -1,0 +1,81 @@
+<?php
+
+namespace App\adms\Controllers\trainings;
+
+use App\adms\Models\Repository\TrainingsRepository;
+use App\adms\Models\Repository\TrainingPositionsRepository;
+use App\adms\Models\Repository\TrainingUsersRepository;
+use App\adms\Models\Repository\PositionsRepository;
+use App\adms\Controllers\Services\PageLayoutService;
+use App\adms\Views\Services\LoadViewService;
+use App\adms\Helpers\GenerateLog;
+
+class ViewTraining
+{
+    private array|string|null $data = null;
+
+    public function index(int|string $id): void
+    {
+        $this->loadTrainingData($id);
+        $this->loadView();
+    }
+
+    private function loadTrainingData(int|string $id): void
+    {
+        $trainingsRepo = new TrainingsRepository();
+        $trainingPositionsRepo = new TrainingPositionsRepository();
+        $trainingUsersRepo = new TrainingUsersRepository();
+        $positionsRepo = new PositionsRepository();
+
+        $training = $trainingsRepo->getTraining($id);
+        
+        if (!$training) {
+            $_SESSION['error'] = 'Treinamento não encontrado!';
+            header('Location: ' . $_ENV['URL_ADM'] . 'list-trainings');
+            exit;
+        }
+
+        // Buscar cargos vinculados
+        $linkedPositions = $trainingPositionsRepo->getPositionsByTraining($id);
+        $positionIds = array_column($linkedPositions, 'adms_position_id');
+        $positions = [];
+        
+        if (!empty($positionIds)) {
+            $allPositions = $positionsRepo->getAllPositions(1, 1000);
+            foreach ($allPositions as $position) {
+                if (in_array($position['id'], $positionIds)) {
+                    $positions[] = $position;
+                }
+            }
+        }
+
+        // Buscar estatísticas de usuários
+        $userStats = $trainingUsersRepo->getTrainingUserStats($id);
+
+        // Buscar estatísticas de vínculos
+        $positionStats = $trainingPositionsRepo->getTrainingPositionsStats($id);
+
+        $this->data['training'] = $training;
+        $this->data['linkedPositions'] = $linkedPositions;
+        $this->data['positions'] = $positions;
+        $this->data['userStats'] = $userStats;
+        $this->data['positionStats'] = $positionStats;
+
+        // Registrar visualização
+        GenerateLog::generateLog("info", "Visualizado treinamento", ['id' => $id, 'nome' => $training['nome']]);
+    }
+
+    private function loadView(): void
+    {
+        $pageElements = [
+            'title_head' => 'Visualizar Treinamento',
+            'menu' => 'list-trainings',
+            'buttonPermission' => ['ListTrainings', 'UpdateTraining', 'DeleteTraining', 'TrainingPositions'],
+        ];
+        $pageLayoutService = new PageLayoutService();
+        $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
+
+        $loadView = new LoadViewService('adms/Views/trainings/view', $this->data);
+        $loadView->loadView();
+    }
+} 

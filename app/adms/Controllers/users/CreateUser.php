@@ -114,6 +114,8 @@ class CreateUser
 
         // Acessa o IF se o repository retornou TRUE
         if ($result) {
+            $matrixService = new \App\adms\Controllers\trainings\TrainingMatrixService();
+            $matrixService->updateMatrixForUser($result);
 
             // Criar a mensagem de sucesso
             $_SESSION['success'] = "Usuário cadastrado com suscesso!";
