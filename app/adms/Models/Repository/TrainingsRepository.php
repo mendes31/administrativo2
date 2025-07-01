@@ -7,13 +7,44 @@ use PDO;
 
 class TrainingsRepository extends DbConnection
 {
-    public function getAllTrainings(int $page = 1, int $limit = 20): array
+    public function getAllTrainings(int $page = 1, int $limit = 20, array $filters = []): array
     {
         $offset = max(0, ($page - 1) * $limit);
+        $where = [];
+        $params = [];
+        if (!empty($filters['nome'])) {
+            $where[] = 't.nome LIKE :nome';
+            $params[':nome'] = '%' . $filters['nome'] . '%';
+        }
+        if (isset($filters['ativo']) && $filters['ativo'] !== '') {
+            $where[] = 't.ativo = :ativo';
+            $params[':ativo'] = (int)$filters['ativo'];
+        }
+        if (!empty($filters['instrutor'])) {
+            $where[] = '(u.name LIKE :instrutor OR t.instrutor LIKE :instrutor)';
+            $params[':instrutor'] = '%' . $filters['instrutor'] . '%';
+        }
+        if (!empty($filters['tipo'])) {
+            $where[] = 't.tipo = :tipo';
+            $params[':tipo'] = $filters['tipo'];
+        }
+        if (!empty($filters['codigo'])) {
+            $where[] = 't.codigo LIKE :codigo';
+            $params[':codigo'] = '%' . $filters['codigo'] . '%';
+        }
+        if (!empty($filters['reciclagem'])) {
+            $where[] = 't.reciclagem_periodo = :reciclagem';
+            $params[':reciclagem'] = (int)$filters['reciclagem'];
+        }
+        $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
         $sql = 'SELECT t.*, u.name as user_name FROM adms_trainings t
                 LEFT JOIN adms_users u ON u.id = t.instructor_user_id
-                ORDER BY t.id ASC LIMIT :limit OFFSET :offset';
+                ' . $whereSql . '
+                ORDER BY t.id DESC LIMIT :limit OFFSET :offset';
         $stmt = $this->getConnection()->prepare($sql);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
@@ -97,11 +128,56 @@ class TrainingsRepository extends DbConnection
     /**
      * Retorna o total de treinamentos
      */
-    public function getTotalTrainings(): int
+    public function getTotalTrainings(array $filters = []): int
     {
-        $sql = 'SELECT COUNT(*) as total FROM adms_trainings';
+        $where = [];
+        $params = [];
+        if (!empty($filters['nome'])) {
+            $where[] = 'nome LIKE :nome';
+            $params[':nome'] = '%' . $filters['nome'] . '%';
+        }
+        if (isset($filters['ativo']) && $filters['ativo'] !== '') {
+            $where[] = 'ativo = :ativo';
+            $params[':ativo'] = (int)$filters['ativo'];
+        }
+        if (!empty($filters['instrutor'])) {
+            $where[] = '(u.name LIKE :instrutor OR t.instrutor LIKE :instrutor)';
+            $params[':instrutor'] = '%' . $filters['instrutor'] . '%';
+        }
+        if (!empty($filters['tipo'])) {
+            $where[] = 't.tipo = :tipo';
+            $params[':tipo'] = $filters['tipo'];
+        }
+        if (!empty($filters['codigo'])) {
+            $where[] = 't.codigo LIKE :codigo';
+            $params[':codigo'] = '%' . $filters['codigo'] . '%';
+        }
+        if (!empty($filters['reciclagem'])) {
+            $where[] = 't.reciclagem_periodo = :reciclagem';
+            $params[':reciclagem'] = (int)$filters['reciclagem'];
+        }
+        $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+        $sql = 'SELECT COUNT(*) as total FROM adms_trainings ' . $whereSql;
         $stmt = $this->getConnection()->prepare($sql);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
         $stmt->execute();
         return (int) $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+    }
+
+    /**
+     * Retorna o total de colaboradores vinculados ao treinamento (direto ou por cargo obrigatório, sem duplicidade)
+     */
+    public function getTotalColaboradoresVinculados($trainingId): int
+    {
+        $sql = "SELECT COUNT(DISTINCT tu.adms_user_id) as total
+                FROM adms_training_users tu
+                WHERE tu.adms_training_id = :training_id";
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':training_id', $trainingId, \PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return (int)($row['total'] ?? 0);
     }
 } 

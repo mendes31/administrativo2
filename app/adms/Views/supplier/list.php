@@ -33,12 +33,17 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_supplier');
 
                 <!-- Formulário de busca -->
                 <div class="col-md-auto flex-fill">
-                    <form method="GET" class="d-flex flex-wrap gap-2">
-                        <!-- <input type="text" name="search" class="form-control form-control-sm" placeholder="Buscar fornecedor..." value="<?php echo htmlspecialchars($_GET['search'] ?? '', ENT_QUOTES); ?>">
-                        <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-search"></i> Buscar</button> -->
-
+                    <form method="GET" class="d-flex flex-wrap gap-2 align-items-end">
                         <input type="text" name="search" value="<?= $criteria['search'] ?? '' ?>" placeholder="Buscar por nome, código ou status...">
-                        <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-search"></i> Buscar</button>
+                        <label for="per_page" class="form-label mb-1 ms-2">Exibir</label>
+                        <select name="per_page" id="per_page" class="form-select form-select-sm w-auto ms-1" onchange="this.form.submit()">
+                            <?php foreach ([10, 20, 50, 100] as $opt): ?>
+                                <option value="<?= $opt ?>" <?= ($_GET['per_page'] ?? 20) == $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="ms-2">por página</span>
+                        <button type="submit" class="btn btn-primary btn-sm ms-2"><i class="fa fa-search"></i> Buscar</button>
+                        <a href="?limpar_filtros=1" class="btn btn-secondary btn-sm ms-2">Limpar Filtros</a>
                     </form>
                 </div>
 
@@ -178,11 +183,21 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_supplier');
 
                     </tbody>
                 </table>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <div class="text-secondary small">
+                        <?php if (!empty($this->data['pagination']['total'])): ?>
+                            Mostrando <?= $this->data['pagination']['first_item'] ?> até <?= $this->data['pagination']['last_item'] ?> de <?= $this->data['pagination']['total'] ?> registro(s)
+                        <?php else: ?>
+                            Exibindo <?= count($this->data['suppliers']); ?> registro(s) nesta página.
+                        <?php endif; ?>
+                    </div>
+                    <div>
+                        <?= $this->data['pagination']['html'] ?? '' ?>
+                    </div>
+                </div>
 
 
             <?php
-                // Inclui o arquivo de paginação
-                include_once './app/adms/Views/partials/pagination.php';
             } else { // Exibe mensagem se nenhum fornecedor for encontrado
                 echo "<div class='alert alert-danger' role='alert'>Nenhum Fornecedor encontrado!</div>";
             } ?>

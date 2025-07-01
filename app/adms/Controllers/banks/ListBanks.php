@@ -39,19 +39,29 @@ class ListBanks
      */
     public function index(string|int $page = 1): void
     {
+        // Capturar o parâmetro page da URL, se existir
+        if (isset($_GET['page']) && is_numeric($_GET['page'])) {
+            $page = (int)$_GET['page'];
+        }
+        // Tratar per_page
+        if (isset($_GET['per_page']) && in_array((int)$_GET['per_page'], [10, 20, 50, 100])) {
+            $this->limitResult = (int)$_GET['per_page'];
+        }
+        // Filtros de busca
+        $filtros = [
+            'bank_name' => $_GET['bank_name'] ?? '',
+            'bank_code' => $_GET['bank_code'] ?? '',
+            'agency' => $_GET['agency'] ?? '',
+            'account' => $_GET['account'] ?? '',
+        ];
         // Instanciar o Repository para recuperar os registros do banco de dados
         $listBanks = new BanksRepository();
-
-        // Recuperar os Bancos para a página atual
-        $this->data['banks'] = $listBanks->getAllBanks((int) $page, (int) $this->limitResult);
-
-        // Gerar dados de paginação
-        $this->data['pagination'] = PaginationService::generatePagination(
-            (int) $listBanks->getAmountBanks(), 
-            (int) $this->limitResult, 
-            (int) $page, 
-            'list-banks'
-        );
+        $this->data['banks'] = $listBanks->getAllBanks((int) $page, (int) $this->limitResult, $filtros);
+        $totalBanks = $listBanks->getAmountBanks($filtros);
+        $pagination = PaginationService::generatePagination((int) $totalBanks, (int) $this->limitResult, (int) $page, 'list-banks', array_merge($filtros, ['per_page' => $this->limitResult]));
+        $this->data['pagination'] = $pagination;
+        $this->data['per_page'] = $this->limitResult;
+        $this->data['filtros'] = $filtros;
 
         // Definir o título da página
         // Ativar o item de menu

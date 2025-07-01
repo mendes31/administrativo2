@@ -1,9 +1,9 @@
-<?php
-if (!defined('C8L6K7E')) {
-    header("Location: /");
-    die("Erro: Página não encontrada<br>");
-}
-?>
+<?php if (!empty($_SESSION['msg'])): ?>
+    <div class="alert alert-<?= $_SESSION['msg_type'] ?? 'info' ?>">
+        <?= $_SESSION['msg'] ?>
+    </div>
+    <?php unset($_SESSION['msg'], $_SESSION['msg_type']); ?>
+<?php endif; ?>
 
 <div class="container-fluid">
     <div class="row">
@@ -23,7 +23,7 @@ if (!defined('C8L6K7E')) {
                         </ul>
                     </div>
 
-                    <form method="POST" action="<?= $_ENV['URL_ADM'] ?>test-notification/send">
+                    <form method="POST" action="<?= $_ENV['URL_ADM'] ?>send-notification">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="card">

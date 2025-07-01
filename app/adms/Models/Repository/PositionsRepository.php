@@ -27,30 +27,27 @@ class PositionsRepository extends DbConnection
      *
      * @param int $page Número da página para recuperação de cargos (começa do 1).
      * @param int $limitResult Número máximo de resultados por página.
+     * @param string $filterName Filtro opcional por nome.
      * @return array Lista de cargos recuperados do banco de dados.
      */
-    public function getAllPositions(int $page = 1, int $limitResult = 10): array
+    public function getAllPositions(int $page = 1, int $limitResult = 10, string $filterName = ''): array
     {
-        // Calcular o registro inicial, função max para garantir valor mínimo 0
         $offset = max(0, ($page - 1) * $limitResult);
-
-        // QUERY para recuperar os registros do banco de dados
-        $sql = 'SELECT id, name
-                FROM adms_positions               
-                ORDER BY id ASC
-                LIMIT :limit OFFSET :offset';
-
-        // Preparar a QUERY
+        $where = '';
+        $params = [];
+        if (!empty($filterName)) {
+            $where = 'WHERE name LIKE :name';
+            $params[':name'] = '%' . $filterName . '%';
+        }
+        $sql = 'SELECT id, name FROM adms_positions '
+            . $where . ' ORDER BY id ASC LIMIT :limit OFFSET :offset';
         $stmt = $this->getConnection()->prepare($sql);
-
-        // Substituir os parâmetros da QUERY pelos valores
+        if (!empty($filterName)) {
+            $stmt->bindValue(':name', $params[':name'], PDO::PARAM_STR);
+        }
         $stmt->bindValue(':limit', $limitResult, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-
-        // Executar a QUERY
         $stmt->execute();
-
-        // Ler os registros e retornar
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -59,17 +56,23 @@ class PositionsRepository extends DbConnection
      *
      * Este método retorna a quantidade total de cargos na tabela `adms_positions`, útil para a paginação.
      *
+     * @param string $filterName Filtro opcional por nome.
      * @return int Quantidade total de cargos encontrados no banco de dados.
      */
-    public function getAmountPositions(): int
+    public function getAmountPositions(string $filterName = ''): int
     {
-        // QUERY para recuperar a quantidade de registros
-        $sql = 'SELECT COUNT(id) as amount_records
-                FROM adms_positions';
-
+        $where = '';
+        $params = [];
+        if (!empty($filterName)) {
+            $where = 'WHERE name LIKE :name';
+            $params[':name'] = '%' . $filterName . '%';
+        }
+        $sql = 'SELECT COUNT(id) as amount_records FROM adms_positions ' . $where;
         $stmt = $this->getConnection()->prepare($sql);
+        if (!empty($filterName)) {
+            $stmt->bindValue(':name', $params[':name'], PDO::PARAM_STR);
+        }
         $stmt->execute();
-
         return (int) ($stmt->fetch(PDO::FETCH_ASSOC)['amount_records'] ?? 0);
     }
 

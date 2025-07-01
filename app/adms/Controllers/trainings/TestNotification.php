@@ -10,6 +10,7 @@ class TestNotification
 {
     public function index(): void
     {
+        // die('DEBUG: Entrou no index da TestNotification!');
         $data = [
             'title_head' => 'Teste de Notificações de Treinamentos',
             'menu' => 'gestao_treinamentos',
@@ -27,6 +28,13 @@ class TestNotification
 
     public function sendNotification(): void
     {
+        // Debug: verificar se o formulário está sendo enviado
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // die('DEBUG: Formulário POST recebido!');
+        }
+
+        // Aceitar GET e POST para debug
+        // die('DEBUG: Entrou no sendNotification! (GET ou POST)');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: ' . $_ENV['URL_ADM'] . 'test-notification');
             exit;

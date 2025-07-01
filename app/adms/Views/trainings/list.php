@@ -19,6 +19,9 @@ use App\adms\Helpers\FormatHelper;
                 <a href="<?php echo $_ENV['URL_ADM']; ?>create-training" class="btn btn-success btn-sm me-1 mb-1">
                     <i class="fa-solid fa-plus"></i> Cadastrar
                 </a>
+                <a href="<?php echo $_ENV['URL_ADM']; ?>training-kpi-dashboard" class="btn btn-primary btn-sm me-1 mb-1">
+                    <i class="fas fa-chart-line"></i> KPIs
+                </a>
                 <a href="<?php echo $_ENV['URL_ADM']; ?>training-matrix-manager" class="btn btn-warning btn-sm me-1 mb-1">
                     <i class="fas fa-table"></i> Matriz
                 </a>
@@ -29,8 +32,56 @@ use App\adms\Helpers\FormatHelper;
         </div>
         <div class="card-body">
             <?php include './app/adms/Views/partials/alerts.php'; ?>
+            <form method="GET" class="row g-2 mb-3 align-items-end">
+                <div class="col-md-1">
+                    <input type="text" name="codigo" class="form-control" placeholder="Código" value="<?= htmlspecialchars($_GET['codigo'] ?? '') ?>">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" name="nome" class="form-control" placeholder="Nome do treinamento" value="<?= htmlspecialchars($_GET['nome'] ?? '') ?>">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" name="instrutor" class="form-control" placeholder="Instrutor" value="<?= htmlspecialchars($_GET['instrutor'] ?? '') ?>">
+                </div>
+                <div class="col-md-1">
+                    <select name="reciclagem" class="form-select">
+                        <option value="">Reciclagem</option>
+                        <option value="1" <?= (($_GET['reciclagem'] ?? '') === '1') ? 'selected' : '' ?>>Sim</option>
+                        <option value="0" <?= (($_GET['reciclagem'] ?? '') === '0') ? 'selected' : '' ?>>Não</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <select name="tipo" class="form-select">
+                        <option value="">Tipo</option>
+                        <option value="Presencial" <?= (($_GET['tipo'] ?? '') === 'Presencial') ? 'selected' : '' ?>>Presencial</option>
+                        <option value="Online" <?= (($_GET['tipo'] ?? '') === 'Online') ? 'selected' : '' ?>>Online</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <select name="ativo" class="form-select">
+                        <option value="">Status</option>
+                        <option value="1" <?= (($_GET['ativo'] ?? '') === '1') ? 'selected' : '' ?>>Ativo</option>
+                        <option value="0" <?= (($_GET['ativo'] ?? '') === '0') ? 'selected' : '' ?>>Inativo</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <label for="per_page" class="form-label mb-1 me-2">Mostrar</label>
+                    <select name="per_page" id="per_page" class="form-select form-select-sm w-auto mx-1" onchange="this.form.submit()">
+                        <?php foreach ([10, 20, 50, 100] as $opt): ?>
+                            <option value="<?= $opt ?>" <?= ($_GET['per_page'] ?? 10) == $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span class="form-label mb-1 ms-1">registros</span>
+                    <button type="submit" class="btn btn-primary btn-sm ms-3"><i class="fa fa-search"></i> Filtrar</button>
+                    <a href="<?php echo $_ENV['URL_ADM']; ?>list-trainings" class="btn btn-secondary btn-sm ms-2"><i class="fa fa-times"></i> Limpar Filtros</a>
+                </div>
+            </form>
+            <!-- <?php if (!empty($this->data['pagination'])): ?>
+                <nav>
+                    <?= $this->data['pagination']; ?>
+                </nav>
+            <?php endif; ?> -->
             <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover" id="trainingsTable">
+                <table class="table table-bordered table-striped table-hover">
                     <thead class="table-dark">
                         <tr>
                             <th style="width:60px;" class="text-center">ID</th>
@@ -108,6 +159,7 @@ use App\adms\Helpers\FormatHelper;
                                     <td class="text-center">
                                         <?php 
                                         $cargosVinculados = (int)($training['cargos_vinculados'] ?? 0);
+                                        $colaboradoresVinculados = (int)($training['colaboradores_vinculados'] ?? 0);
                                         if ($cargosVinculados > 0): 
                                         ?>
                                             <span class="badge bg-success">
@@ -118,6 +170,9 @@ use App\adms\Helpers\FormatHelper;
                                                 <i class="fas fa-unlink me-1"></i>0
                                             </span>
                                         <?php endif; ?>
+                                        <span class="badge bg-primary ms-1">
+                                            <i class="fas fa-users me-1"></i><?php echo $colaboradoresVinculados; ?>
+                                        </span>
                                     </td>
                                     <td class="text-center">
                                         <?php if ($training['ativo']): ?>
@@ -147,6 +202,11 @@ use App\adms\Helpers\FormatHelper;
                                                title="Vincular Cargos">
                                                 <i class="fas fa-link"></i>
                                             </a>
+                                            <a href="<?php echo $_ENV['URL_ADM']; ?>link-training-users/<?php echo $training['id']; ?>"
+                                               class="btn btn-secondary btn-sm"
+                                               title="Vincular Colaborador(es)">
+                                                <i class="fas fa-user-plus"></i>
+                                            </a>
                                             <a href="<?php echo $_ENV['URL_ADM']; ?>delete-training/<?php echo $training['id']; ?>" 
                                                class="btn btn-danger btn-sm" 
                                                onclick="return confirm('Tem certeza que deseja excluir este treinamento?');"
@@ -168,22 +228,23 @@ use App\adms\Helpers\FormatHelper;
                     </tbody>
                 </table>
             </div>
+            <?php if (!empty($this->data['pagination']['html'])): ?>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <div class="text-secondary small">
+                        <?php if (!empty($this->data['pagination']['total'])): ?>
+                            Mostrando <?= $this->data['pagination']['first_item'] ?> até <?= $this->data['pagination']['last_item'] ?> de <?= $this->data['pagination']['total'] ?> registro(s)
+                        <?php else: ?>
+                            Exibindo <?= count($this->data['trainings'] ?? []) ?> registro(s) nesta página.
+                        <?php endif; ?>
+                    </div>
+                    <div>
+                        <?= $this->data['pagination']['html'] ?? '' ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+            <div class="mt-2 text-end text-muted small d-none">
+                Exibindo <?= count($this->data['trainings'] ?? []) ?> registro(s) nesta página.
+            </div>
         </div>
     </div>
-</div>
-
-<script>
-$(document).ready(function() {
-    $('#trainingsTable').DataTable({
-        language: {
-            url: '<?php echo $_ENV['URL_ADM']; ?>public/adms/DataTables/pt-BR.json'
-        },
-        pageLength: 25,
-        order: [[2, 'asc']], // Ordenar por nome
-        columnDefs: [
-            { orderable: false, targets: [10] } // Desabilitar ordenação na coluna de ações
-        ],
-        responsive: true
-    });
-});
-</script> 
+</div> 

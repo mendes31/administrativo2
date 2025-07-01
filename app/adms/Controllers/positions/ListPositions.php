@@ -24,7 +24,7 @@ class ListPositions
     private array|string|null $data = null;
 
     /** @var int $limitResult Limite de registros por página */
-    private int $limitResult = 1000; // Ajuste conforme necessário
+    private int $limitResult = 10; // Padrão 10 por página
 
     /**
      * Recuperar e listar cargos com paginação.
@@ -38,19 +38,24 @@ class ListPositions
      */
     public function index(string|int $page = 1): void
     {
+        // Capturar o parâmetro page da URL, se existir
+        if (isset($_GET['page']) && is_numeric($_GET['page'])) {
+            $page = (int)$_GET['page'];
+        }
+        // Tratar per_page
+        if (isset($_GET['per_page']) && in_array((int)$_GET['per_page'], [10, 20, 50, 100])) {
+            $this->limitResult = (int)$_GET['per_page'];
+        }
+        // Capturar filtro de nome
+        $filterName = isset($_GET['name']) ? trim($_GET['name']) : '';
         // Instanciar o Repository para recuperar os registros do banco de dados
         $listPositions = new PositionsRepository();
-
-        // Recuperar os cargos para a página atual
-        $this->data['positions'] = $listPositions->getAllPositions((int) $page, (int) $this->limitResult);
-
-        // Gerar dados de paginação
-        $this->data['pagination'] = PaginationService::generatePagination(
-            (int) $listPositions->getAmountPositions(), 
-            (int) $this->limitResult, 
-            (int) $page, 
-            'list-positions'
-        );
+        $totalPositions = $listPositions->getAmountPositions($filterName);
+        $this->data['positions'] = $listPositions->getAllPositions((int) $page, (int) $this->limitResult, $filterName);
+        $pagination = PaginationService::generatePagination((int) $totalPositions, (int) $this->limitResult, (int) $page, 'list-positions', ['per_page' => $this->limitResult, 'name' => $filterName]);
+        $this->data['pagination'] = $pagination;
+        $this->data['per_page'] = $this->limitResult;
+        $this->data['filter_name'] = $filterName;
 
         // Definir o título da página
         // Ativar o item de menu

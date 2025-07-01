@@ -23,7 +23,7 @@ class ListUsers
     private array|string|null $data = null;
 
     /** @var int $limitResult Recebe a quantidade de registros que deve retornar do banco de dados */
-    private int $limitResult = 10000; // Ajuste se necessário a quantidade de registro por pagina
+    private int $limitResult = 10; // Padrão 10 por página
 
     /**
      * Recuperar e listar usuários com paginação.
@@ -37,11 +37,27 @@ class ListUsers
      */
     public function index(string|int $page = 1)
     {
+        // Capturar o parâmetro page da URL, se existir
+        if (isset($_GET['page']) && is_numeric($_GET['page'])) {
+            $page = (int)$_GET['page'];
+        }
+        // Tratar filtros
+        $filtros = [
+            'nome' => $_GET['nome'] ?? '',
+            'email' => $_GET['email'] ?? '',
+        ];
+        // Tratar per_page
+        if (isset($_GET['per_page']) && in_array((int)$_GET['per_page'], [10, 20, 50, 100])) {
+            $this->limitResult = (int)$_GET['per_page'];
+        }
         // Instanciar o Repository para recuperar os registros do banco de dados
         $listUsers = new UsersRepository();
-        $this->data['users'] = $listUsers->getAllUsers((int) $page, (int) $this->limitResult);
-        $this->data['pagination'] = PaginationService::generatePagination((int) $listUsers->getAmountUsers(), (int) $this->limitResult, (int) $page, 'list-users');
-    
+        $totalUsers = $listUsers->getAmountUsers($filtros);
+        $this->data['users'] = $listUsers->getAllUsers((int) $page, (int) $this->limitResult, $filtros);
+        $pagination = PaginationService::generatePagination((int) $totalUsers, (int) $this->limitResult, (int) $page, 'list-users', array_merge($filtros, ['per_page' => $this->limitResult]));
+        $this->data['pagination'] = $pagination;
+        $this->data['pagination_total'] = $totalUsers;
+        $this->data['per_page'] = $this->limitResult;
         // Definir o título da página
         // Ativar o item de menu
         // Apresentar ou ocultar botão 
@@ -50,11 +66,9 @@ class ListUsers
             'menu' => 'list-users',
             'buttonPermission' => ['CreateUser', 'ViewUser', 'UpdateUser', 'DeleteUser'],
         ];
-        
         $pageLayoutService = new PageLayoutService();
         $pageLayoutService->configurePageElements($pageElements);
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
-
         // Carregar a VIEW
         $loadView = new LoadViewService("adms/Views/users/list", $this->data);
         $loadView->loadView();

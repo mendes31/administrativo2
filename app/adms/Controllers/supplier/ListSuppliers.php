@@ -29,6 +29,11 @@ class ListSuppliers
      */
     public function index(string|int $page = 1): void
     {
+        // Capturar o parâmetro page da URL, se existir
+        if (isset($_GET['page']) && is_numeric($_GET['page'])) {
+            $page = (int)$_GET['page'];
+        }
+
         // Atualizar o campo busy e user_temp
         $payRepo = new PaymentsRepository();
         $payRepo->getUserTemp($_SESSION['user_id']); //  ID de usuário que tiver
@@ -45,6 +50,11 @@ class ListSuppliers
         $cardCode = filter_input(INPUT_GET, 'card_code', FILTER_SANITIZE_SPECIAL_CHARS);  // Filtro para código do fornecedor
         $cardName = filter_input(INPUT_GET, 'card_name', FILTER_SANITIZE_SPECIAL_CHARS);  // Filtro para nome do fornecedor
         $active = filter_input(INPUT_GET, 'active', FILTER_VALIDATE_INT);  // Filtro para status ativo
+
+        // Tratar per_page
+        if (isset($_GET['per_page']) && in_array((int)$_GET['per_page'], [10, 20, 50, 100])) {
+            $this->limitResult = (int)$_GET['per_page'];
+        }
 
         // Configura os critérios de busca
         $criteria = [];
@@ -92,7 +102,7 @@ class ListSuppliers
             (int) $this->limitResult,
             (int) $page,
             'list-suppliers',
-            $criteria  // Aqui também estava passando só ['search' => $searchTerm]
+            array_merge($criteria, ['per_page' => $this->limitResult])
         );
 
         // Define dados da página (título, menu ativo, permissões de botões)
@@ -106,6 +116,7 @@ class ListSuppliers
 
         // Envia também os filtros para a view
         $this->data['criteria'] = $criteria;
+        $this->data['per_page'] = $this->limitResult;
 
         // Carrega a VIEW
         $loadView = new LoadViewService("adms/Views/supplier/list", $this->data);

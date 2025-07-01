@@ -34,7 +34,7 @@ class ListTrainingStatus
         $this->data = [
             'filters' => $filters,
             'matrix' => $trainingUsersRepo->getTrainingStatusByUser($filters),
-            'summary' => $trainingUsersRepo->getSummary(),
+            'summary' => $trainingUsersRepo->getSummaryAll(),
             'expiring' => $trainingUsersRepo->getExpiringTrainings(30),
             'listDepartments' => $departmentsRepo->getAllDepartmentsSelect(),
             'listPositions' => $positionsRepo->getAllPositionsSelect(),

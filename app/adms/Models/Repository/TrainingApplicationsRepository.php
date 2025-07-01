@@ -108,4 +108,25 @@ class TrainingApplicationsRepository extends DbConnection
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result ?: null;
     }
+
+    /**
+     * Retorna as aplicações mais recentes
+     */
+    public function getRecentApplications(int $limit = 10): array
+    {
+        $sql = 'SELECT 
+                    ta.*,
+                    u.name as user_name,
+                    t.nome as training_name,
+                    t.codigo as training_code
+                FROM adms_training_applications ta
+                INNER JOIN adms_users u ON u.id = ta.adms_user_id
+                INNER JOIN adms_trainings t ON t.id = ta.adms_training_id
+                ORDER BY ta.created_at DESC
+                LIMIT ?';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
 } 

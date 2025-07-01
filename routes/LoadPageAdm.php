@@ -58,7 +58,11 @@ class LoadPageAdm
         "ListEvaluationQuestions", "CreateEvaluationQuestion", "UpdateEvaluationQuestion", "DeleteEvaluationQuestion", "ViewEvaluationQuestion",
         "ListEvaluationAnswers", "CreateEvaluationAnswer", "UpdateEvaluationAnswer", "DeleteEvaluationAnswer", "ViewEvaluationAnswer",
         "GetQuestionsByModel",
-        "ScheduleTraining", "ApplyTraining", "ListTrainingStatus", "TrainingPositions", "TrainingMatrixManager", "ListTrainings", "CreateTraining", "UpdateTraining", "DeleteTraining", "ViewTraining", "UpdateTrainingMatrix"
+        "ScheduleTraining", "ApplyTraining", "ListTrainingStatus", "TrainingPositions", "TrainingMatrixManager", "ListTrainings", "CreateTraining", "UpdateTraining", "DeleteTraining", "ViewTraining", "UpdateTrainingMatrix",
+        "MatrixByUser", "TestNotification", "SyncTrainingLinks", "CreateTestData", "TrainingDashboard",
+        "SendNotification",
+        "CreateTrainingUser", "DeleteTrainingUserLink",
+        "EmailConfig",
     ];
 
     /** @var array $listDirectory Recebe a lista de diretórios com as controllers */
@@ -230,6 +234,9 @@ class LoadPageAdm
         if (!empty($this->urlParameter) && method_exists($classLoad, $this->urlParameter)) {
             $metodo = $this->urlParameter;
         }
+
+        // Debug: mostrar controller e método
+        var_dump('Controller:', $this->classLoad, 'Método:', $metodo, 'Parâmetro:', $this->urlParameter); die();
 
         if (method_exists($classLoad, $metodo)) {
             // Chamar o método para salvar log

@@ -45,7 +45,38 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_bank');
             if ($this->data['banks'] ?? false) {
             ?>
 
-                <table class="table table-striped table-hover" id="tabela">
+                <form method="get" class="row g-2 mb-3 align-items-end">
+                    <div class="col-md-2">
+                        <label for="bank_name" class="form-label mb-1">Nome do Banco</label>
+                        <input type="text" name="bank_name" id="bank_name" class="form-control" value="<?= htmlspecialchars($this->data['filtros']['bank_name'] ?? '') ?>">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="bank_code" class="form-label mb-1">Código</label>
+                        <input type="text" name="bank_code" id="bank_code" class="form-control" value="<?= htmlspecialchars($this->data['filtros']['bank_code'] ?? '') ?>">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="agency" class="form-label mb-1">Agência</label>
+                        <input type="text" name="agency" id="agency" class="form-control" value="<?= htmlspecialchars($this->data['filtros']['agency'] ?? '') ?>">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="account" class="form-label mb-1">Conta</label>
+                        <input type="text" name="account" id="account" class="form-control" value="<?= htmlspecialchars($this->data['filtros']['account'] ?? '') ?>">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <label for="per_page" class="form-label mb-1 me-2">Mostrar</label>
+                        <select name="per_page" id="per_page" class="form-select form-select-sm w-auto mx-1" onchange="this.form.submit()">
+                            <?php foreach ([10, 20, 50, 100] as $opt): ?>
+                                <option value="<?= $opt ?>" <?= ($this->data['per_page'] ?? 10) == $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="form-label mb-1 ms-1">registros</span>
+                    </div>
+                    <div class="col-md-2 mt-2">
+                        <button type="submit" class="btn btn-primary mt-4">Filtrar</button>
+                        <a href="?limpar_filtros=1" class="btn btn-secondary mt-4 ms-2">Limpar Filtros</a>
+                    </div>
+                </form>
+                <table class="table table-striped table-hover">
                     <thead>
                         <tr>
                             <th scope="col">ID</th>
@@ -110,11 +141,20 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_bank');
 
                     </tbody>
                 </table>
-
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <div class="text-secondary small">
+                        <?php if (!empty($this->data['pagination']['total'])): ?>
+                            Mostrando <?= $this->data['pagination']['first_item'] ?> até <?= $this->data['pagination']['last_item'] ?> de <?= $this->data['pagination']['total'] ?> registro(s)
+                        <?php else: ?>
+                            Exibindo <?= count($this->data['banks']); ?> registro(s) nesta página.
+                        <?php endif; ?>
+                    </div>
+                    <div>
+                        <?= $this->data['pagination']['html'] ?? '' ?>
+                    </div>
+                </div>
 
             <?php
-                // Inclui o arquivo de paginação
-                include_once './app/adms/Views/partials/pagination.php';
             } else { // Exibe mensagem se nenhum banco for encontrado
                 echo "<div class='alert alert-danger' role='alert'>Nenhum Banco encontrado!</div>";
             } ?>
@@ -125,30 +165,5 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_bank');
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function() {
-        $('#tabela').DataTable({
-            "language": {
-                "decimal": ",",
-                "thousands": ".",
-                "sProcessing": "Processando...",
-                "sLengthMenu": "Mostrar _MENU_ registros",
-                "sZeroRecords": "Nenhum registro encontrado",
-                "sEmptyTable": "Nenhum dado disponível na tabela",
-                "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
-                "sInfoEmpty": "Mostrando 0 até 0 de 0 registros",
-                "sInfoFiltered": "(filtrado de _MAX_ registros no total)",
-                "sSearch": "Buscar:",
-                "oPaginate": {
-                    "sFirst": "Primeiro",
-                    "sPrevious": "Anterior",
-                    "sNext": "Próximo",
-                    "sLast": "Último"
-                },
-                "oAria": {
-                    "sSortAscending": ": Ordenar colunas de forma ascendente",
-                    "sSortDescending": ": Ordenar colunas de forma descendente"
-                }
-            }
-        });
-    });
+    // DataTables removido para padronização do sistema
 </script>

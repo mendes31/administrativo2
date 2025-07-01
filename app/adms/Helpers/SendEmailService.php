@@ -4,6 +4,7 @@ namespace App\adms\Helpers;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use App\adms\Models\Repository\AdmsEmailConfigRepository;
 
 class SendEmailService
 {
@@ -11,20 +12,24 @@ class SendEmailService
     {
         $mail = new PHPMailer(true);
 
+        // Buscar configuração do banco
+        $repo = new AdmsEmailConfigRepository();
+        $config = $repo->getConfig();
+
         try {
             //Configurações do servidor
             // $mail->SMTPDebug = SMTP::DEBUG_SERVER;                   //Habilita saída de depuração detalhada
             $mail->CharSet = 'UTF-8';
             $mail->isSMTP();                                            //Envia via SMTP
-            $mail->Host       = $_ENV['MAIL_HOST'];                     //Define o servidor SMTP para enviar
+            $mail->Host       = $config['host'] ?? '';                     //Define o servidor SMTP para enviar
             $mail->SMTPAuth   = true;                                   //Habilita autenticação SMTP
-            $mail->Username   = $_ENV['MAIL_USERNAME'];                 //Nome de usuário SMTP
-            $mail->Password   = $_ENV['MAIL_PASSWORD'];                 //senha SMTP
-            $mail->SMTPSecure = $_ENV['MAIL_ENCRYPTI'];                 //Habilita criptografia TLS implícita
-            $mail->Port       = $_ENV['MAIL_PORT'];
+            $mail->Username   = $config['username'] ?? '';                 //Nome de usuário SMTP
+            $mail->Password   = $config['password'] ?? '';                 //senha SMTP
+            $mail->SMTPSecure = $config['encryption'] ?? '';                 //Habilita criptografia TLS implícita
+            $mail->Port       = $config['port'] ?? 587;
 
             //Recipients
-            $mail->setFrom($_ENV['EMAIL_TI'], $_ENV['NAME_EMAIL_TI']);
+            $mail->setFrom($config['from_email'] ?? '', $config['from_name'] ?? '');
             $mail->addAddress($email, $name);                           //Adiciona um destinatário
 
             //Content

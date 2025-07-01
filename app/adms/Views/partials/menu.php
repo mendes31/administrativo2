@@ -163,9 +163,24 @@ $menus = [
         'label' => 'Gestão de Treinamentos',
         'submenu' => [
             [
+                'label' => 'Cadastrar Treinamentos',
+                'url' => $_ENV['URL_ADM'] . 'list-trainings',
+                'permission' => 'ListTrainings'
+            ],
+            [
+                'label' => 'Dashboard de KPIs ',
+                'url' => $_ENV['URL_ADM'] . 'training-kpi-dashboard',
+                'permission' => 'TrainingKPIDashboard'
+            ],
+            [
                 'label' => 'Matriz por Colaborador',
                 'url' => $_ENV['URL_ADM'] . 'matrix-by-user',
                 'permission' => 'MatrixByUser'
+            ],
+            [
+                'label' => 'Matriz de Treinamentos Realizados',
+                'url' => $_ENV['URL_ADM'] . 'completed-trainings-matrix',
+                'permission' => 'CompletedTrainingsMatrix'
             ],
             [
                 'label' => 'Dashboard de Treinamentos',
@@ -177,16 +192,12 @@ $menus = [
                 'url' => $_ENV['URL_ADM'] . 'training-history',
                 'permission' => 'TrainingHistory'
             ],
-            [
-                'label' => 'Treinamentos',
-                'url' => $_ENV['URL_ADM'] . 'list-trainings',
-                'permission' => 'ListTrainings'
-            ],
-            [
-                'label' => 'Atualizar Matriz de Treinamentos',
-                'url' => $_ENV['URL_ADM'] . 'update-training-matrix',
-                'permission' => 'UpdateTrainingMatrix'
-            ],
+            
+            // [
+            //     'label' => 'Atualizar Matriz de Treinamentos',
+            //     'url' => $_ENV['URL_ADM'] . 'update-training-matrix',
+            //     'permission' => 'UpdateTrainingMatrix'
+            // ],
             [
                 'label' => 'Status de Treinamentos',
                 'url' => $_ENV['URL_ADM'] . 'list-training-status',

@@ -41,7 +41,7 @@
                     <div class="card-body text-center">
                         <h3 class="text-warning">
                             <i class="fas fa-clock"></i>
-                            <?= number_format($this->data['summary']['pendente_count'] ?? 0) ?>
+                            <?= number_format($this->data['summary']['pendentes'] ?? 0) ?>
                         </h3>
                         <p class="card-text">Pendentes</p>
                     </div>
@@ -52,7 +52,7 @@
                     <div class="card-body text-center">
                         <h3 class="text-success">
                             <i class="fas fa-check-circle"></i>
-                            <?= number_format($this->data['summary']['concluido_count'] ?? 0) ?>
+                            <?= number_format($this->data['summary']['concluidos'] ?? 0) ?>
                         </h3>
                         <p class="card-text">Concluídos</p>
                     </div>
@@ -63,7 +63,7 @@
                     <div class="card-body text-center">
                         <h3 class="text-danger">
                             <i class="fas fa-exclamation-triangle"></i>
-                            <?= number_format($this->data['summary']['vencido_count'] ?? 0) ?>
+                            <?= number_format($this->data['summary']['vencidos'] ?? 0) ?>
                         </h3>
                         <p class="card-text">Vencidos</p>
                     </div>
@@ -74,7 +74,7 @@
                     <div class="card-body text-center">
                         <h3 class="text-info">
                             <i class="fas fa-calendar-alt"></i>
-                            <?= number_format($this->data['summary']['agendado_count'] ?? 0) ?>
+                            <?= number_format($this->data['summary']['agendados'] ?? 0) ?>
                         </h3>
                         <p class="card-text">Agendados</p>
                     </div>
@@ -85,7 +85,7 @@
                     <div class="card-body text-center">
                         <h3 class="text-warning">
                             <i class="fas fa-exclamation-circle"></i>
-                            <?= number_format($this->data['summary']['proximo_vencimento_count'] ?? 0) ?>
+                            <?= number_format($this->data['summary']['proximo_vencimento'] ?? 0) ?>
                         </h3>
                         <p class="card-text">Próximo Vencimento</p>
                     </div>
@@ -96,7 +96,7 @@
                     <div class="card-body text-center">
                         <h3 class="text-primary">
                             <i class="fas fa-users"></i>
-                            <?= number_format($this->data['summary']['total_users'] ?? 0) ?>
+                            <?= number_format($this->data['summary']['total'] ?? 0) ?>
                         </h3>
                         <p class="card-text">Total</p>
                     </div>
@@ -184,13 +184,11 @@
                     <tbody>
                         <?php 
                         $matrix = $this->data['matrix'] ?? $this->data['trainingStatus'] ?? [];
-                        $temPendentes = false;
                         ?>
-                        <?php foreach ($matrix as $row): ?>
+                        <?php foreach (
+                            $matrix as $row): ?>
                             <?php 
                             $status = $row['status_dinamico'] ?? $row['status'] ?? 'pendente';
-                            if ($status !== 'pendente') continue;
-                            $temPendentes = true;
                             ?>
                             <tr>
                                 <td><?= htmlspecialchars($row['user_name']) ?></td>
@@ -226,7 +224,25 @@
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <span class="badge bg-warning text-dark">Pendente</span>
+                                    <?php
+                                    $statusClass = match($status) {
+                                        'em_dia' => 'bg-success',
+                                        'pendente' => 'bg-warning text-dark',
+                                        'vencido' => 'bg-danger',
+                                        'proximo_vencimento' => 'bg-warning',
+                                        'agendado' => 'bg-info text-dark',
+                                        default => 'bg-secondary'
+                                    };
+                                    $statusText = match($status) {
+                                        'em_dia' => 'Em Dia',
+                                        'pendente' => 'Pendente',
+                                        'vencido' => 'Vencido',
+                                        'proximo_vencimento' => 'Próximo Vencimento',
+                                        'agendado' => 'Agendado',
+                                        default => ucfirst($status)
+                                    };
+                                    ?>
+                                    <span class="badge <?= $statusClass ?>"><?= $statusText ?></span>
                                 </td>
                                 <td><?= htmlspecialchars($row['nota'] ?? '-') ?></td>
                                 <td class="text-center">
@@ -236,9 +252,6 @@
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                        <?php if (!$temPendentes): ?>
-                            <tr><td colspan="10" class="text-center">Nenhum treinamento pendente encontrado.</td></tr>
-                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>

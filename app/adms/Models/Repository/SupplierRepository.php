@@ -104,15 +104,41 @@ class SupplierRepository extends DbConnection
      *
      * @return int Quantidade total de fornecedores encontrados no banco de dados.
      */
-    public function getAmountSuppliers(): int
+    public function getAmountSuppliers(array $criteria = []): int
     {
-        // QUERY para recuperar a quantidade de registros
-        $sql = 'SELECT COUNT(id) as amount_records
-                FROM adms_supplier';
-
+        $whereClauses = [];
+        $parameters = [];
+        if (!empty($criteria['search'])) {
+            $whereClauses[] = 'card_code LIKE :search OR card_name LIKE :search';
+            $parameters[':search'] = '%' . $criteria['search'] . '%';
+        }
+        if (!empty($criteria['card_code'])) {
+            $whereClauses[] = 'card_code LIKE :card_code';
+            $parameters[':card_code'] = '%' . $criteria['card_code'] . '%';
+        }
+        if (!empty($criteria['card_name'])) {
+            $whereClauses[] = 'card_name LIKE :card_name';
+            $parameters[':card_name'] = '%' . $criteria['card_name'] . '%';
+        }
+        if (!empty($criteria['type_person'])) {
+            $whereClauses[] = 'type_person = :type_person';
+            $parameters[':type_person'] = $criteria['type_person'];
+        }
+        if (!empty($criteria['email'])) {
+            $whereClauses[] = 'email LIKE :email';
+            $parameters[':email'] = '%' . $criteria['email'] . '%';
+        }
+        if (isset($criteria['active'])) {
+            $whereClauses[] = 'active = :active';
+            $parameters[':active'] = (int) $criteria['active'];
+        }
+        $whereSql = !empty($whereClauses) ? 'WHERE ' . implode(' AND ', $whereClauses) : '';
+        $sql = 'SELECT COUNT(id) as amount_records FROM adms_supplier ' . $whereSql;
         $stmt = $this->getConnection()->prepare($sql);
+        foreach ($parameters as $key => $value) {
+            $stmt->bindValue($key, $value, PDO::PARAM_STR);
+        }
         $stmt->execute();
-
         return (int) ($stmt->fetch(PDO::FETCH_ASSOC)['amount_records'] ?? 0);
     }
 

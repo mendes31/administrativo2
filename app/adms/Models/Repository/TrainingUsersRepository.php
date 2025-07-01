@@ -25,15 +25,16 @@ class TrainingUsersRepository extends DbConnection
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function insertOrUpdate(int $userId, int $trainingId, string $status = 'pendente'): void
+    public function insertOrUpdate(int $userId, int $trainingId, string $status = 'pendente', string $tipoVinculo = 'individual'): void
     {
-        $sql = 'INSERT INTO adms_training_users (adms_user_id, adms_training_id, status, created_at, updated_at) 
-                VALUES (:user_id, :training_id, :status, NOW(), NOW()) 
-                ON DUPLICATE KEY UPDATE status = :status, updated_at = NOW()';
+        $sql = 'INSERT INTO adms_training_users (adms_user_id, adms_training_id, status, tipo_vinculo, created_at, updated_at)
+                VALUES (:user_id, :training_id, :status, :tipo_vinculo, NOW(), NOW())
+                ON DUPLICATE KEY UPDATE status = :status, tipo_vinculo = :tipo_vinculo, updated_at = NOW()';
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
         $stmt->bindValue(':training_id', $trainingId, PDO::PARAM_INT);
         $stmt->bindValue(':status', $status, PDO::PARAM_STR);
+        $stmt->bindValue(':tipo_vinculo', $tipoVinculo, PDO::PARAM_STR);
         $stmt->execute();
     }
 
@@ -475,7 +476,7 @@ class TrainingUsersRepository extends DbConnection
             
             // Criar vínculos para treinamentos obrigatórios que não existem
             foreach ($requiredTrainings as $trainingId) {
-                $this->insertOrUpdate($userId, $trainingId, 'pendente');
+                $this->insertOrUpdate($userId, $trainingId, 'pendente', 'cargo');
             }
             
             // Remover vínculos de treinamentos que não são mais obrigatórios
@@ -490,11 +491,9 @@ class TrainingUsersRepository extends DbConnection
     /**
      * Retorna estatísticas resumidas
      */
-    public function getSummary(): array
+    public function getSummaryAll(): array
     {
-        // Primeiro, vamos atualizar os status dinâmicos
         $this->updateDynamicStatuses();
-        
         $sql = 'SELECT 
                     COUNT(DISTINCT tu.adms_user_id) as total_users,
                     COUNT(*) as total_entries,
@@ -505,10 +504,51 @@ class TrainingUsersRepository extends DbConnection
                     SUM(CASE WHEN tu.status = "proximo_vencimento" THEN 1 ELSE 0 END) as proximo_vencimento_count,
                     SUM(CASE WHEN tu.status = "em_dia" THEN 1 ELSE 0 END) as em_dia_count
                 FROM adms_training_users tu';
-        
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC) ?: [];
+        return [
+            'total' => $row['total_entries'] ?? 0,
+            'concluidos' => $row['concluido_count'] ?? 0,
+            'pendentes' => $row['pendente_count'] ?? 0,
+            'vencidos' => $row['vencido_count'] ?? 0,
+            'agendados' => $row['agendado_count'] ?? 0,
+            'proximo_vencimento' => $row['proximo_vencimento_count'] ?? 0,
+            'em_dia' => $row['em_dia_count'] ?? 0,
+        ];
+    }
+
+    public function getSummaryMandatory(): array
+    {
+        $this->updateDynamicStatuses();
+        $sql = 'SELECT 
+                    COUNT(DISTINCT tu.adms_user_id) as total_users,
+                    COUNT(*) as total_entries,
+                    SUM(CASE WHEN tu.status = "pendente" THEN 1 ELSE 0 END) as pendente_count,
+                    SUM(CASE WHEN tu.status = "concluido" THEN 1 ELSE 0 END) as concluido_count,
+                    SUM(CASE WHEN tu.status = "vencido" THEN 1 ELSE 0 END) as vencido_count,
+                    SUM(CASE WHEN tu.status = "agendado" THEN 1 ELSE 0 END) as agendado_count,
+                    SUM(CASE WHEN tu.status = "proximo_vencimento" THEN 1 ELSE 0 END) as proximo_vencimento_count,
+                    SUM(CASE WHEN tu.status = "em_dia" THEN 1 ELSE 0 END) as em_dia_count
+                FROM adms_training_users tu
+                INNER JOIN adms_users u ON u.id = tu.adms_user_id
+                INNER JOIN adms_positions p ON u.user_position_id = p.id
+                INNER JOIN adms_trainings t ON t.id = tu.adms_training_id
+                INNER JOIN adms_training_positions tp ON tp.adms_training_id = t.id 
+                    AND tp.adms_position_id = u.user_position_id 
+                    AND tp.obrigatorio = 1';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->execute();
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC) ?: [];
+        return [
+            'total' => $row['total_entries'] ?? 0,
+            'concluidos' => $row['concluido_count'] ?? 0,
+            'pendentes' => $row['pendente_count'] ?? 0,
+            'vencidos' => $row['vencido_count'] ?? 0,
+            'agendados' => $row['agendado_count'] ?? 0,
+            'proximo_vencimento' => $row['proximo_vencimento_count'] ?? 0,
+            'em_dia' => $row['em_dia_count'] ?? 0,
+        ];
     }
 
     /**
@@ -716,5 +756,251 @@ class TrainingUsersRepository extends DbConnection
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Vincula múltiplos usuários a um treinamento, evitando duplicidade
+     */
+    public function vincularUsuariosTreinamento(int $trainingId, array $userIds, string $tipoVinculo = 'individual'): void
+    {
+        // Buscar cargos obrigatórios para o treinamento
+        $positionsRepo = new \App\adms\Models\Repository\TrainingPositionsRepository();
+        $cargosObrigatorios = $positionsRepo->getPositionIdsByTraining($trainingId);
+        $usersRepo = new \App\adms\Models\Repository\UsersRepository();
+        foreach ($userIds as $userId) {
+            $user = $usersRepo->getUser($userId);
+            if (!in_array($user['user_position_id'], $cargosObrigatorios)) {
+                $this->insertOrUpdate((int)$userId, (int)$trainingId, 'pendente', 'individual');
+            }
+            // Se estiver em cargo obrigatório, não cria vínculo manual (deixa só o automático/cargo)
+        }
+    }
+
+    /**
+     * Retorna os usuários já vinculados a um treinamento
+     */
+    public function getUsuariosVinculados($trainingId)
+    {
+        // Vínculos diretos
+        $sqlDireto = "SELECT u.id, u.name, u.email, 'direto' as tipo
+            FROM adms_training_users tu
+            INNER JOIN adms_users u ON u.id = tu.adms_user_id
+            WHERE tu.adms_training_id = :training_id";
+
+        // Vínculos por cargo (sem vínculo direto)
+        $sqlCargo = "SELECT u.id, u.name, u.email, 'cargo' as tipo
+            FROM adms_users u
+            INNER JOIN adms_training_positions tp ON tp.adms_position_id = u.user_position_id
+            WHERE tp.adms_training_id = :training_id
+            AND u.id NOT IN (
+                SELECT adms_user_id FROM adms_training_users WHERE adms_training_id = :training_id
+            )";
+
+        $stmtDireto = $this->getConnection()->prepare($sqlDireto);
+        $stmtDireto->bindValue(':training_id', $trainingId, \PDO::PARAM_INT);
+        $stmtDireto->execute();
+        $diretos = $stmtDireto->fetchAll(\PDO::FETCH_ASSOC);
+
+        $stmtCargo = $this->getConnection()->prepare($sqlCargo);
+        $stmtCargo->bindValue(':training_id', $trainingId, \PDO::PARAM_INT);
+        $stmtCargo->execute();
+        $cargos = $stmtCargo->fetchAll(\PDO::FETCH_ASSOC);
+
+        return array_merge($diretos, $cargos);
+    }
+
+    /**
+     * Retorna todos os colaboradores vinculados ao treinamento:
+     * - Por cargo obrigatório: todos os usuários com tipo_vinculo = 'cargo'
+     * - Direto: todos os usuários com tipo_vinculo = 'individual'
+     * Adiciona o nome do cargo ao lado do nome
+     */
+    public function getAllVinculadosPorTreinamento($trainingId)
+    {
+        // Buscar todos os vínculos individuais
+        $sqlIndividuais = "SELECT tu.adms_user_id as id, u.name, u.email, 'individual' as tipo, p.name as cargo_nome
+            FROM adms_training_users tu
+            INNER JOIN adms_users u ON u.id = tu.adms_user_id
+            INNER JOIN adms_positions p ON p.id = u.user_position_id
+            WHERE tu.adms_training_id = :training_id AND tu.tipo_vinculo = 'individual'";
+        $stmtIndividuais = $this->getConnection()->prepare($sqlIndividuais);
+        $stmtIndividuais->bindValue(':training_id', $trainingId, \PDO::PARAM_INT);
+        $stmtIndividuais->execute();
+        $individuais = $stmtIndividuais->fetchAll(\PDO::FETCH_ASSOC);
+        $idsIndividuais = array_column($individuais, 'id');
+
+        // Buscar vínculos por cargo, excluindo quem já tem vínculo individual
+        $sqlCargo = "SELECT u.id, u.name, u.email, 'cargo' as tipo, p.name as cargo_nome
+            FROM adms_users u
+            INNER JOIN adms_positions p ON p.id = u.user_position_id
+            INNER JOIN adms_training_positions tp ON tp.adms_position_id = u.user_position_id
+            WHERE tp.adms_training_id = :training_id
+            AND tp.obrigatorio = 1
+            " . (count($idsIndividuais) ? ("AND u.id NOT IN (" . implode(',', $idsIndividuais) . ")") : "") .
+            " ORDER BY u.name ASC";
+        $stmtCargo = $this->getConnection()->prepare($sqlCargo);
+        $stmtCargo->bindValue(':training_id', $trainingId, \PDO::PARAM_INT);
+        $stmtCargo->execute();
+        $cargos = $stmtCargo->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Unir e ordenar tudo por nome
+        $todos = array_merge($individuais, $cargos);
+        usort($todos, function($a, $b) {
+            return strcasecmp($a['name'], $b['name']);
+        });
+        return $todos;
+    }
+
+    /**
+     * Remove o vínculo individual de um usuário em um treinamento
+     */
+    public function deleteIndividualVinculo(int $trainingId, int $userId): void
+    {
+        $sql = 'DELETE FROM adms_training_users WHERE adms_training_id = :training_id AND adms_user_id = :user_id AND tipo_vinculo = "individual"';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':training_id', $trainingId, \PDO::PARAM_INT);
+        $stmt->bindValue(':user_id', $userId, \PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Retorna matriz de treinamentos concluídos por colaborador, paginada
+     */
+    public function getCompletedTrainingsMatrixPaginated(array $filters = [], int $page = 1, int $perPage = 20): array
+    {
+        $sql = 'SELECT 
+                    u.id as user_id,
+                    u.name as user_name,
+                    t.id as training_id,
+                    t.nome as training_name,
+                    t.codigo as training_code,
+                    ta.data_realizacao,
+                    ta.instrutor_nome,
+                    ta.nota,
+                    ta.observacoes
+                FROM adms_training_applications ta
+                INNER JOIN adms_users u ON u.id = ta.adms_user_id
+                INNER JOIN adms_trainings t ON t.id = ta.adms_training_id
+                WHERE ta.status = "concluido"';
+        $params = [];
+        if (!empty($filters['colaborador'])) {
+            $sql .= ' AND u.id = ?';
+            $params[] = $filters['colaborador'];
+        }
+        if (!empty($filters['treinamento'])) {
+            $sql .= ' AND t.id = ?';
+            $params[] = $filters['treinamento'];
+        }
+        if (!empty($filters['mes'])) {
+            $sql .= ' AND MONTH(ta.data_realizacao) = ?';
+            $params[] = $filters['mes'];
+        }
+        if (!empty($filters['ano'])) {
+            $sql .= ' AND YEAR(ta.data_realizacao) = ?';
+            $params[] = $filters['ano'];
+        }
+        $allowedSort = [
+            'user_name' => 'u.name',
+            'training_name' => 't.nome',
+            'training_code' => 't.codigo',
+            'data_realizacao' => 'ta.data_realizacao',
+            'instrutor_nome' => 'ta.instrutor_nome',
+            'nota' => 'ta.nota',
+            'observacoes' => 'ta.observacoes',
+        ];
+        $sort = $filters['sort'] ?? null;
+        $order = strtolower($filters['order'] ?? 'asc');
+        $order = ($order === 'desc') ? 'DESC' : 'ASC';
+        if ($sort && isset($allowedSort[$sort])) {
+            $sql .= ' ORDER BY ' . $allowedSort[$sort] . ' ' . $order . ', u.name ASC, ta.data_realizacao DESC';
+        } else {
+            $sql .= ' ORDER BY u.name ASC, ta.data_realizacao DESC';
+        }
+        $offset = max(0, ($page - 1) * $perPage);
+        $perPage = max(1, (int)$perPage);
+        $sql .= ' LIMIT ' . $perPage . ' OFFSET ' . $offset;
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->execute($params);
+        $data = $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+        // Total de registros (sem paginação)
+        $sqlCount = 'SELECT COUNT(*) as total
+            FROM adms_training_applications ta
+            INNER JOIN adms_users u ON u.id = ta.adms_user_id
+            INNER JOIN adms_trainings t ON t.id = ta.adms_training_id
+            WHERE ta.status = "concluido"';
+        $paramsCount = [];
+        if (!empty($filters['colaborador'])) {
+            $sqlCount .= ' AND u.id = ?';
+            $paramsCount[] = $filters['colaborador'];
+        }
+        if (!empty($filters['treinamento'])) {
+            $sqlCount .= ' AND t.id = ?';
+            $paramsCount[] = $filters['treinamento'];
+        }
+        if (!empty($filters['mes'])) {
+            $sqlCount .= ' AND MONTH(ta.data_realizacao) = ?';
+            $paramsCount[] = $filters['mes'];
+        }
+        if (!empty($filters['ano'])) {
+            $sqlCount .= ' AND YEAR(ta.data_realizacao) = ?';
+            $paramsCount[] = $filters['ano'];
+        }
+        $stmtCount = $this->getConnection()->prepare($sqlCount);
+        $stmtCount->execute($paramsCount);
+        $total = (int)($stmtCount->fetch(\PDO::FETCH_ASSOC)['total'] ?? 0);
+        return [
+            'data' => $data,
+            'total' => $total,
+        ];
+    }
+
+    /**
+     * Retorna resumo de status para a Matriz de Treinamentos Realizados
+     */
+    public function getCompletedTrainingsSummary(array $filters = []): array
+    {
+        $sql = 'SELECT ta.status, COUNT(*) as total
+                FROM adms_training_applications ta
+                INNER JOIN adms_users u ON u.id = ta.adms_user_id
+                INNER JOIN adms_trainings t ON t.id = ta.adms_training_id
+                WHERE 1=1';
+        $params = [];
+        if (!empty($filters['colaborador'])) {
+            $sql .= ' AND u.id = ?';
+            $params[] = $filters['colaborador'];
+        }
+        if (!empty($filters['treinamento'])) {
+            $sql .= ' AND t.id = ?';
+            $params[] = $filters['treinamento'];
+        }
+        if (!empty($filters['mes'])) {
+            $sql .= ' AND MONTH(ta.data_realizacao) = ?';
+            $params[] = $filters['mes'];
+        }
+        if (!empty($filters['ano'])) {
+            $sql .= ' AND YEAR(ta.data_realizacao) = ?';
+            $params[] = $filters['ano'];
+        }
+        $sql .= ' GROUP BY ta.status';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->execute($params);
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $summary = [
+            'pendente' => 0,
+            'concluido' => 0,
+            'vencido' => 0,
+            'agendado' => 0,
+            'proximo_vencimento' => 0,
+            'total' => 0
+        ];
+        foreach ($result as $row) {
+            if ($row['status'] === 'pendente') $summary['pendente'] = (int)$row['total'];
+            if ($row['status'] === 'concluido') $summary['concluido'] = (int)$row['total'];
+            if ($row['status'] === 'vencido') $summary['vencido'] = (int)$row['total'];
+            if ($row['status'] === 'agendado') $summary['agendado'] = (int)$row['total'];
+            if ($row['status'] === 'proximo_vencimento') $summary['proximo_vencimento'] = (int)$row['total'];
+            $summary['total'] += (int)$row['total'];
+        }
+        return $summary;
     }
 } 

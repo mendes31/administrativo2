@@ -45,32 +45,37 @@ class UsersRepository extends DbConnection
      *
      * @param int $page Número da página para recuperação de usuários (começa do 1).
      * @param int $limitResult Número máximo de resultados por página.
+     * @param array $filtros Filtros para aplicar nas consultas.
      * @return array Lista de usuários recuperados do banco de dados.
      */
-    public function getAllUsers(int $page = 1, int $limitResult = 10)
+    public function getAllUsers(int $page = 1, int $limitResult = 10, array $filtros = [])
     {
-        // Calcular o registro inicial, função max para garantir valor minimo 0
         $offset = max(0, ($page - 1) * $limitResult);
-
-        // QUERY para recuperar os registros do banco de dados
+        $where = [];
+        $params = [];
+        if (!empty($filtros['nome'])) {
+            $where[] = 'usr.name LIKE :nome';
+            $params[':nome'] = '%' . $filtros['nome'] . '%';
+        }
+        if (!empty($filtros['email'])) {
+            $where[] = 'usr.email LIKE :email';
+            $params[':email'] = '%' . $filtros['email'] . '%';
+        }
+        $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
         $sql = 'SELECT usr.id, usr.name, usr.email, usr.username, usr.user_department_id, usr.user_position_id, dep.name name_dep, pos.name name_pos
                 FROM adms_users usr
                 INNER JOIN adms_departments dep ON usr.user_department_id = dep.id
                 INNER JOIN adms_positions pos ON usr.user_position_id = pos.id 
-                ORDER BY id DESC
+                ' . $whereSql . '
+                ORDER BY usr.id DESC
                 LIMIT :limit OFFSET :offset';
-
-        // Preparar a QUERY
         $stmt = $this->getConnection()->prepare($sql);
-
-        // Substituir o link da QUERY pelo valor / Evita SQL INJECTION
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, PDO::PARAM_STR);
+        }
         $stmt->bindValue(':limit', $limitResult, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-
-        // Executar a QUERY
         $stmt->execute();
-
-        // Ler os registros e retornar
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -79,21 +84,28 @@ class UsersRepository extends DbConnection
      *
      * Este método retorna a quantidade total de usuários na tabela `adms_users`, útil para a paginação.
      *
-     * @return int Quantidade total de usuários encontrados no banco de dados.
+     * @param array $filtros Filtros para aplicar nas consultas.
+     * @return int|bool Quantidade total de usuários encontrados no banco de dados ou `false` em caso de erro.
      */
-    public function getAmountUsers(): int|bool
+    public function getAmountUsers(array $filtros = []): int|bool
     {
-        // Query para recuperar quantiade de registros
-        $sql = 'SELECT COUNT(id) as amount_records 
-        FROM adms_users';
-
-        // Preparar a QUERY
+        $where = [];
+        $params = [];
+        if (!empty($filtros['nome'])) {
+            $where[] = 'name LIKE :nome';
+            $params[':nome'] = '%' . $filtros['nome'] . '%';
+        }
+        if (!empty($filtros['email'])) {
+            $where[] = 'email LIKE :email';
+            $params[':email'] = '%' . $filtros['email'] . '%';
+        }
+        $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+        $sql = 'SELECT COUNT(id) as amount_records FROM adms_users ' . $whereSql;
         $stmt = $this->getConnection()->prepare($sql);
-
-        // Executar a QUERY
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, PDO::PARAM_STR);
+        }
         $stmt->execute();
-
-        // Ler os registros e retornar
         return ($stmt->fetch(PDO::FETCH_ASSOC)['amount_records']) ?? 0;
     }
 

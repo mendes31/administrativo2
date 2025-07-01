@@ -41,6 +41,10 @@ class ListPayments
         if (isset($_GET['page']) && is_numeric($_GET['page'])) {
             $page = (int)$_GET['page'];
         }
+        // Novo: permitir escolha do usuário
+        if (isset($_GET['per_page']) && in_array((int)$_GET['per_page'], [10, 20, 50, 100])) {
+            $this->limitResult = (int)$_GET['per_page'];
+        }
 
         // // Receber os dados do formulário (GET)
         // $filtros = [
@@ -121,7 +125,8 @@ class ListPayments
             (int) $listPayments->getAmountPayments($filtros),
             (int) $this->limitResult,
             (int) $page,
-            'list-payments'
+            'list-payments',
+            array_merge($filtros, ['per_page' => $this->limitResult])
         );
 
         // Limpar filtros se solicitado
@@ -132,6 +137,8 @@ class ListPayments
         }
         // Salvar filtros na sessão
         $_SESSION['filtros_list_payments'] = $filtros;
+
+        $this->data['per_page'] = $this->limitResult;
 
         $pageElements = [
             'title_head' => 'Listar Contas à pagar',

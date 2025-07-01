@@ -24,7 +24,7 @@ class ListCustomers
     private array|string|null $data = null;
 
     /** @var int $limitResult Limite de registros por página */
-    private int $limitResult = 10000; // Ajuste conforme necessário
+    private int $limitResult = 10; // Padrão 10 por página
 
     /**
      * Recuperar e listar Clientes com paginação.
@@ -38,19 +38,21 @@ class ListCustomers
      */
     public function index(string|int $page = 1): void
     {
+        // Capturar o parâmetro page da URL, se existir
+        if (isset($_GET['page']) && is_numeric($_GET['page'])) {
+            $page = (int)$_GET['page'];
+        }
+        // Tratar per_page
+        if (isset($_GET['per_page']) && in_array((int)$_GET['per_page'], [10, 20, 50, 100])) {
+            $this->limitResult = (int)$_GET['per_page'];
+        }
         // Instanciar o Repository para recuperar os registros do banco de dados
         $listCustomers = new CustomerRepository();
-
-        // Recuperar os Clientes para a página atual
+        $totalCustomers = $listCustomers->getAmountCustomers();
         $this->data['customers'] = $listCustomers->getAllCustomers((int) $page, (int) $this->limitResult);
-
-        // Gerar dados de paginação
-        $this->data['pagination'] = PaginationService::generatePagination(
-            (int) $listCustomers->getAmountCustomers(), 
-            (int) $this->limitResult, 
-            (int) $page, 
-            'list-customers'
-        );
+        $pagination = PaginationService::generatePagination((int) $totalCustomers, (int) $this->limitResult, (int) $page, 'list-customers', ['per_page' => $this->limitResult]);
+        $this->data['pagination'] = $pagination;
+        $this->data['per_page'] = $this->limitResult;
 
         // Definir o título da página
         // Ativar o item de menu

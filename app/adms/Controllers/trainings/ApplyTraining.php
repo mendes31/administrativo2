@@ -146,6 +146,15 @@ class ApplyTraining
                 'status' => $data_realizacao ? 'concluido' : 'agendado'
             ];
 
+            // Atualizar vínculo principal
+            $trainingUsersRepo->applyTraining($user_id, $training_id, [
+                'data_realizacao' => $data_realizacao,
+                'data_agendada' => $data_agendada,
+                'nota' => $nota,
+                'observacoes' => $observacoes,
+                'status' => $data_realizacao ? 'concluido' : 'agendado'
+            ]);
+
             if ($edit_id) {
                 // Atualização
                 $oldData = $applicationsRepo->getById($edit_id);

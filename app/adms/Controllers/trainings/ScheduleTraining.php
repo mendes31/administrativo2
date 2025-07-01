@@ -135,6 +135,15 @@ class ScheduleTraining
                 'status' => 'agendado'
             ];
 
+            // Atualizar vínculo principal
+            $trainingUsersRepo->applyTraining($user_id, $training_id, [
+                'data_realizacao' => null,
+                'data_agendada' => $data_agendada,
+                'nota' => null,
+                'observacoes' => $observacoes,
+                'status' => 'agendado'
+            ]);
+
             if ($edit_id) {
                 $oldData = $applicationsRepo->getById($edit_id);
                 $applicationsRepo->update($edit_id, $dados);

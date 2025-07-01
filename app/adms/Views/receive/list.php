@@ -89,6 +89,15 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_receive');
                         <option value="vencidos" <?php echo (($_GET['status'] ?? '') === 'vencidos') ? 'selected' : ''; ?>>Vencidos</option>
                     </select>
                 </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <label for="per_page" class="form-label mb-1 me-2">Exibir</label>
+                    <select name="per_page" id="per_page" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+                        <?php foreach ([10, 20, 50, 100] as $opt): ?>
+                            <option value="<?= $opt ?>" <?= ($this->data['per_page'] ?? 10) == $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span class="ms-2">por página</span>
+                </div>
                 <div class="col-md-2 mt-2">
                     <button type="submit" class="btn btn-primary mt-4">Filtrar</button>
                     <a href="?limpar_filtros=1" class="btn btn-secondary mt-4 ms-2">Limpar Filtros</a>
