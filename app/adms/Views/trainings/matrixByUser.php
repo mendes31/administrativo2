@@ -16,7 +16,7 @@
             <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros</h5>
         </div>
         <div class="card-body">
-            <form method="GET" class="row g-3">
+            <form method="GET" class="row g-3 align-items-end">
                 <div class="col-md-3">
                     <label for="colaborador" class="form-label">Colaborador</label>
                     <select name="colaborador" id="colaborador" class="form-select">
@@ -53,9 +53,20 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-12 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-search me-2"></i>Filtrar</button>
-                    <a href="<?= $_ENV['URL_ADM'] ?>matrix-by-user" class="btn btn-secondary"><i class="fas fa-times me-2"></i>Limpar</a>
+                <div class="col-12 d-flex gap-2 justify-content-between align-items-center">
+                    <div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-search me-2"></i>Filtrar</button>
+                        <a href="<?= $_ENV['URL_ADM'] ?>matrix-by-user" class="btn btn-secondary"><i class="fas fa-times me-2"></i>Limpar</a>
+                    </div>
+                    <div>
+                        <label for="per_page" class="mb-0">Mostrar</label>
+                        <select name="per_page" id="per_page" class="form-select form-select-sm d-inline-block w-auto ms-1" onchange="this.form.submit()">
+                            <?php foreach ([10, 20, 50, 100] as $opt): ?>
+                                <option value="<?= $opt ?>" <?= ($this->data['per_page'] ?? 10) == $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="ms-1">registros</span>
+                    </div>
                 </div>
             </form>
         </div>
@@ -66,6 +77,9 @@
             <h5 class="mb-0"><i class="fas fa-table me-2"></i>Treinamentos Obrigatórios por Colaborador</h5>
         </div>
         <div class="card-body">
+            <div class="d-flex justify-content-end align-items-center mb-2 flex-wrap gap-2">
+                <!-- seletor removido daqui -->
+            </div>
             <div class="table-responsive">
                 <table class="table table-striped table-hover" id="matrixByUserTable">
                     <thead>
@@ -120,11 +134,23 @@
                     </tbody>
                 </table>
             </div>
+            <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                <div class="text-muted small">
+                    <?php
+                    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                    $perPage = $this->data['per_page'] ?? 10;
+                    $total = $this->data['pagination']['total'] ?? count($this->data['matrixByUser']);
+                    $from = ($total > 0) ? (($page - 1) * $perPage + 1) : 0;
+                    $to = min($from + count($this->data['matrixByUser']) - 1, $total);
+                    ?>
+                    Mostrando <?= $from ?> até <?= $to ?> de <?= $total ?> registro(s)
+                </div>
+                <?php if (!empty($this->data['pagination']['html'])): ?>
+                    <div>
+                        <?= $this->data['pagination']['html'] ?>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
-    <?php if (!empty($this->data['paginacao'])): ?>
-        <div class="mt-3">
-            <?= $this->data['paginacao'] ?>
-        </div>
-    <?php endif; ?>
 </div> 

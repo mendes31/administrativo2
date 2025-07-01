@@ -62,6 +62,9 @@ class PageLayoutService
             'TestNotification',
             "CompletedTrainingsMatrix",
             "TrainingKPIDashboard",
+            "MyEvaluations",
+            "HistoricoAvaliacoes",
+            "Notificacoes",
 
             // Adicione aqui outras permissões de páginas/submenus que possam existir no futuro
         ];

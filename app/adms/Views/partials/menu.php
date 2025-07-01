@@ -233,6 +233,21 @@ $menus = [
                         'label' => 'Respostas de Avaliação',
                         'url' => $_ENV['URL_ADM'] . 'list-evaluation-answers',
                         'permission' => 'ListEvaluationAnswers'
+                    ],
+                    [
+                        'label' => 'Minhas Avaliações',
+                        'url' => $_ENV['URL_ADM'] . 'my-evaluations',
+                        'permission' => 'MyEvaluations'
+                    ],
+                    [
+                        'label' => 'Histórico de Avaliações',
+                        'url' => $_ENV['URL_ADM'] . 'historico-avaliacoes',
+                        'permission' => 'HistoricoAvaliacoes'
+                    ],
+                    [
+                        'label' => 'Notificações',
+                        'url' => $_ENV['URL_ADM'] . 'notificacoes',
+                        'permission' => 'Notificacoes'
                     ]
                 ]
             ]
@@ -255,7 +270,6 @@ $menus = [
             ],
         ]
     ],
-    
     [
         'id' => 'logout',
         'icon' => 'fa-solid fa-arrow-right-from-bracket',

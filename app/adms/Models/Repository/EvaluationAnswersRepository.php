@@ -315,4 +315,25 @@ class EvaluationAnswersRepository extends DbConnection
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Buscar avaliações/questionários pendentes de um colaborador
+     *
+     * @param int $usuarioId
+     * @return array
+     */
+    public function getPendingEvaluationsByUser(int $usuarioId): array
+    {
+        $sql = 'SELECT em.id as modelo_id, em.titulo as modelo_titulo, em.data_limite, eq.id as pergunta_id, eq.pergunta, eq.tipo
+                FROM adms_evaluation_models em
+                INNER JOIN adms_evaluation_questions eq ON eq.evaluation_model_id = em.id
+                LEFT JOIN adms_evaluation_answers ea ON ea.evaluation_model_id = em.id AND ea.evaluation_question_id = eq.id AND ea.usuario_id = :usuario_id
+                WHERE em.status = 1
+                  AND (ea.id IS NULL OR ea.status = "pendente")
+                ORDER BY em.data_limite ASC, em.titulo, eq.ordem';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':usuario_id', $usuarioId, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 } 

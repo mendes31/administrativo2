@@ -629,7 +629,7 @@ class TrainingUsersRepository extends DbConnection
     /**
      * Retorna todos os vínculos obrigatórios de treinamentos por colaborador, ordenados por nome
      */
-    public function getMandatoryMatrixByUser(array $filters = []): array
+    public function getMandatoryMatrixByUser(array $filters = [], int $limit = 10, int $offset = 0): array
     {
         $sql = 'SELECT 
                     u.id as user_id,
@@ -671,6 +671,7 @@ class TrainingUsersRepository extends DbConnection
             $params[] = $filters['treinamento'];
         }
         $sql .= ' ORDER BY u.name ASC, t.nome ASC';
+        $sql .= ' LIMIT ' . (int)$limit . ' OFFSET ' . (int)$offset;
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute($params);
         $results = $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];

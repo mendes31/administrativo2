@@ -237,8 +237,12 @@ class AddAdmsPages extends AbstractSeed
             ['name'=> 'Listar Configuração de E-mail', 'controller' => 'ListEmailConfig', 'controller_url' => 'list-email-config', 'directory' => 'settings', 'obs' => 'Exibir configuração SMTP.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 26],
             ['name'=> 'Testar Configuração de E-mail', 'controller' => 'TestEmailConfig', 'controller_url' => 'test-email-config', 'directory' => 'settings', 'obs' => 'Testar envio SMTP.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 26],
 
-            // ===== GRUPO 27: MATRIZ DE TREINAMENTOS =====
+            // ===== GRUPO 24: MATRIZ DE TREINAMENTOS =====
             ['name'=> 'Matriz de Treinamentos Realizados', 'controller' => 'CompletedTrainingsMatrix', 'controller_url' => 'completed-trainings-matrix', 'directory' => 'trainings', 'obs' => 'Matriz de treinamentos realizados por colaborador', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24, 'order' => 15, 'icon' => 'fa-check-double', 'visible' => 1],
+            ['name'=> 'Minhas Avaliações', 'controller' => 'MyEvaluations', 'controller_url' => 'my-evaluations', 'directory' => 'evaluations', 'obs' => 'Página para o colaborador responder avaliações/questionários.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
+            ['name'=> 'Responder Avaliação', 'controller' => 'ResponderAvaliacao', 'controller_url' => 'responder-avaliacao', 'directory' => 'evaluations', 'obs' => 'Página para o colaborador responder uma avaliação/questionário.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
+            ['name'=> 'Histórico de Avaliações', 'controller' => 'HistoricoAvaliacoes', 'controller_url' => 'historico-avaliacoes', 'directory' => 'evaluations', 'obs' => 'Página para o colaborador consultar avaliações/questionários já respondidos.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
+            ['name'=> 'Notificações', 'controller' => 'Notificacoes', 'controller_url' => 'notificacoes', 'directory' => 'notifications', 'obs' => 'Central de notificações do colaborador.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
         ];
 
         // Percorrer o array com dados que devem ser validados antes de cadastrar

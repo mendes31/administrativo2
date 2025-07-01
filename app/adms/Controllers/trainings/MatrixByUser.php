@@ -27,17 +27,25 @@ class MatrixByUser
 
     public function index(): void
     {
-        // Filtros da URL
+        $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+        $perPage = isset($_GET['per_page']) && in_array((int)$_GET['per_page'], [10, 20, 50, 100]) ? (int)$_GET['per_page'] : 10;
+        $offset = ($page - 1) * $perPage;
         $filters = [
             'colaborador' => $_GET['colaborador'] ?? null,
             'departamento' => $_GET['departamento'] ?? null,
             'cargo' => $_GET['cargo'] ?? null,
             'treinamento' => $_GET['treinamento'] ?? null,
         ];
-
-        // Busca todos os vínculos obrigatórios, já ordenados por colaborador, aplicando filtros
-        $matrixByUser = $this->trainingUsersRepo->getMandatoryMatrixByUser($filters);
-
+        $matrixByUser = $this->trainingUsersRepo->getMandatoryMatrixByUser($filters, $perPage, $offset);
+        // Calcular total filtrado
+        $total = count($this->trainingUsersRepo->getMandatoryMatrixByUser($filters, 1000000, 0));
+        $pagination = \App\adms\Controllers\Services\PaginationService::generatePagination(
+            $total,
+            $perPage,
+            $page,
+            'matrix-by-user',
+            array_merge($filters, ['per_page' => $perPage])
+        );
         $data = [
             'title_head' => 'Matriz de Treinamentos por Colaborador',
             'matrixByUser' => $matrixByUser,
@@ -48,11 +56,11 @@ class MatrixByUser
             'listDepartments' => $this->departmentsRepo->getAllDepartmentsSelect(),
             'listPositions' => $this->positionsRepo->getAllPositionsSelect(),
             'listTrainings' => $this->trainingsRepo->getAllTrainingsSelect(),
+            'pagination' => $pagination,
+            'per_page' => $perPage,
         ];
-
         $pageLayout = new \App\adms\Controllers\Services\PageLayoutService();
         $data = $pageLayout->configurePageElements($data);
-
         $loadView = new \App\adms\Views\Services\LoadViewService('adms/Views/trainings/matrixByUser', $data);
         $loadView->loadView();
     }
