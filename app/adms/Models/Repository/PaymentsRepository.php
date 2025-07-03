@@ -4,6 +4,7 @@ namespace App\adms\Models\Repository;
 
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Services\DbConnection;
+use App\adms\Models\Services\LogAlteracaoService;
 use Exception;
 use PDO;
 
@@ -436,7 +437,40 @@ class PaymentsRepository extends DbConnection
         $stmt->bindValue(':user_launch_id', $_SESSION['user_id']);
 
         if ($stmt->execute()) {
-            return $this->getConnection()->lastInsertId();
+            $paymentId = $this->getConnection()->lastInsertId();
+
+            // Registrar log de alteração
+            if ($paymentId) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $logData = [
+                    'num_doc' => $data['num_doc'],
+                    'num_nota' => $data['num_nota'] ?? null,
+                    'card_code_fornecedor' => $card_code_fornecedor,
+                    'description' => $data['description'],
+                    'original_value' => $valor,
+                    'doc_date' => $doc_date,
+                    'due_date' => $data['due_date'],
+                    'expected_date' => $data['expected_date'] ?? null,
+                    'partner_id' => $partner_id,
+                    'frequency_id' => $data['frequency_id'] ?? 1,
+                    'cost_center_id' => $data['cost_center_id'] ?? 0,
+                    'account_id' => $data['account_id'] ?? 0,
+                    'installment_number' => $installment_number,
+                    'issue_date' => $issue_date,
+                    'user_launch_id' => $_SESSION['user_id']
+                ];
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_pay',
+                    $paymentId,
+                    $usuarioId,
+                    'INSERT',
+                    [],
+                    $logData
+                );
+            }
+
+            return $paymentId;
         }
 
         return false;
@@ -564,6 +598,9 @@ class PaymentsRepository extends DbConnection
         $conn = $this->getConnection();
         $conn->beginTransaction();
         try {
+            // Recuperar dados antigos antes da atualização
+            $oldData = $this->getPay($data['id']);
+            
             // Atualiza campos replicados em todas as contas do mesmo num_doc e fornecedor
             $sqlReplicar = "UPDATE adms_pay SET 
                 num_nota = :num_nota,
@@ -608,6 +645,30 @@ class PaymentsRepository extends DbConnection
             $stmtIndividual->execute();
 
             $conn->commit();
+
+            // Registrar log de alteração se a atualização foi bem-sucedida
+            if ($oldData) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $newData = array_merge($oldData, [
+                    'description' => $data['description'],
+                    'original_value' => $this->normalizarValor($data['original_value']),
+                    'due_date' => $data['due_date'],
+                    'expected_date' => $data['expected_date'],
+                    'frequency_id' => $data['frequency_id'],
+                    'installment_number' => $data['installment_number'],
+                    'updated_at' => date("Y-m-d H:i:s")
+                ]);
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_pay',
+                    $data['id'],
+                    $usuarioId,
+                    'UPDATE',
+                    $oldData,
+                    $newData
+                );
+            }
+
             return true;
         } catch (\Exception $e) {
             $conn->rollBack();
@@ -626,10 +687,29 @@ class PaymentsRepository extends DbConnection
     public function deletePay(int $id): bool
     {
         try {
+            // Recuperar dados antes da exclusão
+            $oldData = $this->getPay($id);
+            
             $sql = 'DELETE FROM adms_pay WHERE id = :id LIMIT 1';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-            return $stmt->execute();
+            
+            $result = $stmt->execute();
+
+            // Registrar log de alteração se a exclusão foi bem-sucedida
+            if ($result && $oldData) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_pay',
+                    $id,
+                    $usuarioId,
+                    'DELETE',
+                    $oldData,
+                    []
+                );
+            }
+
+            return $result;
         } catch (Exception $e) {
             GenerateLog::generateLog("error", "Erro ao deletar conta.", ['id' => $id, 'error' => $e->getMessage()]);
             return false;
@@ -972,7 +1052,6 @@ class PaymentsRepository extends DbConnection
             :fine_value,
             :interest_value
         )";
-
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->bindValue(':type', 'Saída', PDO::PARAM_STR);
         $stmt->bindValue(':movement', 'Conta à Pagar', PDO::PARAM_STR);
@@ -985,9 +1064,30 @@ class PaymentsRepository extends DbConnection
         $stmt->bindValue(':discount_value', $this->normalizarValor($data['discount_value'] ?? 0), PDO::PARAM_STR);
         $stmt->bindValue(':fine_value', $this->normalizarValor($data['fine_value'] ?? 0), PDO::PARAM_STR);
         $stmt->bindValue(':interest_value', $this->normalizarValor($data['interest'] ?? 0), PDO::PARAM_STR);
-
         $result = $stmt->execute();
-
+        $lastId = $this->getConnection()->lastInsertId();
+        // Log de alteração
+        \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
+            'adms_movements',
+            $lastId,
+            $_SESSION['user_id'] ?? 0,
+            'INSERT',
+            [],
+            [
+                'type' => 'Saída',
+                'movement' => 'Conta à Pagar',
+                'description' => $data['description'],
+                'movement_id' => $data['id_pay'],
+                'movement_value' => $this->normalizarValor($data['subtotal'] ?? $data['value']),
+                'bank_id' => $data['bank_id'],
+                'method_id' => $data['pay_method_id'],
+                'user_id' => $_SESSION['user_id'],
+                'discount_value' => $this->normalizarValor($data['discount_value'] ?? 0),
+                'fine_value' => $this->normalizarValor($data['fine_value'] ?? 0),
+                'interest_value' => $this->normalizarValor($data['interest'] ?? 0),
+                'created_at' => date("Y-m-d H:i:s")
+            ]
+        );
         // Após inserir, atualizar o campo paid em adms_pay
         if ($result) {
             $id_pay = $data['id_pay'];

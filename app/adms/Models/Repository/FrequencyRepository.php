@@ -4,6 +4,7 @@ namespace App\adms\Models\Repository;
 
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Services\DbConnection;
+use App\adms\Models\Services\LogAlteracaoService;
 use Exception;
 use PDO;
 
@@ -127,7 +128,28 @@ class FrequencyRepository extends DbConnection
             $stmt->execute();
 
             // Retornar o ID do departamento recém cadastrado
-            return $this->getConnection()->lastInsertId();
+            $frequencyId = $this->getConnection()->lastInsertId();
+
+            // Registrar log de alteração
+            if ($frequencyId) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $logData = [
+                    'name' => $data['name'],
+                    'days' => $data['days'],
+                    'created_at' => date("Y-m-d H:i:s")
+                ];
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_frequency',
+                    $frequencyId,
+                    $usuarioId,
+                    'INSERT',
+                    [],
+                    $logData
+                );
+            }
+
+            return $frequencyId;
 
         } catch (Exception $e) {
             // Gerar log de erro
@@ -149,6 +171,9 @@ class FrequencyRepository extends DbConnection
     public function updateFrequency(array $data): bool
     {
         try {
+            // Recuperar dados antigos antes da atualização
+            $oldData = $this->getFrequency($data['id']);
+            
             // QUERY para atualizar Frequência
             $sql = 'UPDATE adms_frequency SET name = :name, days = :days, updated_at = :updated_at';
 
@@ -165,7 +190,28 @@ class FrequencyRepository extends DbConnection
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
 
             // Executar a QUERY
-            return $stmt->execute();
+            $result = $stmt->execute();
+
+            // Registrar log de alteração se a atualização foi bem-sucedida
+            if ($result && $oldData) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $newData = array_merge($oldData, [
+                    'name' => $data['name'],
+                    'days' => $data['days'],
+                    'updated_at' => date("Y-m-d H:i:s")
+                ]);
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_frequency',
+                    $data['id'],
+                    $usuarioId,
+                    'UPDATE',
+                    $oldData,
+                    $newData
+                );
+            }
+
+            return $result;
         } catch (Exception $e) {
             // Gerar log de erro
             GenerateLog::generateLog("error", "Frequência não editada.", ['id' => $data['id'], 'error' => $e->getMessage()]);
@@ -185,6 +231,9 @@ class FrequencyRepository extends DbConnection
     public function deleteFrequency(int $id): bool
     {
         try {
+            // Recuperar dados antes da exclusão
+            $oldData = $this->getFrequency($id);
+            
             // QUERY para deletar Frequência
             $sql = 'DELETE FROM adms_frequency WHERE id = :id LIMIT 1';
 
@@ -199,6 +248,19 @@ class FrequencyRepository extends DbConnection
             $affectedRows = $stmt->rowCount();
 
             if ($affectedRows > 0) {
+                // Registrar log de alteração se a exclusão foi bem-sucedida
+                if ($oldData) {
+                    $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                    LogAlteracaoService::registrarAlteracao(
+                        'adms_frequency',
+                        $id,
+                        $usuarioId,
+                        'DELETE',
+                        $oldData,
+                        []
+                    );
+                }
+                
                 return true;
             } else {
                 // Gerar log de erro

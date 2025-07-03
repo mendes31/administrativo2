@@ -3,7 +3,9 @@
 namespace App\adms\Models\Repository;
 
 use App\adms\Models\Services\DbConnection;
+use App\adms\Helpers\GenerateLog;
 use PDO;
+use Exception;
 
 class TrainingUsersRepository extends DbConnection
 {
@@ -27,34 +29,88 @@ class TrainingUsersRepository extends DbConnection
 
     public function insertOrUpdate(int $userId, int $trainingId, string $status = 'pendente', string $tipoVinculo = 'individual'): void
     {
-        $sql = 'INSERT INTO adms_training_users (adms_user_id, adms_training_id, status, tipo_vinculo, created_at, updated_at)
-                VALUES (:user_id, :training_id, :status, :tipo_vinculo, NOW(), NOW())
-                ON DUPLICATE KEY UPDATE status = :status, tipo_vinculo = :tipo_vinculo, updated_at = NOW()';
-        $stmt = $this->getConnection()->prepare($sql);
-        $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-        $stmt->bindValue(':training_id', $trainingId, PDO::PARAM_INT);
-        $stmt->bindValue(':status', $status, PDO::PARAM_STR);
-        $stmt->bindValue(':tipo_vinculo', $tipoVinculo, PDO::PARAM_STR);
-        $stmt->execute();
+        try {
+            // Captura os dados antigos antes da alteração
+            $dadosAntes = $this->getByUserAndTraining($userId, $trainingId);
+            
+            $sql = 'INSERT INTO adms_training_users (adms_user_id, adms_training_id, status, tipo_vinculo, created_at, updated_at)
+                    VALUES (:user_id, :training_id, :status, :tipo_vinculo, NOW(), NOW())
+                    ON DUPLICATE KEY UPDATE status = :status, tipo_vinculo = :tipo_vinculo, updated_at = NOW()';
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindValue(':training_id', $trainingId, PDO::PARAM_INT);
+            $stmt->bindValue(':status', $status, PDO::PARAM_STR);
+            $stmt->bindValue(':tipo_vinculo', $tipoVinculo, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            // Log de alteração (insert ou update)
+            $operacao = $dadosAntes ? 'update' : 'insert';
+            $dadosDepois = [
+                'adms_user_id' => $userId,
+                'adms_training_id' => $trainingId,
+                'status' => $status,
+                'tipo_vinculo' => $tipoVinculo,
+            ];
+            
+            \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
+                'adms_training_users',
+                $userId, // Usando user_id como identificador principal
+                $_SESSION['user_id'] ?? 0,
+                $operacao,
+                $dadosAntes ?: [],
+                $dadosDepois
+            );
+        } catch (Exception $e) {
+            GenerateLog::generateLog("error", "Vínculo de treinamento não salvo.", [
+                'user_id' => $userId,
+                'training_id' => $trainingId,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     public function deleteByUserAndNotInTrainings(int $userId, array $trainingIds): void
     {
-        if (empty($trainingIds)) {
-            $sql = "DELETE FROM adms_training_users WHERE adms_user_id = ?";
-            $stmt = $this->getConnection()->prepare($sql);
-            $stmt->bindValue(1, $userId, PDO::PARAM_INT);
-            $stmt->execute();
-            return;
+        try {
+            // Captura os dados antigos antes da exclusão
+            $dadosAntes = $this->getByUser($userId);
+            
+            if (empty($trainingIds)) {
+                $sql = "DELETE FROM adms_training_users WHERE adms_user_id = ?";
+                $stmt = $this->getConnection()->prepare($sql);
+                $stmt->bindValue(1, $userId, PDO::PARAM_INT);
+                $stmt->execute();
+            } else {
+                $in = implode(',', array_fill(0, count($trainingIds), '?'));
+                $sql = "DELETE FROM adms_training_users WHERE adms_user_id = ? AND adms_training_id NOT IN ($in)";
+                $stmt = $this->getConnection()->prepare($sql);
+                $stmt->bindValue(1, $userId, PDO::PARAM_INT);
+                foreach ($trainingIds as $k => $tid) {
+                    $stmt->bindValue($k+2, $tid, PDO::PARAM_INT);
+                }
+                $stmt->execute();
+            }
+            
+            // Log de exclusão em lote
+            if (!empty($dadosAntes)) {
+                foreach ($dadosAntes as $vinculo) {
+                    \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
+                        'adms_training_users',
+                        $userId,
+                        $_SESSION['user_id'] ?? 0,
+                        'delete',
+                        $vinculo,
+                        []
+                    );
+                }
+            }
+        } catch (Exception $e) {
+            GenerateLog::generateLog("error", "Vínculos de treinamento não excluídos.", [
+                'user_id' => $userId,
+                'training_ids' => $trainingIds,
+                'error' => $e->getMessage()
+            ]);
         }
-        $in = implode(',', array_fill(0, count($trainingIds), '?'));
-        $sql = "DELETE FROM adms_training_users WHERE adms_user_id = ? AND adms_training_id NOT IN ($in)";
-        $stmt = $this->getConnection()->prepare($sql);
-        $stmt->bindValue(1, $userId, PDO::PARAM_INT);
-        foreach ($trainingIds as $k => $tid) {
-            $stmt->bindValue($k+2, $tid, PDO::PARAM_INT);
-        }
-        $stmt->execute();
     }
 
     public function getTrainingStatusByUser(array $filters = []): array
@@ -362,12 +418,39 @@ class TrainingUsersRepository extends DbConnection
      */
     public function updateStatus(int $userId, int $trainingId, string $status): bool
     {
-        $sql = 'UPDATE adms_training_users SET status = ?, updated_at = NOW() WHERE adms_user_id = ? AND adms_training_id = ?';
-        $stmt = $this->getConnection()->prepare($sql);
-        $stmt->bindValue(1, $status, PDO::PARAM_STR);
-        $stmt->bindValue(2, $userId, PDO::PARAM_INT);
-        $stmt->bindValue(3, $trainingId, PDO::PARAM_INT);
-        return $stmt->execute();
+        try {
+            // Captura os dados antigos antes da alteração
+            $dadosAntes = $this->getByUserAndTraining($userId, $trainingId);
+            
+            $sql = 'UPDATE adms_training_users SET status = :status, updated_at = NOW() WHERE adms_user_id = :user_id AND adms_training_id = :training_id';
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->bindValue(':status', $status, PDO::PARAM_STR);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindValue(':training_id', $trainingId, PDO::PARAM_INT);
+            $result = $stmt->execute();
+            
+            // Se atualização bem-sucedida, registra o log de alteração
+            if ($result && $dadosAntes) {
+                $dadosDepois = array_merge($dadosAntes, ['status' => $status]);
+                \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
+                    'adms_training_users',
+                    $userId,
+                    $_SESSION['user_id'] ?? 0,
+                    'update',
+                    $dadosAntes,
+                    $dadosDepois
+                );
+            }
+            return $result;
+        } catch (Exception $e) {
+            GenerateLog::generateLog("error", "Status do vínculo não atualizado.", [
+                'user_id' => $userId,
+                'training_id' => $trainingId,
+                'status' => $status,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
     }
 
     /**
@@ -857,11 +940,34 @@ class TrainingUsersRepository extends DbConnection
      */
     public function deleteIndividualVinculo(int $trainingId, int $userId): void
     {
-        $sql = 'DELETE FROM adms_training_users WHERE adms_training_id = :training_id AND adms_user_id = :user_id AND tipo_vinculo = "individual"';
-        $stmt = $this->getConnection()->prepare($sql);
-        $stmt->bindValue(':training_id', $trainingId, \PDO::PARAM_INT);
-        $stmt->bindValue(':user_id', $userId, \PDO::PARAM_INT);
-        $stmt->execute();
+        try {
+            // Captura os dados antigos antes da exclusão
+            $dadosAntes = $this->getByUserAndTraining($userId, $trainingId);
+            
+            $sql = 'DELETE FROM adms_training_users WHERE adms_training_id = :training_id AND adms_user_id = :user_id';
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->bindValue(':training_id', $trainingId, PDO::PARAM_INT);
+            $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+            $result = $stmt->execute();
+            
+            // Se exclusão bem-sucedida, registra o log de alteração
+            if ($result && $dadosAntes) {
+                \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
+                    'adms_training_users',
+                    $userId,
+                    $_SESSION['user_id'] ?? 0,
+                    'delete',
+                    $dadosAntes,
+                    []
+                );
+            }
+        } catch (Exception $e) {
+            GenerateLog::generateLog("error", "Vínculo individual não excluído.", [
+                'user_id' => $userId,
+                'training_id' => $trainingId,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     /**

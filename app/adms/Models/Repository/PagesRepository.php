@@ -4,6 +4,7 @@ namespace App\adms\Models\Repository;
 
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Services\DbConnection;
+use App\adms\Models\Services\LogAlteracaoService;
 use Exception;
 use PDO;
 
@@ -138,7 +139,35 @@ class PagesRepository extends DbConnection
             $stmt->execute();
 
             // Retornar o ID da página recém-cadastrada
-            return $this->getConnection()->lastInsertId();
+            $pageId = $this->getConnection()->lastInsertId();
+
+            // Registrar log de alteração
+            if ($pageId) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $logData = [
+                    'name' => $data['name'],
+                    'controller' => $data['controller'],
+                    'controller_url' => $data['controller_url'],
+                    'directory' => $data['directory'],
+                    'obs' => $data['obs'],
+                    'page_status' => $data['page_status'],
+                    'public_page' => $data['public_page'],
+                    'adms_packages_page_id' => $data['adms_packages_page_id'],
+                    'adms_groups_page_id' => $data['adms_groups_page_id'],
+                    'created_at' => date("Y-m-d H:i:s")
+                ];
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_pages',
+                    $pageId,
+                    $usuarioId,
+                    'INSERT',
+                    [],
+                    $logData
+                );
+            }
+
+            return $pageId;
         } catch (Exception $e) {
             // Gerar log de erro
             GenerateLog::generateLog("error", "Página não cadastrada.", ['name' => $data['name'], 'error' => $e->getMessage()]);
@@ -158,6 +187,9 @@ class PagesRepository extends DbConnection
     public function updatePage(array $data): bool
     {
         try {
+            // Recuperar dados antigos antes da atualização
+            $oldData = $this->getPage($data['id']);
+            
             // QUERY para atualizar página
             $sql = 'UPDATE adms_pages SET 
                     name = :name, 
@@ -191,7 +223,35 @@ class PagesRepository extends DbConnection
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
 
             // Executar a QUERY
-            return $stmt->execute();
+            $result = $stmt->execute();
+
+            // Registrar log de alteração se a atualização foi bem-sucedida
+            if ($result && $oldData) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $newData = array_merge($oldData, [
+                    'name' => $data['name'],
+                    'controller' => $data['controller'],
+                    'controller_url' => $data['controller_url'],
+                    'directory' => $data['directory'],
+                    'obs' => $data['obs'],
+                    'page_status' => $data['page_status'],
+                    'public_page' => $data['public_page'],
+                    'adms_packages_page_id' => $data['adms_packages_page_id'],
+                    'adms_groups_page_id' => $data['adms_groups_page_id'],
+                    'updated_at' => date("Y-m-d H:i:s")
+                ]);
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_pages',
+                    $data['id'],
+                    $usuarioId,
+                    'UPDATE',
+                    $oldData,
+                    $newData
+                );
+            }
+
+            return $result;
         } catch (Exception $e) {
             // Gerar log de erro
             GenerateLog::generateLog("error", "Página não editada.", ['id' => $data['id'], 'error' => $e->getMessage()]);
@@ -211,6 +271,9 @@ class PagesRepository extends DbConnection
     public function deletePage(int $id): bool
     {
         try {
+            // Recuperar dados antes da exclusão
+            $oldData = $this->getPage($id);
+            
             // QUERY para deletar página
             $sql = 'DELETE FROM adms_pages WHERE id = :id LIMIT 1';
 
@@ -225,6 +288,19 @@ class PagesRepository extends DbConnection
             $affectedRows = $stmt->rowCount();
 
             if ($affectedRows > 0) {
+                // Registrar log de alteração se a exclusão foi bem-sucedida
+                if ($oldData) {
+                    $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                    LogAlteracaoService::registrarAlteracao(
+                        'adms_pages',
+                        $id,
+                        $usuarioId,
+                        'DELETE',
+                        $oldData,
+                        []
+                    );
+                }
+                
                 return true;
             } else {
                 // Gerar log de erro

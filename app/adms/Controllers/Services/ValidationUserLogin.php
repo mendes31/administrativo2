@@ -7,7 +7,12 @@ use App\adms\Models\Repository\LoginRepository;
 
 class ValidationUserLogin
 {
-    public function validationUserLogin(array $data): bool
+    /**
+     * Retorna array de dados do usuário autenticado ou false em caso de falha
+     * @param array $data
+     * @return array|false
+     */
+    public function validationUserLogin(array $data)
     {
         // Instanciar o Repository para validar o usuário no banco de dados
         $login = new LoginRepository();
@@ -38,7 +43,7 @@ class ValidationUserLogin
             $_SESSION['user_department'] = $dep_name;
             $_SESSION['user_position'] = $pos_name;
 
-            return true;
+            return $result;
         }
 
         // Chamar o método para salvar o log

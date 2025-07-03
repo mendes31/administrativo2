@@ -3,6 +3,7 @@
 namespace App\adms\Controllers\login;
 
 use App\adms\Models\Repository\LogsRepository;
+use App\adms\Models\Repository\LogAcessosRepository;
 
 class Logout
 {
@@ -19,6 +20,13 @@ class Logout
             // Instanciar a classe validar  o usuário
             $insertLogs = new LogsRepository();
             $insertLogs->insertLogs($dataLogs);
+        }
+        // Registrar log de acesso (logout)
+        if (isset($_SESSION['user_id'])) {
+            $logAcessosRepo = new \App\adms\Models\Repository\LogAcessosRepository();
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+            $logAcessosRepo->registrarAcesso($_SESSION['user_id'], 'LOGOUT', $ip, $userAgent);
         }
 
         // Eliminar os valores da sessão

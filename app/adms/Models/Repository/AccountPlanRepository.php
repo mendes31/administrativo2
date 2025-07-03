@@ -4,6 +4,7 @@ namespace App\adms\Models\Repository;
 
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Services\DbConnection;
+use App\adms\Models\Services\LogAlteracaoService;
 use Exception;
 use PDO;
 
@@ -127,7 +128,28 @@ class AccountPlanRepository extends DbConnection
             $stmt->execute();
 
             // Retornar o ID do Plano de contas recém cadastrado
-            return $this->getConnection()->lastInsertId();
+            $accountPlanId = $this->getConnection()->lastInsertId();
+
+            // Registrar log de alteração
+            if ($accountPlanId) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $logData = [
+                    'name' => $data['name'],
+                    'account' => $data['account'],
+                    'created_at' => date("Y-m-d H:i:s")
+                ];
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_accounts_plan',
+                    $accountPlanId,
+                    $usuarioId,
+                    'INSERT',
+                    [],
+                    $logData
+                );
+            }
+
+            return $accountPlanId;
 
         } catch (Exception $e) {
             // Gerar log de erro
@@ -149,6 +171,9 @@ class AccountPlanRepository extends DbConnection
     public function updateAccountPlan(array $data): bool
     {
         try {
+            // Recuperar dados antigos antes da atualização
+            $oldData = $this->getAccountPlan($data['id']);
+            
             // QUERY para atualizar Plano de Contas
             $sql = 'UPDATE adms_accounts_plan SET name = :name, account = :account, updated_at = :updated_at';
 
@@ -165,7 +190,28 @@ class AccountPlanRepository extends DbConnection
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
 
             // Executar a QUERY
-            return $stmt->execute();
+            $result = $stmt->execute();
+
+            // Registrar log de alteração se a atualização foi bem-sucedida
+            if ($result && $oldData) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $newData = array_merge($oldData, [
+                    'name' => $data['name'],
+                    'account' => $data['account'],
+                    'updated_at' => date("Y-m-d H:i:s")
+                ]);
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_accounts_plan',
+                    $data['id'],
+                    $usuarioId,
+                    'UPDATE',
+                    $oldData,
+                    $newData
+                );
+            }
+
+            return $result;
         } catch (Exception $e) {
             // Gerar log de erro
             GenerateLog::generateLog("error", "Plano de Contas não editado.", ['id' => $data['id'], 'error' => $e->getMessage()]);
@@ -185,6 +231,9 @@ class AccountPlanRepository extends DbConnection
     public function deleteAccountPlan(int $id): bool
     {
         try {
+            // Recuperar dados antes da exclusão
+            $oldData = $this->getAccountPlan($id);
+            
             // QUERY para deletar Plano de Contas
             $sql = 'DELETE FROM adms_accounts_plan WHERE id = :id LIMIT 1';
 
@@ -199,6 +248,19 @@ class AccountPlanRepository extends DbConnection
             $affectedRows = $stmt->rowCount();
 
             if ($affectedRows > 0) {
+                // Registrar log de alteração se a exclusão foi bem-sucedida
+                if ($oldData) {
+                    $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                    LogAlteracaoService::registrarAlteracao(
+                        'adms_accounts_plan',
+                        $id,
+                        $usuarioId,
+                        'DELETE',
+                        $oldData,
+                        []
+                    );
+                }
+                
                 return true;
             } else {
                 // Gerar log de erro

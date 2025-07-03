@@ -4,6 +4,7 @@ namespace App\adms\Models\Repository;
 
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Services\DbConnection;
+use App\adms\Models\Services\LogAlteracaoService;
 use Exception;
 use PDO;
 
@@ -126,7 +127,27 @@ class CostCentersRepository extends DbConnection
             $stmt->execute();
 
             // Retornar o ID do departamento recém cadastrado
-            return $this->getConnection()->lastInsertId();
+            $costCenterId = $this->getConnection()->lastInsertId();
+
+            // Registrar log de alteração
+            if ($costCenterId) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $logData = [
+                    'name' => $data['name'],
+                    'created_at' => date("Y-m-d H:i:s")
+                ];
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_cost_center',
+                    $costCenterId,
+                    $usuarioId,
+                    'INSERT',
+                    [],
+                    $logData
+                );
+            }
+
+            return $costCenterId;
 
         } catch (Exception $e) {
             // Gerar log de erro
@@ -148,6 +169,9 @@ class CostCentersRepository extends DbConnection
     public function updateCostCenter(array $data): bool
     {
         try {
+            // Recuperar dados antigos antes da atualização
+            $oldData = $this->getCostCenter($data['id']);
+            
             // QUERY para atualizar centro de custo
             $sql = 'UPDATE adms_cost_center SET name = :name, updated_at = :updated_at';
 
@@ -163,7 +187,27 @@ class CostCentersRepository extends DbConnection
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
 
             // Executar a QUERY
-            return $stmt->execute();
+            $result = $stmt->execute();
+
+            // Registrar log de alteração se a atualização foi bem-sucedida
+            if ($result && $oldData) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $newData = array_merge($oldData, [
+                    'name' => $data['name'],
+                    'updated_at' => date("Y-m-d H:i:s")
+                ]);
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_cost_center',
+                    $data['id'],
+                    $usuarioId,
+                    'UPDATE',
+                    $oldData,
+                    $newData
+                );
+            }
+
+            return $result;
         } catch (Exception $e) {
             // Gerar log de erro
             GenerateLog::generateLog("error", "Centro de custo não editado.", ['id' => $data['id'], 'error' => $e->getMessage()]);
@@ -183,6 +227,9 @@ class CostCentersRepository extends DbConnection
     public function deleteCostCenter(int $id): bool
     {
         try {
+            // Recuperar dados antes da exclusão
+            $oldData = $this->getCostCenter($id);
+            
             // QUERY para deletar centro de custo
             $sql = 'DELETE FROM adms_cost_center WHERE id = :id LIMIT 1';
 
@@ -197,6 +244,19 @@ class CostCentersRepository extends DbConnection
             $affectedRows = $stmt->rowCount();
 
             if ($affectedRows > 0) {
+                // Registrar log de alteração se a exclusão foi bem-sucedida
+                if ($oldData) {
+                    $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                    LogAlteracaoService::registrarAlteracao(
+                        'adms_cost_center',
+                        $id,
+                        $usuarioId,
+                        'DELETE',
+                        $oldData,
+                        []
+                    );
+                }
+                
                 return true;
             } else {
                 // Gerar log de erro

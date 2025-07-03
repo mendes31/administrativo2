@@ -4,6 +4,7 @@ namespace App\adms\Models\Repository;
 
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Services\DbConnection;
+use App\adms\Models\Services\LogAlteracaoService;
 use Exception;
 use PDO;
 
@@ -139,8 +140,23 @@ class CustomerRepository extends DbConnection
             // Executar a QUERY
             $stmt->execute();
 
-            // Retornar o ID do departamento recém cadastrado
-            return $this->getConnection()->lastInsertId();
+            // Retornar o ID do cliente recém cadastrado
+            $customerId = $this->getConnection()->lastInsertId();
+
+            // Registrar log de alteração
+            if ($customerId) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_customer',
+                    $customerId,
+                    $usuarioId,
+                    'INSERT',
+                    [],
+                    $data
+                );
+            }
+
+            return $customerId;
         } catch (Exception $e) {
             // Gerar log de erro
             GenerateLog::generateLog("error", "Cliente não cadastrada.", ['name' => $data['card_name'], 'error' => $e->getMessage()]);
@@ -162,6 +178,9 @@ class CustomerRepository extends DbConnection
     public function updateCustomer(array $data): bool
     {
         try {
+            // Recuperar dados antigos antes da atualização
+            $oldData = $this->getCustomer($data['id']);
+            
             // QUERY para atualizar Cliente
             $sql = 'UPDATE adms_customer 
                 SET card_code = :card_code, card_name = :card_name, type_person = :type_person, doc = :doc, phone = :phone,
@@ -196,7 +215,22 @@ class CustomerRepository extends DbConnection
             $stmt->bindValue(':id', (int) $data['id'], PDO::PARAM_INT);
 
             // Executar a QUERY
-            return $stmt->execute();
+            $result = $stmt->execute();
+
+            // Registrar log de alteração se a atualização foi bem-sucedida
+            if ($result && $oldData) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_customer',
+                    $data['id'],
+                    $usuarioId,
+                    'UPDATE',
+                    $oldData,
+                    $data
+                );
+            }
+
+            return $result;
         } catch (Exception $e) {
             // Gerar log de erro
             GenerateLog::generateLog("error", "Cliente não editado.", ['id' => $data['id'], 'error' => $e->getMessage()]);
@@ -216,6 +250,9 @@ class CustomerRepository extends DbConnection
     public function deleteCustomer(int $id): bool
     {
         try {
+            // Recuperar dados antes da exclusão
+            $oldData = $this->getCustomer($id);
+            
             // QUERY para deletar Cliente
             $sql = 'DELETE FROM adms_customer WHERE id = :id LIMIT 1';
 
@@ -230,6 +267,18 @@ class CustomerRepository extends DbConnection
             $affectedRows = $stmt->rowCount();
 
             if ($affectedRows > 0) {
+                // Registrar log de alteração
+                if ($oldData) {
+                    $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                    LogAlteracaoService::registrarAlteracao(
+                        'adms_customer',
+                        $id,
+                        $usuarioId,
+                        'DELETE',
+                        $oldData,
+                        []
+                    );
+                }
                 return true;
             } else {
                 // Gerar log de erro

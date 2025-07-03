@@ -6,6 +6,7 @@ use App\adms\Controllers\Services\Validation\ValidationLoginService;
 use App\adms\Controllers\Services\ValidationUserLogin;
 use App\adms\Helpers\CSRFHelper;
 use App\adms\Models\Repository\LogsRepository;
+use App\adms\Models\Repository\LogAcessosRepository;
 use App\adms\Views\Services\LoadViewService;
 
 /**
@@ -74,7 +75,13 @@ class Login
         $validationUserLogin = new ValidationUserLogin();
         $result = $validationUserLogin->validationUserLogin($this->data['form']);
 
-        if($result){
+        if($result && isset($result['id']) && is_numeric($result['id'])){
+
+            // Registrar log de acesso
+            $logAcessosRepo = new LogAcessosRepository();
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+            $logAcessosRepo->registrarAcesso((int)$result['id'], 'LOGIN', $ip, $userAgent);
 
             if($_ENV['APP_LOGS'] == 'Sim'){
             $dataLogs = [

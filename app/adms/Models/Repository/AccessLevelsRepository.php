@@ -4,6 +4,7 @@ namespace App\adms\Models\Repository;
 
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Services\DbConnection;
+use App\adms\Models\Services\LogAlteracaoService;
 use Exception;
 use PDO;
 
@@ -129,7 +130,22 @@ class AccessLevelsRepository extends DbConnection
             $stmt->execute();
 
             // Retornar o ID do nivel recém cadastrado
-            return $this->getConnection()->lastInsertId();
+            $accessLevelId = $this->getConnection()->lastInsertId();
+
+            // Registrar log de alteração
+            if ($accessLevelId) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_access_levels',
+                    $accessLevelId,
+                    $usuarioId,
+                    'INSERT',
+                    [],
+                    $data
+                );
+            }
+
+            return $accessLevelId;
 
             
         } catch (Exception $e) {
@@ -152,6 +168,9 @@ class AccessLevelsRepository extends DbConnection
     public function updateAccessLevel(array $data): bool
     {
         try {
+            // Recuperar dados antigos antes da atualização
+            $oldData = $this->getAccessLevel($data['id']);
+            
             // QUERY para atualizar nível de acesso
             $sql = 'UPDATE adms_access_levels SET name = :name, update_at = :update_at';
 
@@ -167,7 +186,22 @@ class AccessLevelsRepository extends DbConnection
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
 
             // Executar a QUERY
-            return $stmt->execute();
+            $result = $stmt->execute();
+
+            // Registrar log de alteração se a atualização foi bem-sucedida
+            if ($result && $oldData) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_access_levels',
+                    $data['id'],
+                    $usuarioId,
+                    'UPDATE',
+                    $oldData,
+                    $data
+                );
+            }
+
+            return $result;
         } catch (Exception $e) {
             // Gerar log de erro
             GenerateLog::generateLog("error", "Nível de acesso não editado.", ['id' => $data['id'], 'error' => $e->getMessage()]);
@@ -187,6 +221,9 @@ class AccessLevelsRepository extends DbConnection
     public function deleteAccessLevel(int $id): bool
     {
         try {
+            // Recuperar dados antes da exclusão
+            $oldData = $this->getAccessLevel($id);
+            
             // QUERY para deletar nível de acesso
             $sql = 'DELETE FROM adms_access_levels WHERE id = :id LIMIT 1';
 
@@ -201,6 +238,18 @@ class AccessLevelsRepository extends DbConnection
             $affectedRows = $stmt->rowCount();
 
             if ($affectedRows > 0) {
+                // Registrar log de alteração
+                if ($oldData) {
+                    $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                    LogAlteracaoService::registrarAlteracao(
+                        'adms_access_levels',
+                        $id,
+                        $usuarioId,
+                        'DELETE',
+                        $oldData,
+                        []
+                    );
+                }
                 return true;
             } else {
                 // Gerar log de erro

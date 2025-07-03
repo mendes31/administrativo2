@@ -4,6 +4,7 @@ namespace App\adms\Models\Repository;
 
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Services\DbConnection;
+use App\adms\Models\Services\LogAlteracaoService;
 use Exception;
 use PDO;
 
@@ -129,7 +130,22 @@ class PositionsRepository extends DbConnection
             $stmt->execute();
 
             // Retornar o ID do cargo recém cadastrado
-            return $this->getConnection()->lastInsertId();
+            $positionId = $this->getConnection()->lastInsertId();
+
+            // Registrar log de alteração
+            if ($positionId) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_positions',
+                    $positionId,
+                    $usuarioId,
+                    'INSERT',
+                    [],
+                    $data
+                );
+            }
+
+            return $positionId;
 
         } catch (Exception $e) {
             // Gerar log de erro
@@ -151,6 +167,9 @@ class PositionsRepository extends DbConnection
     public function updatePosition(array $data): bool
     {
         try {
+            // Recuperar dados antigos antes da atualização
+            $oldData = $this->getPosition($data['id']);
+            
             // QUERY para atualizar cargo
             $sql = 'UPDATE adms_positions SET name = :name, updated_at = :updated_at';
 
@@ -166,7 +185,22 @@ class PositionsRepository extends DbConnection
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
 
             // Executar a QUERY
-            return $stmt->execute();
+            $result = $stmt->execute();
+
+            // Registrar log de alteração se a atualização foi bem-sucedida
+            if ($result && $oldData) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_positions',
+                    $data['id'],
+                    $usuarioId,
+                    'UPDATE',
+                    $oldData,
+                    $data
+                );
+            }
+
+            return $result;
         } catch (Exception $e) {
             // Gerar log de erro
             GenerateLog::generateLog("error", "Cargo não editado.", ['id' => $data['id'], 'error' => $e->getMessage()]);
@@ -186,6 +220,9 @@ class PositionsRepository extends DbConnection
     public function deletePosition(int $id): bool
     {
         try {
+            // Recuperar dados antes da exclusão
+            $oldData = $this->getPosition($id);
+            
             // QUERY para deletar cargo
             $sql = 'DELETE FROM adms_positions WHERE id = :id LIMIT 1';
 
@@ -200,6 +237,18 @@ class PositionsRepository extends DbConnection
             $affectedRows = $stmt->rowCount();
 
             if ($affectedRows > 0) {
+                // Registrar log de alteração
+                if ($oldData) {
+                    $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                    LogAlteracaoService::registrarAlteracao(
+                        'adms_positions',
+                        $id,
+                        $usuarioId,
+                        'DELETE',
+                        $oldData,
+                        []
+                    );
+                }
                 return true;
             } else {
                 // Gerar log de erro

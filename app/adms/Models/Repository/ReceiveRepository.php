@@ -4,6 +4,7 @@ namespace App\adms\Models\Repository;
 
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Services\DbConnection;
+use App\adms\Models\Services\LogAlteracaoService;
 use Exception;
 use PDO;
 
@@ -126,7 +127,36 @@ class ReceiveRepository extends DbConnection
 
             $stmt->execute();
 
-            return $this->getConnection()->lastInsertId();
+            $receiveId = $this->getConnection()->lastInsertId();
+
+            // Registrar log de alteração
+            if ($receiveId) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $logData = [
+                    'description' => $description,
+                    'num_doc' => $nova_num_doc,
+                    'partner_id' => $data['0']['partner_id'] ?? null,
+                    'cost_center_id' => $data['0']['cost_center_id'] ?? null,
+                    'user_launch_id' => $_SESSION['user_id'],
+                    'frequency_id' => $dataForm['form']['frequency_id'] ?? null,
+                    'account_id' => $data['0']['account_id'] ?? null,
+                    'original_value' => $originalValue,
+                    'doc_date' => date("Y-m-d H:i:s"),
+                    'due_date' => $novo_vencimento,
+                    'expected_date' => $novo_vencimento
+                ];
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_receive',
+                    $receiveId,
+                    $usuarioId,
+                    'INSERT',
+                    [],
+                    $logData
+                );
+            }
+
+            return $receiveId;
         } catch (Exception $e) {
             GenerateLog::generateLog("error", "Conta não cadastrada.", ['description' => $data['0']['description'], 'error' => $e->getMessage()]);
             return false;
@@ -145,6 +175,9 @@ class ReceiveRepository extends DbConnection
     public function updatePay(array $dataForm, array $data): bool
     {
         try {
+            // Recuperar dados antigos antes da atualização
+            $oldData = $this->getReceive($data['id_pay']);
+            
             $id_pay = $data['id_pay'];
             $totalPago = $this->getTotalPago($id_pay);
             $originalValue = isset($data['original_value']) ? (float)$data['original_value'] : 0;
@@ -161,7 +194,27 @@ class ReceiveRepository extends DbConnection
             $stmt->bindValue(':updated_at', date("Y-m-d H:i:s"));
             $stmt->bindValue(':id_pay', $data['id_pay'], PDO::PARAM_INT);
 
-            return $stmt->execute();
+            $result = $stmt->execute();
+
+            // Registrar log de alteração se a atualização foi bem-sucedida
+            if ($result && $oldData) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $newData = array_merge($oldData, [
+                    'paid' => $value == 0 ? 1 : 0,
+                    'updated_at' => date("Y-m-d H:i:s")
+                ]);
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_receive',
+                    $data['id_pay'],
+                    $usuarioId,
+                    'UPDATE',
+                    $oldData,
+                    $newData
+                );
+            }
+
+            return $result;
         } catch (Exception $e) {
             GenerateLog::generateLog("error", "Conta não baixada.", ['id' => $data['id_pay'], 'error' => $e->getMessage()]);
             return false;
@@ -341,34 +394,37 @@ class ReceiveRepository extends DbConnection
      */
     public function createPartialValue(array $dataForm, array $data): bool|int
     {
-        // var_dump($data);
-
         try {
             $sql = 'INSERT INTO adms_partial_value (account_id, type, partial_value, user_id, created_at)
                     VALUES (:account_id, :type, :partial_value, :user_id, :created_at)';
-
-            // var_dump($sql);
-
             $stmt = $this->getConnection()->prepare($sql);
-
             $stmt->bindValue(':account_id', $data['id_pay'] ?? null, PDO::PARAM_INT);
-
-            $stmt->bindValue(':type', 'Pagar', PDO::PARAM_STR);
-
+            $stmt->bindValue(':type', 'Receber', PDO::PARAM_STR);
             $partial_value = isset($data['value']) ? str_replace(',', '.', $data['value']) : '0.00';
             $partial_value = number_format((float) $partial_value, 2, '.', '');
             $stmt->bindParam(':partial_value', $partial_value, PDO::PARAM_STR);
-
             $stmt->bindValue(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
-
             $stmt->bindValue(':created_at', date("Y-m-d H:i:s"));
-
             $stmt->execute();
-
-            return $this->getConnection()->lastInsertId();
+            $lastId = $this->getConnection()->lastInsertId();
+            // Log de alteração
+            \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
+                'adms_partial_value',
+                $lastId,
+                $_SESSION['user_id'] ?? 0,
+                'INSERT',
+                [],
+                [
+                    'account_id' => $data['id_pay'] ?? null,
+                    'type' => 'Receber',
+                    'partial_value' => $partial_value,
+                    'user_id' => $_SESSION['user_id'] ?? 0,
+                    'created_at' => date("Y-m-d H:i:s")
+                ]
+            );
+            return $lastId;
         } catch (Exception $e) {
             GenerateLog::generateLog("error", "Conta não cadastrada.", ['account_id' => $data['account_id'], 'error' => $e->getMessage()]);
-            // var_dump($e->getMessage());
             return false;
         }
     }
@@ -384,33 +440,43 @@ class ReceiveRepository extends DbConnection
         try {
             $sql = 'INSERT INTO adms_movements (type, movement, description, movement_value, user_id, bank_id, method_id, movement_id, created_at)
                     VALUES (:type, :movement,  :description, :movement_value, :user_id,:bank_id, :method_id, :movement_id, :created_at)';
-
             $stmt = $this->getConnection()->prepare($sql);
-
-            $stmt->bindValue(':type', 'Saída', PDO::PARAM_STR);
-            $stmt->bindValue(':movement', 'Conta à Pagar', PDO::PARAM_STR);
+            $stmt->bindValue(':type', 'Entrada', PDO::PARAM_STR);
+            $stmt->bindValue(':movement', 'Conta à Receber', PDO::PARAM_STR);
             $stmt->bindParam(':description',  $data['description'], PDO::PARAM_STR);
-
             $movement_value = isset($data['subtotal']) ? str_replace(',', '.', $data['subtotal']) : '0.00';
             $movement_value = number_format((float) $movement_value, 2, '.', '');
             $stmt->bindParam(':movement_value', $movement_value, PDO::PARAM_STR);
-
             $stmt->bindValue(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
             $stmt->bindValue(':bank_id', $data['bank_id'], PDO::PARAM_INT);
             $stmt->bindValue(':method_id', $data['pay_method_id'], PDO::PARAM_INT);
             $stmt->bindValue(':movement_id', $data['id_pay'] ?? null, PDO::PARAM_INT);
-
             $stmt->bindValue(':created_at', date("Y-m-d H:i:s"));
-
             $stmt->execute();
-
             $lastId = $this->getConnection()->lastInsertId();
-
+            // Log de alteração
+            \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
+                'adms_movements',
+                $lastId,
+                $_SESSION['user_id'] ?? 0,
+                'INSERT',
+                [],
+                [
+                    'type' => 'Entrada',
+                    'movement' => 'Conta à Receber',
+                    'description' => $data['description'],
+                    'movement_value' => $movement_value,
+                    'user_id' => $_SESSION['user_id'] ?? 0,
+                    'bank_id' => $data['bank_id'],
+                    'method_id' => $data['pay_method_id'],
+                    'movement_id' => $data['id_pay'] ?? null,
+                    'created_at' => date("Y-m-d H:i:s")
+                ]
+            );
             // Atualizar amount_paid da conta relacionada
             if (!empty($data['id_pay'])) {
                 $this->updatePay([], ['id_pay' => $data['id_pay']]);
             }
-
             return $lastId;
         } catch (Exception $e) {
             GenerateLog::generateLog("error", "Conta não cadastrada.", ['movement_id' => $data['movement_id'], 'error' => $e->getMessage()]);
@@ -429,10 +495,29 @@ class ReceiveRepository extends DbConnection
     public function deletePay(int $id): bool
     {
         try {
+            // Recuperar dados antes da exclusão
+            $oldData = $this->getReceive($id);
+            
             $sql = 'DELETE FROM adms_receive WHERE id = :id LIMIT 1';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-            return $stmt->execute();
+            
+            $result = $stmt->execute();
+
+            // Registrar log de alteração se a exclusão foi bem-sucedida
+            if ($result && $oldData) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_receive',
+                    $id,
+                    $usuarioId,
+                    'DELETE',
+                    $oldData,
+                    []
+                );
+            }
+
+            return $result;
         } catch (Exception $e) {
             GenerateLog::generateLog("error", "Erro ao deletar conta.", ['id' => $id, 'error' => $e->getMessage()]);
             return false;

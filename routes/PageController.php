@@ -101,3 +101,5 @@ class PageController
 
 // Rota para avaliações do colaborador
 $routes['minhas-avaliacoes'] = 'evaluations/MyEvaluations/index';
+
+

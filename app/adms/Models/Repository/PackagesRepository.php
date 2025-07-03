@@ -4,6 +4,7 @@ namespace App\adms\Models\Repository;
 
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Services\DbConnection;
+use App\adms\Models\Services\LogAlteracaoService;
 use Exception;
 use PDO;
 
@@ -127,7 +128,28 @@ class PackagesRepository extends DbConnection
             $stmt->execute();
 
             // Retornar o ID do pacote recém-cadastrado
-            return $this->getConnection()->lastInsertId();
+            $packageId = $this->getConnection()->lastInsertId();
+
+            // Registrar log de alteração
+            if ($packageId) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $logData = [
+                    'name' => $data['name'],
+                    'obs' => $data['obs'],
+                    'created_at' => date("Y-m-d H:i:s")
+                ];
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_packages_pages',
+                    $packageId,
+                    $usuarioId,
+                    'INSERT',
+                    [],
+                    $logData
+                );
+            }
+
+            return $packageId;
         } catch (Exception $e) {
             // Gerar log de erro
             GenerateLog::generateLog("error", "Pacote não cadastrado.", ['name' => $data['name'], 'error' => $e->getMessage()]);
@@ -147,6 +169,9 @@ class PackagesRepository extends DbConnection
     public function updatePackage(array $data): bool
     {
         try {
+            // Recuperar dados antigos antes da atualização
+            $oldData = $this->getPackage($data['id']);
+            
             // QUERY para atualizar pacote
             $sql = 'UPDATE adms_packages_pages SET name = :name, obs = :obs, updated_at = :updated_at';
 
@@ -163,7 +188,28 @@ class PackagesRepository extends DbConnection
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
 
             // Executar a QUERY
-            return $stmt->execute();
+            $result = $stmt->execute();
+
+            // Registrar log de alteração se a atualização foi bem-sucedida
+            if ($result && $oldData) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $newData = array_merge($oldData, [
+                    'name' => $data['name'],
+                    'obs' => $data['obs'],
+                    'updated_at' => date("Y-m-d H:i:s")
+                ]);
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_packages_pages',
+                    $data['id'],
+                    $usuarioId,
+                    'UPDATE',
+                    $oldData,
+                    $newData
+                );
+            }
+
+            return $result;
         } catch (Exception $e) {
             // Gerar log de erro
             GenerateLog::generateLog("error", "Pacote não editado.", ['id' => $data['id'], 'error' => $e->getMessage()]);
@@ -183,6 +229,9 @@ class PackagesRepository extends DbConnection
     public function deletePackage(int $id): bool
     {
         try {
+            // Recuperar dados antes da exclusão
+            $oldData = $this->getPackage($id);
+            
             // QUERY para deletar pacote
             $sql = 'DELETE FROM adms_packages_pages WHERE id = :id LIMIT 1';
 
@@ -197,6 +246,19 @@ class PackagesRepository extends DbConnection
             $affectedRows = $stmt->rowCount();
 
             if ($affectedRows > 0) {
+                // Registrar log de alteração se a exclusão foi bem-sucedida
+                if ($oldData) {
+                    $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                    LogAlteracaoService::registrarAlteracao(
+                        'adms_packages_pages',
+                        $id,
+                        $usuarioId,
+                        'DELETE',
+                        $oldData,
+                        []
+                    );
+                }
+                
                 return true;
             } else {
                 // Gerar log de erro

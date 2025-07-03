@@ -4,6 +4,7 @@ namespace App\adms\Models\Repository;
 
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Services\DbConnection;
+use App\adms\Models\Services\LogAlteracaoService;
 use Exception;
 use PDO;
 
@@ -129,7 +130,30 @@ class DocumentsRepository extends DbConnection
             $stmt->execute();
 
             // Retornar o ID do documento recém-cadastrado
-            return $this->getConnection()->lastInsertId();
+            $documentId = $this->getConnection()->lastInsertId();
+
+            // Registrar log de alteração
+            if ($documentId) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $logData = [
+                    'cod_doc' => $data['cod_doc'],
+                    'name_doc' => $data['name_doc'],
+                    'version' => $data['version'],
+                    'active' => $data['active'],
+                    'created_at' => date("Y-m-d H:i:s")
+                ];
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_documents',
+                    $documentId,
+                    $usuarioId,
+                    'INSERT',
+                    [],
+                    $logData
+                );
+            }
+
+            return $documentId;
         } catch (Exception $e) {
             // Gerar log de erro
             GenerateLog::generateLog("error", "Documento não cadastrado.", ['cod_doc' => $data['cod_doc'], 'error' => $e->getMessage()]);
@@ -149,6 +173,9 @@ class DocumentsRepository extends DbConnection
     public function updateDocument(array $data): bool
     {
         try {
+            // Recuperar dados antigos antes da atualização
+            $oldData = $this->getDocument($data['id']);
+            
             // QUERY para atualizar documento
             $sql = 'UPDATE adms_documents SET 
                     cod_doc = :cod_doc, 
@@ -172,7 +199,30 @@ class DocumentsRepository extends DbConnection
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
 
             // Executar a QUERY
-            return $stmt->execute();
+            $result = $stmt->execute();
+
+            // Registrar log de alteração se a atualização foi bem-sucedida
+            if ($result && $oldData) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                $newData = array_merge($oldData, [
+                    'cod_doc' => $data['cod_doc'],
+                    'name_doc' => $data['name_doc'],
+                    'version' => $data['version'],
+                    'active' => $data['active'],
+                    'updated_at' => date("Y-m-d H:i:s")
+                ]);
+                
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_documents',
+                    $data['id'],
+                    $usuarioId,
+                    'UPDATE',
+                    $oldData,
+                    $newData
+                );
+            }
+
+            return $result;
         } catch (Exception $e) {
             // Gerar log de erro
             GenerateLog::generateLog("error", "Documento não editado.", ['id' => $data['id'], 'error' => $e->getMessage()]);
@@ -192,6 +242,8 @@ class DocumentsRepository extends DbConnection
         public function deleteDocument(int $id): bool
     {
         try {
+            // Recuperar dados antes da exclusão
+            $oldData = $this->getDocument($id);
            
             $sql = 'DELETE FROM adms_documents WHERE id = :id LIMIT 1';
 
@@ -206,6 +258,19 @@ class DocumentsRepository extends DbConnection
             $affectedRows = $stmt->rowCount();
 
             if ($affectedRows > 0) {
+                // Registrar log de alteração se a exclusão foi bem-sucedida
+                if ($oldData) {
+                    $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                    LogAlteracaoService::registrarAlteracao(
+                        'adms_documents',
+                        $id,
+                        $usuarioId,
+                        'DELETE',
+                        $oldData,
+                        []
+                    );
+                }
+                
                 return true;
             } else {
                 // Gerar log de erro

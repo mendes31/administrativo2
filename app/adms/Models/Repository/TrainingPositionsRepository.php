@@ -58,6 +58,16 @@ class TrainingPositionsRepository extends DbConnection
                 $isObrigatorio = isset($obrigatorio[$cargoId]) ? 1 : 0;
                 $reciclagemPeriodo = (isset($reciclagem[$cargoId]) && is_numeric($reciclagem[$cargoId]) && $isObrigatorio) ? (int)$reciclagem[$cargoId] : null;
                 
+                // Captura os dados antigos antes da alteração
+                $dadosAntes = null;
+                if (isset($existingLinks[$cargoId])) {
+                    $sqlAntes = 'SELECT * FROM adms_training_positions WHERE id = :id';
+                    $stmtAntes = $this->getConnection()->prepare($sqlAntes);
+                    $stmtAntes->bindValue(':id', $existingLinks[$cargoId], PDO::PARAM_INT);
+                    $stmtAntes->execute();
+                    $dadosAntes = $stmtAntes->fetch(PDO::FETCH_ASSOC);
+                }
+                
                 if (isset($existingLinks[$cargoId])) {
                     // UPDATE
                     $sqlUpdate = 'UPDATE adms_training_positions 
@@ -69,7 +79,26 @@ class TrainingPositionsRepository extends DbConnection
                     $stmtUpdate->bindValue(':obrigatorio', $isObrigatorio, PDO::PARAM_INT);
                     $stmtUpdate->bindValue(':reciclagem_periodo', $reciclagemPeriodo, PDO::PARAM_INT);
                     $stmtUpdate->bindValue(':id', $existingLinks[$cargoId], PDO::PARAM_INT);
-                    $stmtUpdate->execute();
+                    $result = $stmtUpdate->execute();
+                    
+                    // Log de alteração para UPDATE
+                    if ($result && $dadosAntes) {
+                        $dadosDepois = [
+                            'id' => $existingLinks[$cargoId],
+                            'adms_training_id' => $trainingId,
+                            'adms_position_id' => $cargoId,
+                            'obrigatorio' => $isObrigatorio,
+                            'reciclagem_periodo' => $reciclagemPeriodo,
+                        ];
+                        \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
+                            'adms_training_positions',
+                            $existingLinks[$cargoId],
+                            $_SESSION['user_id'] ?? 0,
+                            'update',
+                            $dadosAntes,
+                            $dadosDepois
+                        );
+                    }
                 } else {
                     // INSERT
                     $sqlInsert = 'INSERT INTO adms_training_positions 
@@ -81,6 +110,26 @@ class TrainingPositionsRepository extends DbConnection
                     $stmtInsert->bindValue(':obrigatorio', $isObrigatorio, PDO::PARAM_INT);
                     $stmtInsert->bindValue(':reciclagem_periodo', $reciclagemPeriodo, PDO::PARAM_INT);
                     $stmtInsert->execute();
+                    $novoId = $this->getConnection()->lastInsertId();
+                    
+                    // Log de alteração para INSERT
+                    if ($novoId) {
+                        $dadosDepois = [
+                            'id' => $novoId,
+                            'adms_training_id' => $trainingId,
+                            'adms_position_id' => $cargoId,
+                            'obrigatorio' => $isObrigatorio,
+                            'reciclagem_periodo' => $reciclagemPeriodo,
+                        ];
+                        \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
+                            'adms_training_positions',
+                            $novoId,
+                            $_SESSION['user_id'] ?? 0,
+                            'insert',
+                            [],
+                            $dadosDepois
+                        );
+                    }
                 }
             }
 

@@ -3,6 +3,7 @@
 namespace Routes;
 
 use App\adms\Helpers\GenerateLog;
+use App\adms\Helpers\SlugController;
 
 /**
  * Classe LoadPageAdm
@@ -63,6 +64,9 @@ class LoadPageAdm
         "SendNotification",
         "CreateTrainingUser", "DeleteTrainingUserLink",
         "EmailConfig",
+        "AjaxSimplePasswordValidate",
+        "AjaxPasswordPolicy",
+        "ListLogAlteracoes", "ViewLogAlteracao", "ExportLogCsv", "ExportLogExcel", "ExportLogPdf", "ListLogAcessos", "ExportLogAcessosExcel", "ExportLogAcessosPdf",
     ];
 
     /** @var array $listDirectory Recebe a lista de diretórios com as controllers */
@@ -102,7 +106,7 @@ class LoadPageAdm
      * Carregar a página de administração.
      * 
      * Este método verifica se a página existe entre as páginas públicas ou privadas. Em seguida, verifica se a controller correspondente existe,
-     * e se o método apropriado ("index") está presente nessa controller. Em caso de falha, logs são gerados e mensagens de erro são exibidas.
+     * e se o método necessário está presente na controller. Em caso de falha, logs são gerados e mensagens de erro são exibidas.
      * 
      * @param string|null $urlController Recebe da URL o nome da controller
      * @param string|null $urlParameter Recebe da URL o parâmetro
@@ -113,6 +117,8 @@ class LoadPageAdm
     {
         $this->urlController = $urlController;
         $this->urlParameter = $urlParameter;
+        // Converter controller de slug para PascalCase
+        $this->urlController = SlugController::slugController($this->urlController);
 
         // Verificar se existe a pagina
         if (!$this->checkPageExists()) {
@@ -236,15 +242,12 @@ class LoadPageAdm
         }
 
         // Debug: mostrar controller e método
-        var_dump('Controller:', $this->classLoad, 'Método:', $metodo, 'Parâmetro:', $this->urlParameter); die();
+        var_dump('Controller:', $this->classLoad, 'Método:', $metodo, 'Parâmetro:', $this->urlParameter);
 
         if (method_exists($classLoad, $metodo)) {
-            // Chamar o método para salvar log
             GenerateLog::generateLog("info", "Pagina acessada.", ['pagina' => $this->urlController, 'parametro' => $this->urlParameter]);
-            // Carregar o método
             $classLoad->{$metodo}();
         } else {
-            // Chamar o método para salvar log
             GenerateLog::generateLog("error", "Método não encontrado.", ['pagina' => $this->urlController, 'parametro' => $this->urlParameter]);
             die("Erro 004: Por favor tente novamente. Caso o problema persista, entre em contato com o adminstrador {$_ENV['EMAIL_ADM']}");
         }

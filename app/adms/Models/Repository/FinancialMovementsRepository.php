@@ -3,6 +3,7 @@
 namespace App\adms\Models\Repository;
 
 use App\adms\Models\Services\DbConnection;
+use App\adms\Models\Services\LogAlteracaoService;
 use PDO;
 
 class FinancialMovementsRepository extends DbConnection
@@ -199,13 +200,39 @@ class FinancialMovementsRepository extends DbConnection
      */
     public function updateMovement($id_mov, $dados)
     {
+        // Recuperar dados antigos antes da atualização
+        $oldData = $this->getMovementById($id_mov);
+        
         $sql = 'UPDATE adms_movements SET method_id = :method, bank_id = :banco, user_id = :user, updated_at = NOW() WHERE id = :id_mov';
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->bindValue(':method', $dados['method_id']);
         $stmt->bindValue(':banco', $dados['bank_id']);
         $stmt->bindValue(':user', $dados['user_id']);
         $stmt->bindValue(':id_mov', $id_mov, PDO::PARAM_INT);
-        return $stmt->execute();
+        
+        $result = $stmt->execute();
+
+        // Registrar log de alteração se a atualização foi bem-sucedida
+        if ($result && $oldData) {
+            $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+            $newData = array_merge($oldData, [
+                'method_id' => $dados['method_id'],
+                'bank_id' => $dados['bank_id'],
+                'user_id' => $dados['user_id'],
+                'updated_at' => date("Y-m-d H:i:s")
+            ]);
+            
+            LogAlteracaoService::registrarAlteracao(
+                'adms_movements',
+                $id_mov,
+                $usuarioId,
+                'UPDATE',
+                $oldData,
+                $newData
+            );
+        }
+
+        return $result;
     }
 
     /**
@@ -213,9 +240,28 @@ class FinancialMovementsRepository extends DbConnection
      */
     public function deleteMovementReceive($id_mov)
     {
+        // Recuperar dados antes da exclusão
+        $oldData = $this->getMovementReceiveById($id_mov);
+        
         $sql = 'DELETE FROM adms_movements WHERE id = :id_mov';
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->bindValue(':id_mov', $id_mov, PDO::PARAM_INT);
-        return $stmt->execute();
+        
+        $result = $stmt->execute();
+
+        // Registrar log de alteração se a exclusão foi bem-sucedida
+        if ($result && $oldData) {
+            $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+            LogAlteracaoService::registrarAlteracao(
+                'adms_movements',
+                $id_mov,
+                $usuarioId,
+                'DELETE',
+                $oldData,
+                []
+            );
+        }
+
+        return $result;
     }
 } 

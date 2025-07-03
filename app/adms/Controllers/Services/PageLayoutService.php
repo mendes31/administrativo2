@@ -65,6 +65,9 @@ class PageLayoutService
             "MyEvaluations",
             "HistoricoAvaliacoes",
             "Notificacoes",
+            "PasswordPolicy",
+            'ListLogAlteracoes',
+            'ListLogAcessos',
 
             // Adicione aqui outras permissões de páginas/submenus que possam existir no futuro
         ];

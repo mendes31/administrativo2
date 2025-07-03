@@ -4,6 +4,7 @@ namespace App\adms\Models\Repository;
 
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Services\DbConnection;
+use App\adms\Models\Services\LogAlteracaoService;
 use Exception;
 use PDO;
 
@@ -129,7 +130,22 @@ class DepartmentsRepository extends DbConnection
             $stmt->execute();
 
             // Retornar o ID do departamento recém cadastrado
-            return $this->getConnection()->lastInsertId();
+            $departmentId = $this->getConnection()->lastInsertId();
+
+            // Registrar log de alteração
+            if ($departmentId) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_departments',
+                    $departmentId,
+                    $usuarioId,
+                    'INSERT',
+                    [],
+                    $data
+                );
+            }
+
+            return $departmentId;
 
         } catch (Exception $e) {
             // Gerar log de erro
@@ -151,6 +167,9 @@ class DepartmentsRepository extends DbConnection
     public function updateDepartment(array $data): bool
     {
         try {
+            // Recuperar dados antigos antes da atualização
+            $oldData = $this->getDepartment($data['id']);
+            
             // QUERY para atualizar departamento
             $sql = 'UPDATE adms_departments SET name = :name, update_at = :update_at';
 
@@ -166,7 +185,22 @@ class DepartmentsRepository extends DbConnection
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
 
             // Executar a QUERY
-            return $stmt->execute();
+            $result = $stmt->execute();
+
+            // Registrar log de alteração se a atualização foi bem-sucedida
+            if ($result && $oldData) {
+                $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                LogAlteracaoService::registrarAlteracao(
+                    'adms_departments',
+                    $data['id'],
+                    $usuarioId,
+                    'UPDATE',
+                    $oldData,
+                    $data
+                );
+            }
+
+            return $result;
         } catch (Exception $e) {
             // Gerar log de erro
             GenerateLog::generateLog("error", "Departamento não editado.", ['id' => $data['id'], 'error' => $e->getMessage()]);
@@ -186,6 +220,9 @@ class DepartmentsRepository extends DbConnection
     public function deleteDepartment(int $id): bool
     {
         try {
+            // Recuperar dados antes da exclusão
+            $oldData = $this->getDepartment($id);
+            
             // QUERY para deletar departamento
             $sql = 'DELETE FROM adms_departments WHERE id = :id LIMIT 1';
 
@@ -200,6 +237,18 @@ class DepartmentsRepository extends DbConnection
             $affectedRows = $stmt->rowCount();
 
             if ($affectedRows > 0) {
+                // Registrar log de alteração
+                if ($oldData) {
+                    $usuarioId = $_SESSION['user_id'] ?? 1; // ID do usuário logado ou 1 como padrão
+                    LogAlteracaoService::registrarAlteracao(
+                        'adms_departments',
+                        $id,
+                        $usuarioId,
+                        'DELETE',
+                        $oldData,
+                        []
+                    );
+                }
                 return true;
             } else {
                 // Gerar log de erro

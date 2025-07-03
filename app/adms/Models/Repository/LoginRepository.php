@@ -38,4 +38,53 @@ class LoginRepository extends DbConnection
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Incrementa tentativas de login do usuário
+     */
+    public function incrementarTentativasLogin(int $userId): void
+    {
+        $sql = 'UPDATE adms_users SET tentativas_login = tentativas_login + 1 WHERE id = :id';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Reseta tentativas de login do usuário
+     */
+    public function resetarTentativasLogin(int $userId): void
+    {
+        $sql = 'UPDATE adms_users SET tentativas_login = 0 WHERE id = :id';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Bloqueia o usuário
+     */
+    public function bloquearUsuario(int $userId): void
+    {
+        $sql = 'UPDATE adms_users SET bloqueado = "Sim" WHERE id = :id';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Registra tentativa de login na tabela adms_login_attempts
+     */
+    public function registrarTentativaLogin(?int $userId, string $usernameTentado, string $ip, ?string $userAgent, string $resultado, ?string $detalhes = null): void
+    {
+        $sql = 'INSERT INTO adms_login_attempts (user_id, username_tentado, ip, user_agent, data_tentativa, resultado, detalhes, created_at) VALUES (:user_id, :username_tentado, :ip, :user_agent, NOW(), :resultado, :detalhes, NOW())';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':user_id', $userId, $userId ? PDO::PARAM_INT : PDO::PARAM_NULL);
+        $stmt->bindValue(':username_tentado', $usernameTentado, PDO::PARAM_STR);
+        $stmt->bindValue(':ip', $ip, PDO::PARAM_STR);
+        $stmt->bindValue(':user_agent', $userAgent, PDO::PARAM_STR);
+        $stmt->bindValue(':resultado', $resultado, PDO::PARAM_STR);
+        $stmt->bindValue(':detalhes', $detalhes, PDO::PARAM_STR);
+        $stmt->execute();
+    }
+
 }

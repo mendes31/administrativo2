@@ -1,4 +1,15 @@
 <?php
+use App\adms\Models\Repository\AdmsPasswordPolicyRepository;
+$policyId = null;
+try {
+    $repo = new AdmsPasswordPolicyRepository();
+    $policy = $repo->getPolicy();
+    if ($policy && isset($policy->id)) {
+        $policyId = $policy->id;
+    }
+} catch (\Throwable $e) {
+    $policyId = null;
+}
 $menus = [
     [
         'id' => 'dashboard',
@@ -12,34 +23,59 @@ $menus = [
         'id' => 'admininstracao',
         'icon' => 'fa-solid fa-gear',
         'label' => 'Admininstracao',
-        'submenu' => [
-            [
-                'label' => 'Grupos de Páginas',
-                'url' => $_ENV['URL_ADM'] . 'list-groups-pages',
-                'permission' => 'ListGroupsPages'
-            ],
-            [
-                'label' => 'Pacotes',
-                'url' => $_ENV['URL_ADM'] . 'list-packages',
-                'permission' => 'ListPackages'
-            ],
-            [
-                'label' => 'Páginas',
-                'url' => $_ENV['URL_ADM'] . 'list-pages',
-                'permission' => 'ListPages'
-            ],
+        'submenu' => (function() use ($policyId) {
+            $submenu = [
                 [
-                'label' => 'Configurações',
-                'icon' => 'fa-solid fa-sliders',
-                'submenu' => [
-                    [
-                        'label' => 'Configuração de E-mail',
-                        'url' => $_ENV['URL_ADM'] . 'email-config',
-                        'permission' => 'EmailConfig'
-                    ],
-                ]
-            ],
-        ]
+                    'label' => 'Configurações',
+                    'icon' => 'fa-solid fa-sliders',
+                    'submenu' => [
+                        [
+                            'label' => 'Configuração de E-mail',
+                            'url' => $_ENV['URL_ADM'] . 'email-config',
+                            'permission' => 'EmailConfig'
+                        ],
+                        [
+                            'label' => 'Política de Senha',
+                            'url' => $_ENV['URL_ADM'] . 'password-policy' . ($policyId ? '/' . $policyId : ''),
+                            'permission' => 'PasswordPolicy'
+                        ],
+                    ]
+                ],
+                [
+                    'label' => 'Grupos de Páginas',
+                    'url' => $_ENV['URL_ADM'] . 'list-groups-pages',
+                    'permission' => 'ListGroupsPages'
+                ],
+                [
+                    'label' => 'Logs',
+                    'icon' => 'fa-solid fa-file-alt',
+                    'submenu' => [
+                        [
+                            'label' => 'Log de Acessos',
+                            'url' => $_ENV['URL_ADM'] . 'list-log-acessos',
+                            'permission' => 'ListLogAcessos'
+                        ],
+                        [
+                            'label' => 'Log de Alterações',
+                            'url' => $_ENV['URL_ADM'] . 'list-log-alteracoes',
+                            'permission' => 'ListLogAlteracoes'
+                        ],
+                    ]
+                ],
+                [
+                    'label' => 'Pacotes',
+                    'url' => $_ENV['URL_ADM'] . 'list-packages',
+                    'permission' => 'ListPackages'
+                ],
+                [
+                    'label' => 'Páginas',
+                    'url' => $_ENV['URL_ADM'] . 'list-pages',
+                    'permission' => 'ListPages'
+                ],
+            ];
+            usort($submenu, function($a, $b) { return strcmp($a['label'], $b['label']); });
+            return $submenu;
+        })(),
     ],
     [
         'id' => 'cadastro',

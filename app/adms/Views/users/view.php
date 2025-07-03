@@ -106,6 +106,21 @@ $csrf_token_update_access_level = CSRFHelper::generateCSRFToken('form_update_acc
 
                     <dt class="col-sm-3">Aeditado: </dt>
                     <dd class="col-sm-9"><?php echo ($updated_at ? date('d/m/Y H:i:s', strtotime($updated_at)) : ""); ?></dd>
+
+                    <dt class="col-sm-3">Status: </dt>
+                    <dd class="col-sm-9"><?php echo $status; ?></dd>
+
+                    <dt class="col-sm-3">Bloqueado: </dt>
+                    <dd class="col-sm-9"><?php echo $bloqueado; ?></dd>
+
+                    <dt class="col-sm-3">Tentativas de Login: </dt>
+                    <dd class="col-sm-9"><?php echo $tentativas_login; ?></dd>
+
+                    <dt class="col-sm-3">Senha Nunca Expira: </dt>
+                    <dd class="col-sm-9"><?php echo $senha_nunca_expira; ?></dd>
+
+                    <dt class="col-sm-3">Modificar Senha no Próximo Logon: </dt>
+                    <dd class="col-sm-9"><?php echo $modificar_senha_proximo_logon; ?></dd>
                 </dl>
 
 

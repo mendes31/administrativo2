@@ -104,6 +104,39 @@ use App\adms\Helpers\CSRFHelper;
                     </select>
                 </div>
 
+                <div class="col-md-4">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" class="form-select" id="status">
+                        <option value="Ativo" <?php echo (isset($this->data['form']['status']) && $this->data['form']['status'] == 'Ativo') ? 'selected' : ''; ?>>Ativo</option>
+                        <option value="Inativo" <?php echo (isset($this->data['form']['status']) && $this->data['form']['status'] == 'Inativo') ? 'selected' : ''; ?>>Inativo</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="bloqueado" class="form-label">Bloqueado</label>
+                    <select name="bloqueado" class="form-select" id="bloqueado">
+                        <option value="Não" <?php echo (isset($this->data['form']['bloqueado']) && $this->data['form']['bloqueado'] == 'Não') ? 'selected' : ''; ?>>Não</option>
+                        <option value="Sim" <?php echo (isset($this->data['form']['bloqueado']) && $this->data['form']['bloqueado'] == 'Sim') ? 'selected' : ''; ?>>Sim</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="tentativas_login" class="form-label">Tentativas de Login</label>
+                    <input type="number" name="tentativas_login" class="form-control" id="tentativas_login" value="<?php echo $this->data['form']['tentativas_login'] ?? '0'; ?>" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="senha_nunca_expira" class="form-label">Senha Nunca Expira</label>
+                    <select name="senha_nunca_expira" class="form-select" id="senha_nunca_expira">
+                        <option value="Não" <?php echo (isset($this->data['form']['senha_nunca_expira']) && $this->data['form']['senha_nunca_expira'] == 'Não') ? 'selected' : ''; ?>>Não</option>
+                        <option value="Sim" <?php echo (isset($this->data['form']['senha_nunca_expira']) && $this->data['form']['senha_nunca_expira'] == 'Sim') ? 'selected' : ''; ?>>Sim</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="modificar_senha_proximo_logon" class="form-label">Modificar Senha no Próximo Logon</label>
+                    <select name="modificar_senha_proximo_logon" class="form-select" id="modificar_senha_proximo_logon">
+                        <option value="Não" <?php echo (isset($this->data['form']['modificar_senha_proximo_logon']) && $this->data['form']['modificar_senha_proximo_logon'] == 'Não') ? 'selected' : ''; ?>>Não</option>
+                        <option value="Sim" <?php echo (isset($this->data['form']['modificar_senha_proximo_logon']) && $this->data['form']['modificar_senha_proximo_logon'] == 'Sim') ? 'selected' : ''; ?>>Sim</option>
+                    </select>
+                </div>
+
                 <div class="col-12">
                     <button type="submit" class="btn btn-warning btn-sm">Salvar</button>
                 </div>
