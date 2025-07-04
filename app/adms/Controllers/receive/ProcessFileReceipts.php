@@ -8,6 +8,12 @@
 
 // class ProcessFile
 
+// Carregar variáveis de ambiente se executado isoladamente
+if (!isset($_ENV['DB_HOST'])) {
+    require_once __DIR__ . '/../../Helpers/EnvLoader.php';
+    \App\adms\Helpers\EnvLoader::load();
+}
+
 use App\adms\Models\Repository\ReceiptsRepository;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 

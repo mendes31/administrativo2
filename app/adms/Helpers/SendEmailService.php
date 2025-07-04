@@ -5,6 +5,7 @@ namespace App\adms\Helpers;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use App\adms\Models\Repository\AdmsEmailConfigRepository;
+use App\adms\Helpers\GenerateLog;
 
 class SendEmailService
 {

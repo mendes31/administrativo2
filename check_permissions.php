@@ -1,8 +1,12 @@
 <?php
 require 'vendor/autoload.php';
 
+// Carregar variáveis de ambiente
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 try {
-    $pdo = new PDO('mysql:host=localhost;dbname=administrativo2', 'root', '');
+    $pdo = new PDO("mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_NAME']}", $_ENV['DB_USER'], $_ENV['DB_PASS']);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     $stmt = $pdo->query('SELECT p.name, p.controller, alp.permission, alp.adms_access_level_id 

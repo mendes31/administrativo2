@@ -6,6 +6,12 @@ use App\adms\Helpers\GenerateLog;
 use PDO;
 use PDOException;
 
+// Reforço do carregamento do .env
+if (!isset($_ENV['DB_HOST'])) {
+    require_once __DIR__ . '/../../Helpers/EnvLoader.php';
+    \App\adms\Helpers\EnvLoader::load();
+}
+
 /**
  * Classe responsável pela conexão com o banco de dados.
  *

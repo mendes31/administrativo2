@@ -17,8 +17,7 @@ $dotenv = Dotenv\Dotenv::createUnsafeImmutable(__DIR__);
 $dotenv->load();
 
 // Definir o timezone
-// date_default_timezone_set($_ENV['APP_TIMEZONE']);
-date_default_timezone_set(getenv('APP_TIMEZONE') ?: 'UTC');
+date_default_timezone_set($_ENV['APP_TIMEZONE'] ?? 'UTC');
 
 
 // Instanciar a classe PageController, responsável em tratar a URL

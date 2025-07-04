@@ -1,6 +1,62 @@
 <?php
+if (!isset($_ENV['DB_HOST'])) {
+    require_once __DIR__ . '/../../Helpers/EnvLoader.php';
+    \App\adms\Helpers\EnvLoader::load();
+}
 // Supondo que o .env já esteja carregado via alguma lib tipo vlucas/phpdotenv
 $urlAdm = getenv('URL_ADM');
+
+if (!isset($_SESSION['session_id'])) {
+    $_SESSION['session_id'] = session_id();
+}
+
+// Checagem de sessão invalidada
+if (isset($_SESSION['user_id']) && isset($_SESSION['session_id'])) {
+    $sessionRepo = new \App\adms\Models\Repository\AdmsSessionsRepository();
+    $sess = $sessionRepo->getSessionByUserIdAndSessionId($_SESSION['user_id'], $_SESSION['session_id']);
+    $userRepo = new \App\adms\Models\Repository\LoginRepository();
+    $user = $userRepo->getUserById($_SESSION['user_id']);
+    $motivos = [];
+    if (!$sess || !$user) {
+        $motivos[] = 'Sessão inválida';
+    } else {
+        if ($sess['status'] === 'invalidada') {
+            if ($user['status'] === 'Inativo') {
+                $motivos[] = 'Usuário Inativo';
+            }
+            if ($user['bloqueado'] === 'Sim') {
+                $motivos[] = 'Usuário Bloqueado';
+            }
+        }
+    }
+    if (!empty($motivos) || ($sess && $sess['status'] === 'invalidada')) {
+        $msg = !empty($motivos) ? implode(' e ', $motivos) . '! Contate o Administrador do sistema.' : 'Sessão invalidada. Faça login novamente.';
+        session_destroy();
+        session_start();
+        $_SESSION['error'] = $msg;
+        header('Location: /administrativo2/login');
+        exit;
+    }
+    // Buscar política de senha para expiração dinâmica
+    $policyRepo = new \App\adms\Models\Repository\AdmsPasswordPolicyRepository();
+    $policy = $policyRepo->getPolicy();
+    $expirarPorTempo = ($policy && isset($policy->expirar_sessao_por_tempo) && $policy->expirar_sessao_por_tempo === 'Sim');
+    $limite = ($policy && isset($policy->tempo_expiracao_sessao)) ? ((int)$policy->tempo_expiracao_sessao * 60) : 1800;
+    if ($expirarPorTempo) {
+        $agora = time();
+        $ultimaAtividade = strtotime($sess['updated_at'] ?? $sess['created_at']);
+        if ($agora - $ultimaAtividade > $limite) {
+            $sessionRepo->invalidateSessionByUserIdAndSessionId($_SESSION['user_id'], $_SESSION['session_id']);
+            session_destroy();
+            session_start();
+            $_SESSION['error'] = 'Sua sessão expirou por inatividade. Faça login novamente.';
+            header('Location: /administrativo2/login');
+            exit;
+        }
+    }
+    // Atualiza o updated_at da sessão ativa
+    $sessionRepo->updateSessionActivity($_SESSION['user_id'], $_SESSION['session_id']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $_ENV['APP_LOCALE']; ?>">
@@ -112,6 +168,40 @@ $urlAdm = getenv('URL_ADM');
             </a>
         </li>
     <?php endif; ?>
+
+    <script>
+    // Intercepta todas as respostas fetch
+    (function() {
+        if (!window.fetch) return;
+        const originalFetch = window.fetch;
+        window.fetch = function() {
+            return originalFetch.apply(this, arguments).then(async response => {
+                const cloned = response.clone();
+                try {
+                    const data = await cloned.json();
+                    if (data && data.logout) {
+                        alert(data.message || "Sua sessão foi encerrada. Faça login novamente.");
+                        window.location.href = "/administrativo2/login";
+                        return Promise.reject("Sessão encerrada");
+                    }
+                } catch (e) { /* Não é JSON, ignora */ }
+                return response;
+            });
+        };
+    })();
+    // Intercepta todas as respostas AJAX do jQuery
+    if (window.jQuery) {
+        $(document).ajaxSuccess(function(event, xhr, settings) {
+            try {
+                const data = JSON.parse(xhr.responseText);
+                if (data && data.logout) {
+                    alert(data.message || "Sua sessão foi encerrada. Faça login novamente.");
+                    window.location.href = "/administrativo2/login";
+                }
+            } catch (e) { /* Não é JSON, ignora */ }
+        });
+    }
+    </script>
 
 </body>
 

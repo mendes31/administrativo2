@@ -11,11 +11,20 @@ class PasswordPolicy
     public function index(): void
     {
         $repo = new AdmsPasswordPolicyRepository();
+        $form = $repo->getPolicy();
+        // Normalizar o valor de bloqueio_temporario para 'Sim' ou 'Não'
+        if ($form) {
+            if (isset($form->bloqueio_temporario)) {
+                $form->bloqueio_temporario = ($form->bloqueio_temporario === 'Sim' || $form->bloqueio_temporario === 1 || $form->bloqueio_temporario === true) ? 'Sim' : 'Não';
+            } else {
+                $form->bloqueio_temporario = 'Não';
+            }
+        }
         $data = [
             'title_head' => 'Administração de Senhas',
             'menu' => 'password-policy',
             'buttonPermission' => ['PasswordPolicy'],
-            'form' => $repo->getPolicy(),
+            'form' => $form,
         ];
         $pageLayout = new PageLayoutService();
         $data = array_merge($data, $pageLayout->configurePageElements($data));

@@ -25,6 +25,8 @@ class AdmsPasswordPolicyRepository extends DbConnection
             foreach ($data as $key => $value) {
                 $policy->$key = $value;
             }
+            $policy->expirar_sessao_por_tempo = $data['expirar_sessao_por_tempo'] ?? 'Não';
+            $policy->tempo_expiracao_sessao = (int)($data['tempo_expiracao_sessao'] ?? 30);
             return $policy;
         }
         return null;
@@ -45,6 +47,8 @@ class AdmsPasswordPolicyRepository extends DbConnection
             foreach ($data as $key => $value) {
                 $policy->$key = $value;
             }
+            $policy->expirar_sessao_por_tempo = $data['expirar_sessao_por_tempo'] ?? 'Não';
+            $policy->tempo_expiracao_sessao = (int)($data['tempo_expiracao_sessao'] ?? 30);
             return $policy;
         }
         return null;
@@ -65,6 +69,14 @@ class AdmsPasswordPolicyRepository extends DbConnection
                 min_nao_alfanumericos = :min_nao_alfanumericos, 
                 historico_senhas = :historico_senhas, 
                 tentativas_bloqueio = :tentativas_bloqueio, 
+                tentativas_bloqueio_temporario = :tentativas_bloqueio_temporario, 
+                tempo_bloqueio_temporario = :tempo_bloqueio_temporario, 
+                bloqueio_temporario = :bloqueio_temporario, 
+                notificar_usuario_bloqueio = :notificar_usuario_bloqueio, 
+                notificar_admins_bloqueio = :notificar_admins_bloqueio, 
+                forcar_logout_troca_senha = :forcar_logout_troca_senha, 
+                expirar_sessao_por_tempo = :expirar_sessao_por_tempo, 
+                tempo_expiracao_sessao = :tempo_expiracao_sessao, 
                 exemplo_senha = :exemplo_senha, 
                 nivel_seguranca = :nivel_seguranca, 
                 updated_at = :updated_at 
@@ -78,6 +90,14 @@ class AdmsPasswordPolicyRepository extends DbConnection
             $stmt->bindValue(':min_nao_alfanumericos', $data['min_nao_alfanumericos']);
             $stmt->bindValue(':historico_senhas', $data['historico_senhas']);
             $stmt->bindValue(':tentativas_bloqueio', $data['tentativas_bloqueio']);
+            $stmt->bindValue(':tentativas_bloqueio_temporario', $data['tentativas_bloqueio_temporario']);
+            $stmt->bindValue(':tempo_bloqueio_temporario', $data['tempo_bloqueio_temporario']);
+            $stmt->bindValue(':bloqueio_temporario', $data['bloqueio_temporario']);
+            $stmt->bindValue(':notificar_usuario_bloqueio', $data['notificar_usuario_bloqueio']);
+            $stmt->bindValue(':notificar_admins_bloqueio', $data['notificar_admins_bloqueio']);
+            $stmt->bindValue(':forcar_logout_troca_senha', $data['forcar_logout_troca_senha']);
+            $stmt->bindValue(':expirar_sessao_por_tempo', $data['expirar_sessao_por_tempo']);
+            $stmt->bindValue(':tempo_expiracao_sessao', $data['tempo_expiracao_sessao']);
             $stmt->bindValue(':exemplo_senha', $data['exemplo_senha']);
             $stmt->bindValue(':nivel_seguranca', $data['nivel_seguranca']);
             $stmt->bindValue(':updated_at', date('Y-m-d H:i:s'));

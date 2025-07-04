@@ -96,13 +96,17 @@ class Login
             $insertLogs->insertLogs($dataLogs);
             }
 
+            // Salvar o session_id do usuário na tabela de sessões
+            $sessionRepo = new \App\adms\Models\Repository\AdmsSessionsRepository();
+            $sessionRepo->invalidateAllSessionsByUserId((int)$result['id']);
+            $sessionRepo->saveSession((int)$result['id'], session_id());
+
             // Redirecionar o usuário para página listar
             header("Location: {$_ENV['URL_ADM']}dashboard");
 
         } else {
             // Chamar método para carregar a viewLogin
             $this->viewLogin();
-
             return;
         }
     }

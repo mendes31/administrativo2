@@ -1,3 +1,9 @@
+<?php
+if (!isset($_ENV['DB_HOST'])) {
+    require_once __DIR__ . '/../../Helpers/EnvLoader.php';
+    \App\adms\Helpers\EnvLoader::load();
+}
+?>
 <!DOCTYPE html>
 <html lang="<?php echo $_ENV['APP_LOCALE']; ?>">
 

@@ -109,7 +109,7 @@ use App\adms\Helpers\CSRFHelper;
                     <input type="password" name="confirm_password" class="form-control" id="confirm_password" placeholder="Confirmar a senha." value="<?php echo $this->data['form']['confirm_password'] ?? ''; ?>">
                 </div>
 
-                <div class="col-md-4">
+                <!-- <div class="col-md-4">
                     <label for="status" class="form-label">Status</label>
                     <select name="status" class="form-select" id="status">
                         <option value="Ativo" selected>Ativo</option>
@@ -121,25 +121,39 @@ use App\adms\Helpers\CSRFHelper;
                     <select name="bloqueado" class="form-select" id="bloqueado">
                         <option value="Não" selected>Não</option>
                         <option value="Sim">Sim</option>
-                    </select>
-                </div>
+                    </select> -->
+                <!-- </div> -->
                 <div class="col-md-4">
                     <label for="tentativas_login" class="form-label">Tentativas de Login</label>
                     <input type="number" name="tentativas_login" class="form-control" id="tentativas_login" value="0" readonly>
                 </div>
-                <div class="col-md-6">
-                    <label for="senha_nunca_expira" class="form-label">Senha Nunca Expira</label>
-                    <select name="senha_nunca_expira" class="form-select" id="senha_nunca_expira">
-                        <option value="Não" selected>Não</option>
-                        <option value="Sim">Sim</option>
-                    </select>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label><br>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="status" name="status" value="Ativo" checked>
+                        <label class="form-check-label" for="status">Ativo</label>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <label for="modificar_senha_proximo_logon" class="form-label">Modificar Senha no Próximo Logon</label>
-                    <select name="modificar_senha_proximo_logon" class="form-select" id="modificar_senha_proximo_logon">
-                        <option value="Não" selected>Não</option>
-                        <option value="Sim">Sim</option>
-                    </select>
+                <div class="col-md-3">
+                    <label class="form-label">Bloqueado</label><br>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="bloqueado" name="bloqueado" value="Sim">
+                        <label class="form-check-label" for="bloqueado">Sim</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Senha Nunca Expira</label><br>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="senha_nunca_expira" name="senha_nunca_expira" value="Sim">
+                        <label class="form-check-label" for="senha_nunca_expira">Sim</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Modificar Senha no Próximo Logon</label><br>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="modificar_senha_proximo_logon" name="modificar_senha_proximo_logon" value="Sim">
+                        <label class="form-check-label" for="modificar_senha_proximo_logon">Sim</label>
+                    </div>
                 </div>
 
                 <div class="col-12">

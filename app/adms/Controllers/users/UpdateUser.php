@@ -12,6 +12,15 @@ use App\adms\Models\Repository\PositionsRepository;
 use App\adms\Models\Repository\UsersRepository;
 use App\adms\Views\Services\LoadViewService;
 
+// Carregar o .env antes da definição da classe
+if (!isset($_ENV['DB_HOST'])) {
+    require_once __DIR__ . '/../../Helpers/EnvLoader.php';
+    \App\adms\Helpers\EnvLoader::load();
+}
+
+var_dump($_ENV);
+// exit;
+
 /**
  * Controller para editar usuário
  *
@@ -136,8 +145,24 @@ class UpdateUser
         }
 
         // Instanciar Repository para editar o usuário
+        $form = $this->data['form'];
+        // Normalização dos campos booleanos
+        $form['status'] = isset($form['status']) && $form['status'] === 'Ativo' ? 'Ativo' : 'Inativo';
+        $form['bloqueado'] = isset($form['bloqueado']) && $form['bloqueado'] === 'Sim' ? 'Sim' : 'Não';
+        $form['senha_nunca_expira'] = isset($form['senha_nunca_expira']) && $form['senha_nunca_expira'] === 'Sim' ? 'Sim' : 'Não';
+        $form['modificar_senha_proximo_logon'] = isset($form['modificar_senha_proximo_logon']) && $form['modificar_senha_proximo_logon'] === 'Sim' ? 'Sim' : 'Não';
+        $this->data['form'] = $form;
         $userUpdate = new UsersRepository();
         $result = $userUpdate->updateUser($this->data['form']);
+
+        // Forçar logout se admin inativar ou bloquear o usuário
+        if (
+            (isset($this->data['form']['status']) && $this->data['form']['status'] === 'Inativo') ||
+            (isset($this->data['form']['bloqueado']) && $this->data['form']['bloqueado'] === 'Sim')
+        ) {
+            $securityService = new \App\adms\Controllers\Services\SecurityService();
+            $securityService->forcarLogoutUsuario($this->data['form']['id']);
+        }
 
         // Acessa o IF se o repository retornou TRUE
         if($result){

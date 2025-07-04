@@ -130,6 +130,11 @@ class UsersRepository extends DbConnection
                     t0.user_position_id, 
                     t0.created_at, 
                     t0.updated_at, 
+                    t0.status,
+                    t0.bloqueado,
+                    t0.tentativas_login,
+                    t0.senha_nunca_expira,
+                    t0.modificar_senha_proximo_logon,
                     t1.name dep_name, 
                     t2.name pos_name
                 FROM adms_users t0
@@ -162,7 +167,11 @@ class UsersRepository extends DbConnection
     public function createUser(array $data): bool|int
     {
         try {
-            $sql = 'INSERT INTO adms_users (name, email, username, user_department_id, user_position_id,  password, created_at ) VALUES (:name, :email, :username, :user_department_id,:user_position_id, :password, :created_at)';
+            $sql = 'INSERT INTO adms_users (
+                name, email, username, user_department_id, user_position_id, password, status, bloqueado, tentativas_login, senha_nunca_expira, modificar_senha_proximo_logon, created_at
+            ) VALUES (
+                :name, :email, :username, :user_department_id, :user_position_id, :password, :status, :bloqueado, :tentativas_login, :senha_nunca_expira, :modificar_senha_proximo_logon, :created_at
+            )';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':name', $data['name'], PDO::PARAM_STR);
             $stmt->bindValue(':email', $data['email'], PDO::PARAM_STR);
@@ -170,6 +179,11 @@ class UsersRepository extends DbConnection
             $stmt->bindValue(':user_department_id', $data['user_department_id'], PDO::PARAM_INT);
             $stmt->bindValue(':user_position_id', $data['user_position_id'], PDO::PARAM_INT);
             $stmt->bindValue(':password', password_hash($data['password'], PASSWORD_DEFAULT));
+            $stmt->bindValue(':status', $data['status'] ?? 'Ativo', PDO::PARAM_STR);
+            $stmt->bindValue(':bloqueado', $data['bloqueado'] ?? 'Não', PDO::PARAM_STR);
+            $stmt->bindValue(':tentativas_login', $data['tentativas_login'] ?? 0, PDO::PARAM_INT);
+            $stmt->bindValue(':senha_nunca_expira', $data['senha_nunca_expira'] ?? 'Não', PDO::PARAM_STR);
+            $stmt->bindValue(':modificar_senha_proximo_logon', $data['modificar_senha_proximo_logon'] ?? 'Não', PDO::PARAM_STR);
             $stmt->bindValue(':created_at', date("Y-m-d H:i:s"));
             $stmt->execute();
             $novoId = $this->getConnection()->lastInsertId();
@@ -182,6 +196,11 @@ class UsersRepository extends DbConnection
                     'username' => $data['username'],
                     'user_department_id' => $data['user_department_id'],
                     'user_position_id' => $data['user_position_id'],
+                    'status' => $data['status'] ?? 'Ativo',
+                    'bloqueado' => $data['bloqueado'] ?? 'Não',
+                    'tentativas_login' => $data['tentativas_login'] ?? 0,
+                    'senha_nunca_expira' => $data['senha_nunca_expira'] ?? 'Não',
+                    'modificar_senha_proximo_logon' => $data['modificar_senha_proximo_logon'] ?? 'Não',
                 ];
                 \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
                     'adms_users',
@@ -216,8 +235,20 @@ class UsersRepository extends DbConnection
 
             // QUERY para atualizar o usuário
             $sql = 'UPDATE adms_users SET name = :name, email = :email, username = :username, user_department_id = :user_department_id, user_position_id = :user_position_id, updated_at = :updated_at';
-            if (!empty($data['password'])) {
-                $sql .= ', password = :password';
+            if (isset($data['status'])) {
+                $sql .= ', status = :status';
+            }
+            if (isset($data['bloqueado'])) {
+                $sql .= ', bloqueado = :bloqueado';
+            }
+            if (isset($data['senha_nunca_expira'])) {
+                $sql .= ', senha_nunca_expira = :senha_nunca_expira';
+            }
+            if (isset($data['modificar_senha_proximo_logon'])) {
+                $sql .= ', modificar_senha_proximo_logon = :modificar_senha_proximo_logon';
+            }
+            if (isset($data['bloqueado']) && $data['bloqueado'] === 'Não' && isset($dadosAntes['bloqueado']) && $dadosAntes['bloqueado'] === 'Sim') {
+                $sql .= ', tentativas_login = 0, data_bloqueio_temporario = NULL';
             }
             $sql .= ' WHERE id = :id';
             $stmt = $this->getConnection()->prepare($sql);
@@ -227,6 +258,18 @@ class UsersRepository extends DbConnection
             $stmt->bindValue(':user_department_id', $data['user_department_id'], PDO::PARAM_INT);
             $stmt->bindValue(':user_position_id', $data['user_position_id'], PDO::PARAM_INT);
             $stmt->bindValue(':updated_at', date("Y-m-d H:i:s"));
+            if (isset($data['status'])) {
+                $stmt->bindValue(':status', $data['status'], PDO::PARAM_STR);
+            }
+            if (isset($data['bloqueado'])) {
+                $stmt->bindValue(':bloqueado', $data['bloqueado'], PDO::PARAM_STR);
+            }
+            if (isset($data['senha_nunca_expira'])) {
+                $stmt->bindValue(':senha_nunca_expira', $data['senha_nunca_expira'], PDO::PARAM_STR);
+            }
+            if (isset($data['modificar_senha_proximo_logon'])) {
+                $stmt->bindValue(':modificar_senha_proximo_logon', $data['modificar_senha_proximo_logon'], PDO::PARAM_STR);
+            }
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
             if (!empty($data['password'])) {
                 $stmt->bindValue(':password', password_hash($data['password'], PASSWORD_DEFAULT));
@@ -234,7 +277,7 @@ class UsersRepository extends DbConnection
             $result = $stmt->execute();
             // Se atualização bem-sucedida, registra o log de alteração
             if ($result) {
-                // Monta os dados depois da alteração (sem campos extras)
+                // Monta os dados depois da alteração (agora com todos os campos relevantes)
                 $dadosDepois = [
                     'id' => $data['id'],
                     'name' => $data['name'],
@@ -242,6 +285,11 @@ class UsersRepository extends DbConnection
                     'username' => $data['username'],
                     'user_department_id' => $data['user_department_id'],
                     'user_position_id' => $data['user_position_id'],
+                    'status' => $data['status'] ?? $dadosAntes['status'] ?? null,
+                    'bloqueado' => $data['bloqueado'] ?? $dadosAntes['bloqueado'] ?? null,
+                    'tentativas_login' => isset($data['tentativas_login']) ? $data['tentativas_login'] : ($dadosAntes['tentativas_login'] ?? null),
+                    'senha_nunca_expira' => $data['senha_nunca_expira'] ?? $dadosAntes['senha_nunca_expira'] ?? null,
+                    'modificar_senha_proximo_logon' => $data['modificar_senha_proximo_logon'] ?? $dadosAntes['modificar_senha_proximo_logon'] ?? null,
                 ];
                 \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
                     'adms_users',

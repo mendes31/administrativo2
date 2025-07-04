@@ -109,6 +109,13 @@ class CreateUser
         }
 
         // Instanciar o Repository para Criar o usuário
+        $form = $this->data['form'];
+        // Normalização dos campos booleanos
+        $form['status'] = isset($form['status']) && $form['status'] === 'Ativo' ? 'Ativo' : 'Inativo';
+        $form['bloqueado'] = isset($form['bloqueado']) && $form['bloqueado'] === 'Sim' ? 'Sim' : 'Não';
+        $form['senha_nunca_expira'] = isset($form['senha_nunca_expira']) && $form['senha_nunca_expira'] === 'Sim' ? 'Sim' : 'Não';
+        $form['modificar_senha_proximo_logon'] = isset($form['modificar_senha_proximo_logon']) && $form['modificar_senha_proximo_logon'] === 'Sim' ? 'Sim' : 'Não';
+        $this->data['form'] = $form;
         $userCreate = new UsersRepository();
         $result = $userCreate->createUser($this->data['form']);
 

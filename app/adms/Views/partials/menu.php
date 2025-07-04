@@ -10,6 +10,13 @@ try {
 } catch (\Throwable $e) {
     $policyId = null;
 }
+// Debug: Exibir as permissões do menu para o usuário atual
+// if (isset(
+//     $this->data['menuPermission'])) {
+//     echo '<pre style="color:#fff;background:#222;z-index:9999;position:relative;">';
+//     print_r($this->data['menuPermission']);
+//     echo '</pre>';
+// }
 $menus = [
     [
         'id' => 'dashboard',
@@ -20,9 +27,9 @@ $menus = [
         'submenu' => []
     ],
     [
-        'id' => 'admininstracao',
+        'id' => 'administracao',
         'icon' => 'fa-solid fa-gear',
-        'label' => 'Admininstracao',
+        'label' => 'Administração',
         'submenu' => (function() use ($policyId) {
             $submenu = [
                 [
@@ -40,12 +47,8 @@ $menus = [
                             'permission' => 'PasswordPolicy'
                         ],
                     ]
-                ],
-                [
-                    'label' => 'Grupos de Páginas',
-                    'url' => $_ENV['URL_ADM'] . 'list-groups-pages',
-                    'permission' => 'ListGroupsPages'
-                ],
+                ],             
+               
                 [
                     'label' => 'Logs',
                     'icon' => 'fa-solid fa-file-alt',
@@ -63,17 +66,35 @@ $menus = [
                     ]
                 ],
                 [
-                    'label' => 'Pacotes',
-                    'url' => $_ENV['URL_ADM'] . 'list-packages',
-                    'permission' => 'ListPackages'
-                ],
-                [
                     'label' => 'Páginas',
-                    'url' => $_ENV['URL_ADM'] . 'list-pages',
-                    'permission' => 'ListPages'
+                    'icon' => 'fa-solid fa-layer-group',
+                    'submenu' => [
+                        [
+                            'label' => 'Grupos de Páginas',
+                            'url' => $_ENV['URL_ADM'] . 'list-groups-pages',
+                            'permission' => 'ListGroupsPages'
+                        ],
+                        [
+                            'label' => 'Pacotes',
+                            'url' => $_ENV['URL_ADM'] . 'list-packages',
+                            'permission' => 'ListPackages'
+                        ],
+                        [
+                            'label' => 'Páginas',
+                            'url' => $_ENV['URL_ADM'] . 'list-pages',
+                            'permission' => 'ListPages'
+                        ],
+                    ]
+                ],
+               
+                
+                [
+                    'label' => 'Treinamentos Obrigatórios',
+                    'url' => $_ENV['URL_ADM'] . 'list-mandatory-trainings',
+                    'permission' => 'ListMandatoryTrainings'
                 ],
             ];
-            usort($submenu, function($a, $b) { return strcmp($a['label'], $b['label']); });
+            // usort($submenu, function($a, $b) { return strcmp($a['label'], $b['label']); });
             return $submenu;
         })(),
     ],
@@ -316,9 +337,57 @@ $menus = [
 ];
 
 // Depuração: exibir as permissões do menu para o usuário atual
-// echo '<pre style="color:#fff;background:#222;z-index:9999;position:relative;">';
+// echo '<pre style="background: #f0f0f0; padding: 10px; margin: 10px; border: 1px solid #ccc; font-size: 12px;">';
+// echo "=== DEBUG MENU PERMISSIONS ===\n";
 // print_r($this->data['menuPermission']);
-// echo '</pre>';
+// echo "\n=== VERIFICANDO SUBMENU PÁGINAS ===\n";
+
+// Verificar se as permissões específicas estão presentes
+$paginasPermissions = ['ListGroupsPages', 'ListPackages', 'ListPages'];
+// foreach ($paginasPermissions as $permission) {
+//     $hasPermission = in_array($permission, $this->data['menuPermission']);
+//     echo "Permissão '$permission': " . ($hasPermission ? 'SIM' : 'NÃO') . "\n";
+// }
+
+// Função para verificar se há pelo menos um submenu permitido
+if (!function_exists('hasPermittedSubmenu')) {
+    function hasPermittedSubmenu($submenu, $menuPermission) {
+        foreach ($submenu as $item) {
+            if (isset($item['permission']) && in_array($item['permission'], $menuPermission)) {
+                return true;
+            }
+            // Verifica submenus aninhados recursivamente
+            if (isset($item['submenu']) && hasPermittedSubmenu($item['submenu'], $menuPermission)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+// Debug temporário para testar a função hasPermittedSubmenu
+$testSubmenu = [
+    [
+        'label' => 'Grupos de Páginas',
+        'url' => $_ENV['URL_ADM'] . 'list-groups-pages',
+        'permission' => 'ListGroupsPages'
+    ],
+    [
+        'label' => 'Pacotes',
+        'url' => $_ENV['URL_ADM'] . 'list-packages',
+        'permission' => 'ListPackages'
+    ],
+    [
+        'label' => 'Páginas',
+        'url' => $_ENV['URL_ADM'] . 'list-pages',
+        'permission' => 'ListPages'
+    ],
+];
+
+// $testResult = hasPermittedSubmenu($testSubmenu, $this->data['menuPermission']);
+// echo '<!-- DEBUG: hasPermittedSubmenu para Páginas = ' . ($testResult ? 'true' : 'false') . ' -->';
+
+// echo "</pre>";
 // ?>
 
 <div id="layoutSidenav_nav">
@@ -333,6 +402,10 @@ $menus = [
                             if (isset($item['permission']) && in_array($item['permission'], $menuPermission)) {
                                 return true;
                             }
+                            // Verifica submenus aninhados recursivamente
+                            if (isset($item['submenu']) && hasPermittedSubmenu($item['submenu'], $menuPermission)) {
+                                return true;
+                            }
                         }
                         return false;
                     }
@@ -343,14 +416,39 @@ $menus = [
                         foreach ($menus as $index => $menu) {
                             $hasSubmenu = !empty($menu['submenu']);
                             $hasPermitted = isset($menu['permission']) ? in_array($menu['permission'], $menuPermission) : false;
+                            
+                            // Debug temporário para o submenu Páginas
+                            if (isset($menu['label']) && $menu['label'] === 'Páginas') {
+                                echo '<!-- DEBUG: Processando submenu Páginas -->';
+                                echo '<!-- DEBUG: hasSubmenu = ' . ($hasSubmenu ? 'true' : 'false') . ' -->';
+                                echo '<!-- DEBUG: hasPermitted = ' . ($hasPermitted ? 'true' : 'false') . ' -->';
+                                echo '<!-- DEBUG: menuPermission = ' . implode(', ', $menuPermission) . ' -->';
+                            }
+                            
                             if ($hasSubmenu) {
+                                // Verifica se há pelo menos um submenu permitido
                                 $permittedSubmenus = array_filter($menu['submenu'], function($submenu) use ($menuPermission) {
+                                    if (isset($submenu['submenu'])) {
+                                        // Se o submenu tem submenus aninhados, verifica recursivamente
+                                        return hasPermittedSubmenu($submenu['submenu'], $menuPermission);
+                                    }
                                     return isset($submenu['permission']) && in_array($submenu['permission'], $menuPermission);
                                 });
+                                
+                                // Debug temporário para o submenu Páginas
+                                if (isset($menu['label']) && $menu['label'] === 'Páginas') {
+                                    echo '<!-- DEBUG: permittedSubmenus count = ' . count($permittedSubmenus) . ' -->';
+                                    foreach ($menu['submenu'] as $submenu) {
+                                        echo '<!-- DEBUG: Submenu ' . $submenu['label'] . ' - permission: ' . $submenu['permission'] . ' - hasPermission: ' . (in_array($submenu['permission'], $menuPermission) ? 'true' : 'false') . ' -->';
+                                    }
+                                }
+                                
                                 if (count($permittedSubmenus) > 0) {
                                     // Gera um id único para cada submenu
                                     $submenuId = 'collapse' . md5(($menu['label'] ?? 'submenu') . $nivel . $index);
                                     $submenuActive = false;
+                                    
+                                    // Verifica se algum submenu está ativo
                                     foreach ($menu['submenu'] as $submenu) {
                                         if (isset($submenu['permission']) && in_array($submenu['permission'], $menuPermission)) {
                                             if ((isset($menu['id']) && $menuAtivo == $menu['id']) || (isset($submenu['url']) && $menuAtivo == basename($submenu['url']))) {
@@ -358,7 +456,19 @@ $menus = [
                                                 break;
                                             }
                                         }
+                                        // Verifica submenus aninhados
+                                        if (isset($submenu['submenu'])) {
+                                            foreach ($submenu['submenu'] as $nestedSubmenu) {
+                                                if (isset($nestedSubmenu['permission']) && in_array($nestedSubmenu['permission'], $menuPermission)) {
+                                                    if (isset($nestedSubmenu['url']) && $menuAtivo == basename($nestedSubmenu['url'])) {
+                                                        $submenuActive = true;
+                                                        break 2;
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
+                                    
                                     $isOpen = $submenuActive ? 'show' : '';
                                     echo '<a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#' . $submenuId . '" aria-expanded="' . ($isOpen ? 'true' : 'false') . '" aria-controls="' . $submenuId . '">';
                                     if ($nivel == 0 && isset($menu['icon'])) {
@@ -373,6 +483,7 @@ $menus = [
                                     echo '</nav></div>';
                                 }
                             } else {
+                                // Para menus sem submenu, verifica se tem permissão própria
                                 if ($hasPermitted) {
                                     $active = ($menuAtivo == basename($menu['url'])) ? 'active' : '';
                                     echo '<a href="' . $menu['url'] . '" class="nav-link ' . $active . '">' . ($nivel == 0 && isset($menu['icon']) ? '<div class="sb-nav-link-icon"><i class="' . $menu['icon'] . '"></i></div> ' : '') . $menu['label'] . '</a>';

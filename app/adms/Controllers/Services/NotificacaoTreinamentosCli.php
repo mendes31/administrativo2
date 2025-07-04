@@ -2,14 +2,14 @@
 
 namespace App\adms\Controllers\Services;
 
+// Carregar o autoload primeiro
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-// Carregar variáveis de ambiente
-if (file_exists(__DIR__ . '/../../../../.env')) {
-    $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__ . '/../../../../');
-    $dotenv->load();
-} else {
-    echo "Arquivo .env não encontrado. Verifique se existe e está configurado.\n";
+use App\adms\Helpers\EnvLoader;
+
+// Carregar variáveis de ambiente usando o helper
+if (!EnvLoader::loadWithTimezone()) {
+    echo "Erro ao carregar configurações do .env. Verifique se o arquivo existe e está configurado.\n";
     exit(1);
 }
 

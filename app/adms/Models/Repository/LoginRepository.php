@@ -18,7 +18,8 @@ class LoginRepository extends DbConnection
         //         LIMIT 1';
 
         $sql = 'SELECT t0.id, t0.name, t0.email, t0.username, t0.image, t0.password, t0.user_department_id, t0.user_position_id, t0.created_at, 
-                t0.updated_at, t1.name dep_name, t2.name pos_name
+                t0.updated_at, t0.bloqueado, t0.bloqueado_temporario, t0.data_bloqueio_temporario, t0.tentativas_login, t0.status,
+                t1.name dep_name, t2.name pos_name
                 FROM adms_users t0
                 INNER JOIN adms_departments t1 ON t0.user_department_id = t1.id
                 INNER JOIN adms_positions t2 ON t0.user_position_id = t2.id
@@ -40,6 +41,8 @@ class LoginRepository extends DbConnection
 
     /**
      * Incrementa tentativas de login do usuário
+     * ATENÇÃO: Este método atualiza apenas tentativas_login
+     * Para atualizações completas, use os métodos do SecurityService
      */
     public function incrementarTentativasLogin(int $userId): void
     {
@@ -51,6 +54,8 @@ class LoginRepository extends DbConnection
 
     /**
      * Reseta tentativas de login do usuário
+     * ATENÇÃO: Este método atualiza apenas tentativas_login
+     * Para atualizações completas, use os métodos do SecurityService
      */
     public function resetarTentativasLogin(int $userId): void
     {
@@ -58,6 +63,78 @@ class LoginRepository extends DbConnection
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->bindValue(':id', $userId, PDO::PARAM_INT);
         $stmt->execute();
+    }
+
+    /**
+     * Incrementa tentativas de login e aplica bloqueio se necessário
+     * Este método garante que todos os campos relacionados sejam atualizados juntos
+     */
+    public function incrementarTentativasLoginCompleto(int $userId, ?int $limiteTemporario, int $limiteDefinitivo, bool $aplicaBloqueioTemporario = true): array
+    {
+        // Primeiro, buscar dados atuais do usuário
+        $user = $this->getUserById($userId);
+        if (!$user) {
+            return ['success' => false, 'message' => 'Usuário não encontrado'];
+        }
+
+        $tentativasAtuais = $user['tentativas_login'] ?? 0;
+        $novaTentativa = $tentativasAtuais + 1;
+        
+        // Determinar se deve aplicar bloqueio
+        $aplicarBloqueioTemporario = false;
+        if ($aplicaBloqueioTemporario && $limiteTemporario !== null) {
+            $aplicarBloqueioTemporario = ($novaTentativa == $limiteTemporario);
+        }
+        $aplicarBloqueioDefinitivo = ($novaTentativa >= $limiteDefinitivo);
+        
+        // Preparar SQL baseado na situação
+        if ($aplicarBloqueioDefinitivo) {
+            // Bloqueio definitivo - remove data de bloqueio temporário
+            $sql = 'UPDATE adms_users SET 
+                    tentativas_login = :tentativas,
+                    bloqueado = "Sim",
+                    data_bloqueio_temporario = NULL
+                    WHERE id = :id';
+        } elseif ($aplicarBloqueioTemporario) {
+            // Bloqueio temporário
+            $sql = 'UPDATE adms_users SET 
+                    tentativas_login = :tentativas,
+                    bloqueado = "Sim",
+                    data_bloqueio_temporario = NOW()
+                    WHERE id = :id';
+        } else {
+            // Apenas incrementar tentativas
+            $sql = 'UPDATE adms_users SET tentativas_login = :tentativas WHERE id = :id';
+        }
+        
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':tentativas', $novaTentativa, PDO::PARAM_INT);
+        $stmt->bindValue(':id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return [
+            'success' => true,
+            'tentativas' => $novaTentativa,
+            'bloqueio_temporario' => $aplicarBloqueioTemporario,
+            'bloqueio_definitivo' => $aplicarBloqueioDefinitivo
+        ];
+    }
+
+    /**
+     * Reseta tentativas de login e desbloqueia usuário
+     * Este método garante que todos os campos relacionados sejam atualizados juntos
+     */
+    public function resetarTentativasLoginCompleto(int $userId): bool
+    {
+        $sql = 'UPDATE adms_users SET 
+                tentativas_login = 0,
+                bloqueado = "Não",
+                data_bloqueio_temporario = NULL
+                WHERE id = :id';
+        
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':id', $userId, PDO::PARAM_INT);
+        return $stmt->execute();
     }
 
     /**
@@ -85,6 +162,23 @@ class LoginRepository extends DbConnection
         $stmt->bindValue(':resultado', $resultado, PDO::PARAM_STR);
         $stmt->bindValue(':detalhes', $detalhes, PDO::PARAM_STR);
         $stmt->execute();
+    }
+
+    /**
+     * Busca usuário pelo ID
+     */
+    public function getUserById(int $userId): array|bool
+    {
+        $sql = 'SELECT t0.*, t1.name AS dep_name, t2.name AS pos_name
+                FROM adms_users t0
+                INNER JOIN adms_departments t1 ON t0.user_department_id = t1.id
+                INNER JOIN adms_positions t2 ON t0.user_position_id = t2.id
+                WHERE t0.id = :id
+                LIMIT 1';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
 }

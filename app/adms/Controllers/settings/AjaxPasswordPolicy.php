@@ -8,6 +8,36 @@ use App\adms\Models\Repository\AdmsPasswordPolicyRepository;
 
 class AjaxPasswordPolicy
 {
+    private function checarSessaoInvalidadaAjax()
+    {
+        if (isset($_SESSION['user_id']) && isset($_SESSION['session_id'])) {
+            $sessionRepo = new \App\adms\Models\Repository\AdmsSessionsRepository();
+            $sess = $sessionRepo->getSessionByUserIdAndSessionId($_SESSION['user_id'], $_SESSION['session_id']);
+            $userRepo = new \App\adms\Models\Repository\LoginRepository();
+            $user = $userRepo->getUserById($_SESSION['user_id']);
+            $motivos = [];
+            if (!$sess || !$user) {
+                $motivos[] = 'Sessão inválida';
+            } else {
+                if ($sess['status'] === 'invalidada') {
+                    if ($user['status'] === 'Inativo') {
+                        $motivos[] = 'Usuário Inativo';
+                    }
+                    if ($user['bloqueado'] === 'Sim') {
+                        $motivos[] = 'Usuário Bloqueado';
+                    }
+                }
+            }
+            if (!empty($motivos) || ($sess && $sess['status'] === 'invalidada')) {
+                $msg = !empty($motivos) ? implode(' e ', $motivos) . '! Contate o Administrador do sistema.' : 'Sessão invalidada. Faça login novamente.';
+                session_destroy();
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => $msg, 'logout' => true]);
+                exit;
+            }
+        }
+    }
+
     public function validatePassword(): void
     {
         // Recebe a senha enviada via AJAX
@@ -49,6 +79,7 @@ class AjaxPasswordPolicy
 
     public function index(): void
     {
+        $this->checarSessaoInvalidadaAjax();
         header('Content-Type: application/json');
         $form = filter_input_array(INPUT_POST, FILTER_DEFAULT);
         if (!$form) {
@@ -73,6 +104,11 @@ class AjaxPasswordPolicy
             'Elevado' => 'Abcde12@',
             'Customizado' => $form['exemplo_senha'] ?? ''
         ];
+        // Garantir que os campos sejam inteiros válidos
+        $form['tentativas_bloqueio_temporario'] = isset($form['tentativas_bloqueio_temporario']) && $form['tentativas_bloqueio_temporario'] !== '' ? (int)$form['tentativas_bloqueio_temporario'] : 3;
+        $form['tempo_bloqueio_temporario'] = isset($form['tempo_bloqueio_temporario']) && $form['tempo_bloqueio_temporario'] !== '' ? (int)$form['tempo_bloqueio_temporario'] : 15;
+        $dados['expirar_sessao_por_tempo'] = $form['expirar_sessao_por_tempo'] ?? 'Não';
+        $dados['tempo_expiracao_sessao'] = isset($form['tempo_expiracao_sessao']) ? (int)$form['tempo_expiracao_sessao'] : 30;
         $data = [
             'id' => $form['id'],
             'nivel_seguranca' => $nivel,
@@ -84,6 +120,14 @@ class AjaxPasswordPolicy
             'min_nao_alfanumericos' => $form['min_nao_alfanumericos'] ?? 0,
             'historico_senhas' => $form['historico_senhas'] ?? 5,
             'tentativas_bloqueio' => $form['tentativas_bloqueio'] ?? 5,
+            'tentativas_bloqueio_temporario' => $form['tentativas_bloqueio_temporario'],
+            'tempo_bloqueio_temporario' => $form['tempo_bloqueio_temporario'],
+            'bloqueio_temporario' => isset($form['bloqueio_temporario']) && $form['bloqueio_temporario'] === 'Sim' ? 'Sim' : 'Não',
+            'notificar_usuario_bloqueio' => isset($form['notificar_usuario_bloqueio']) && $form['notificar_usuario_bloqueio'] === 'Sim' ? 'Sim' : 'Não',
+            'notificar_admins_bloqueio' => isset($form['notificar_admins_bloqueio']) && $form['notificar_admins_bloqueio'] === 'Sim' ? 'Sim' : 'Não',
+            'forcar_logout_troca_senha' => isset($form['forcar_logout_troca_senha']) && $form['forcar_logout_troca_senha'] === 'Sim' ? 'Sim' : 'Não',
+            'expirar_sessao_por_tempo' => $form['expirar_sessao_por_tempo'] ?? 'Não',
+            'tempo_expiracao_sessao' => isset($form['tempo_expiracao_sessao']) ? (int)$form['tempo_expiracao_sessao'] : 30,
             'exemplo_senha' => $nivel !== 'Customizado' ? $exemplos[$nivel] : $exemplos['Customizado'],
             'updated_at' => date('Y-m-d H:i:s'),
         ];
