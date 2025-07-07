@@ -27,7 +27,11 @@ class ViewTraining
         $trainingUsersRepo = new TrainingUsersRepository();
         $positionsRepo = new PositionsRepository();
 
+        // Depuração: mostrar o valor do ID recebido
+        // var_dump('ID recebido:', $id);
         $training = $trainingsRepo->getTraining($id);
+        // Depuração: mostrar o resultado da consulta
+        //var_dump('Resultado getTraining:', $training); exit;
         
         if (!$training) {
             $_SESSION['error'] = 'Treinamento não encontrado!';

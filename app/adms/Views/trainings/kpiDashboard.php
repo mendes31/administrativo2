@@ -142,10 +142,11 @@ use App\adms\Helpers\FormatHelper;
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered" width="100%" cellspacing="0">
+                        <table class="table table-bordered" width="100%" cellspacing="0" style="table-layout: fixed;">
                             <thead>
                                 <tr>
-                                    <th>Colaborador</th>
+                                    <th>ID</th>
+                                    <th class="col-nome">Colaborador</th>
                                     <th>Pendências</th>
                                 </tr>
                             </thead>
@@ -154,7 +155,8 @@ use App\adms\Helpers\FormatHelper;
                                 <?php if (!empty($topPendingUsers)): ?>
                                     <?php foreach ($topPendingUsers as $user): ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($user['name']) ?></td>
+                                            <td><?= $user['user_id'] ?? $user['id'] ?? '-' ?></td>
+                                            <td class="col-nome"><?= htmlspecialchars($user['name']) ?></td>
                                             <td>
                                                 <span class="badge bg-warning text-dark">
                                                     <?= $user['pendentes'] ?>
@@ -164,7 +166,7 @@ use App\adms\Helpers\FormatHelper;
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="2" class="text-center text-muted">
+                                        <td colspan="3" class="text-center text-muted">
                                             Nenhum usuário com pendências encontrado.
                                         </td>
                                     </tr>
@@ -186,10 +188,11 @@ use App\adms\Helpers\FormatHelper;
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered" width="100%" cellspacing="0">
+                        <table class="table table-bordered" width="100%" cellspacing="0" style="table-layout: fixed;">
                             <thead>
                                 <tr>
-                                    <th>Treinamento</th>
+                                    <th>ID</th>
+                                    <th class="col-nome">Treinamento</th>
                                     <th>Pendentes</th>
                                     <th>Vencidos</th>
                                 </tr>
@@ -199,7 +202,8 @@ use App\adms\Helpers\FormatHelper;
                                 <?php if (!empty($topCriticalTrainings)): ?>
                                     <?php foreach ($topCriticalTrainings as $training): ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($training['training_name']) ?></td>
+                                            <td><?= $training['training_id'] ?? $training['id'] ?? '-' ?></td>
+                                            <td class="col-nome"><?= htmlspecialchars($training['training_name']) ?></td>
                                             <td>
                                                 <span class="badge bg-warning text-dark">
                                                     <?= $training['pendentes'] ?>
@@ -214,7 +218,7 @@ use App\adms\Helpers\FormatHelper;
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="3" class="text-center text-muted">
+                                        <td colspan="4" class="text-center text-muted">
                                             Nenhum treinamento crítico encontrado.
                                         </td>
                                     </tr>
@@ -238,10 +242,11 @@ use App\adms\Helpers\FormatHelper;
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered" width="100%" cellspacing="0">
+                        <table class="table table-bordered" width="100%" cellspacing="0" style="table-layout: fixed;">
                             <thead>
                                 <tr>
-                                    <th>Departamento</th>
+                                    <th>ID</th>
+                                    <th class="col-nome">Departamento</th>
                                     <th>Total</th>
                                     <th>Concluídos</th>
                                     <th>Pendentes</th>
@@ -259,7 +264,8 @@ use App\adms\Helpers\FormatHelper;
                                         $percentual = $total > 0 ? round(($concluidos / $total) * 100, 1) : 0;
                                         ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($dept['department_name']) ?></td>
+                                            <td><?= $dept['department_id'] ?? $dept['id'] ?? '-' ?></td>
+                                            <td class="col-nome"><?= htmlspecialchars($dept['department_name']) ?></td>
                                             <td><?= $total ?></td>
                                             <td>
                                                 <span class="badge bg-success">
@@ -316,10 +322,11 @@ use App\adms\Helpers\FormatHelper;
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered" width="100%" cellspacing="0">
+                        <table class="table table-bordered" width="100%" cellspacing="0" style="table-layout: fixed;">
                             <thead>
                                 <tr>
-                                    <th>Colaborador</th>
+                                    <th>ID</th>
+                                    <th class="col-nome">Colaborador</th>
                                     <th>Treinamento</th>
                                     <th>Data Realização</th>
                                     <th>Data Agendada</th>
@@ -332,7 +339,8 @@ use App\adms\Helpers\FormatHelper;
                                 <?php if (!empty($recentApplications)): ?>
                                     <?php foreach ($recentApplications as $app): ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($app['user_name']) ?></td>
+                                            <td><?= $app['id'] ?></td>
+                                            <td class="col-nome"><?= htmlspecialchars($app['user_name']) ?></td>
                                             <td>
                                                 <strong><?= htmlspecialchars($app['training_name']) ?></strong>
                                                 <br><small class="text-muted"><?= htmlspecialchars($app['training_code']) ?></small>
@@ -371,7 +379,7 @@ use App\adms\Helpers\FormatHelper;
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="6" class="text-center text-muted">
+                                        <td colspan="7" class="text-center text-muted">
                                             Nenhuma aplicação recente encontrada.
                                         </td>
                                     </tr>

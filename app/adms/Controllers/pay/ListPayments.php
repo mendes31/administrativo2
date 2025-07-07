@@ -146,7 +146,6 @@ class ListPayments
             'buttonPermission' => ['CreatePay', 'ViewPay', 'Installments', 'Payment', 'UpdatePay', 'DeletePay'],
         ];
         $pageLayoutService = new PageLayoutService();
-        $pageLayoutService->configurePageElements($pageElements);
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
 
         $loadView = new LoadViewService("adms/Views/pay/list", $this->data);

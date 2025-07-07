@@ -2,6 +2,31 @@
 
 use App\adms\Helpers\CSRFHelper;
 
+// Modal de troca obrigatória de senha
+if (!empty($_SESSION['force_password_change'])): ?>
+    <div class="modal fade" id="modalTrocaSenhaObrigatoria" tabindex="-1" aria-labelledby="modalTrocaSenhaObrigatoriaLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title" id="modalTrocaSenhaObrigatoriaLabel">Troca de Senha Obrigatória</h5>
+          </div>
+          <div class="modal-body">
+            Por segurança, você deve definir uma nova senha antes de acessar o sistema.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Entendi</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var modal = new bootstrap.Modal(document.getElementById('modalTrocaSenhaObrigatoria'));
+        modal.show();
+      });
+    </script>
+<?php unset($_SESSION['force_password_change']); endif; ?>
+
 ?>
 
 <div class="container-fluid px-4">
@@ -24,8 +49,8 @@ use App\adms\Helpers\CSRFHelper;
             <span>Editar</span>
 
             <span class="ms-auto d-sm-flex flex-row">
-
             <?php
+            if (empty($_GET['force'])) { // Só exibe botões se não for troca obrigatória
                 if (in_array('ListUsers', $this->data['buttonPermission'])) {
                     echo "<a href='{$_ENV['URL_ADM']}list-users' class='btn btn-info btn-sm me-1 mb-1'><i class='fa-solid fa-list'></i> Listar</a> ";
                 }
@@ -34,8 +59,8 @@ use App\adms\Helpers\CSRFHelper;
                 if (in_array('ViewUser', $this->data['buttonPermission'])) {
                     echo "<a href='{$_ENV['URL_ADM']}view-user/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a> ";
                 }
-                ?>
-
+            }
+            ?>
             </span>
 
         </div>

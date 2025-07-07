@@ -737,6 +737,7 @@ class TrainingUsersRepository extends DbConnection
                     AND tp.obrigatorio = 1
                 WHERE 1=1';
         $params = [];
+        // Apenas aplica filtros se eles forem explicitamente passados
         if (!empty($filters['colaborador'])) {
             $sql .= ' AND u.id = ?';
             $params[] = $filters['colaborador'];
@@ -825,7 +826,7 @@ class TrainingUsersRepository extends DbConnection
      */
     public function getTopPendingUsers(): array
     {
-        $sql = "SELECT u.name, COUNT(*) as pendentes FROM adms_training_users tu INNER JOIN adms_users u ON u.id = tu.adms_user_id WHERE tu.status = 'pendente' GROUP BY u.id ORDER BY pendentes DESC, u.name ASC LIMIT 5";
+        $sql = "SELECT u.id as user_id, u.name, COUNT(*) as pendentes FROM adms_training_users tu INNER JOIN adms_users u ON u.id = tu.adms_user_id WHERE tu.status = 'pendente' GROUP BY u.id ORDER BY pendentes DESC, u.name ASC LIMIT 5";
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -836,7 +837,7 @@ class TrainingUsersRepository extends DbConnection
      */
     public function getTopCriticalTrainings(): array
     {
-        $sql = "SELECT t.nome as training_name, SUM(CASE WHEN tu.status = 'pendente' THEN 1 ELSE 0 END) as pendentes, SUM(CASE WHEN tu.status = 'vencido' THEN 1 ELSE 0 END) as vencidos FROM adms_training_users tu INNER JOIN adms_trainings t ON t.id = tu.adms_training_id GROUP BY t.id ORDER BY (pendentes + vencidos) DESC, t.nome ASC LIMIT 5";
+        $sql = "SELECT t.id as training_id, t.nome as training_name, SUM(CASE WHEN tu.status = 'pendente' THEN 1 ELSE 0 END) as pendentes, SUM(CASE WHEN tu.status = 'vencido' THEN 1 ELSE 0 END) as vencidos FROM adms_training_users tu INNER JOIN adms_trainings t ON t.id = tu.adms_training_id GROUP BY t.id ORDER BY (pendentes + vencidos) DESC, t.nome ASC LIMIT 5";
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -902,10 +903,11 @@ class TrainingUsersRepository extends DbConnection
     public function getAllVinculadosPorTreinamento($trainingId)
     {
         // Buscar todos os vínculos individuais
-        $sqlIndividuais = "SELECT tu.adms_user_id as id, u.name, u.email, 'individual' as tipo, p.name as cargo_nome
+        $sqlIndividuais = "SELECT tu.adms_user_id as id, u.name, u.email, 'individual' as tipo, p.name as cargo_nome, d.name as department_nome
             FROM adms_training_users tu
             INNER JOIN adms_users u ON u.id = tu.adms_user_id
             INNER JOIN adms_positions p ON p.id = u.user_position_id
+            INNER JOIN adms_departments d ON d.id = u.user_department_id
             WHERE tu.adms_training_id = :training_id AND tu.tipo_vinculo = 'individual'";
         $stmtIndividuais = $this->getConnection()->prepare($sqlIndividuais);
         $stmtIndividuais->bindValue(':training_id', $trainingId, \PDO::PARAM_INT);
@@ -914,9 +916,10 @@ class TrainingUsersRepository extends DbConnection
         $idsIndividuais = array_column($individuais, 'id');
 
         // Buscar vínculos por cargo, excluindo quem já tem vínculo individual
-        $sqlCargo = "SELECT u.id, u.name, u.email, 'cargo' as tipo, p.name as cargo_nome
+        $sqlCargo = "SELECT u.id, u.name, u.email, 'cargo' as tipo, p.name as cargo_nome, d.name as department_nome
             FROM adms_users u
             INNER JOIN adms_positions p ON p.id = u.user_position_id
+            INNER JOIN adms_departments d ON d.id = u.user_department_id
             INNER JOIN adms_training_positions tp ON tp.adms_position_id = u.user_position_id
             WHERE tp.adms_training_id = :training_id
             AND tp.obrigatorio = 1
@@ -927,12 +930,40 @@ class TrainingUsersRepository extends DbConnection
         $stmtCargo->execute();
         $cargos = $stmtCargo->fetchAll(\PDO::FETCH_ASSOC);
 
-        // Unir e ordenar tudo por nome
+        // Buscar dados do treinamento
+        $sqlTreinamento = "SELECT id, nome, codigo, reciclagem, reciclagem_periodo, validade FROM adms_trainings WHERE id = :training_id";
+        $stmtTreinamento = $this->getConnection()->prepare($sqlTreinamento);
+        $stmtTreinamento->bindValue(':training_id', $trainingId, \PDO::PARAM_INT);
+        $stmtTreinamento->execute();
+        $treinamento = $stmtTreinamento->fetch(\PDO::FETCH_ASSOC);
+
+        // Unir e padronizar os campos para a view
         $todos = array_merge($individuais, $cargos);
-        usort($todos, function($a, $b) {
-            return strcasecmp($a['name'], $b['name']);
+        $padronizados = [];
+        foreach ($todos as $item) {
+            $padronizados[] = [
+                'user_id' => $item['id'],
+                'user_name' => $item['name'],
+                'department' => $item['department_nome'] ?? '',
+                'position' => $item['cargo_nome'] ?? '',
+                'training_id' => $treinamento['id'],
+                'training_name' => $treinamento['nome'],
+                'codigo' => $treinamento['codigo'],
+                'reciclagem' => $treinamento['reciclagem'],
+                'reciclagem_periodo' => $treinamento['reciclagem_periodo'] ?? '',
+                'validade' => $treinamento['validade'],
+                // Compatibilidade com a view:
+                'id' => $item['id'],
+                'name' => $item['name'],
+                'cargo_nome' => $item['cargo_nome'] ?? '',
+                'tipo' => $item['tipo'] ?? '',
+                'email' => $item['email'] ?? '',
+            ];
+        }
+        usort($padronizados, function($a, $b) {
+            return strcasecmp($a['user_name'], $b['user_name']);
         });
-        return $todos;
+        return $padronizados;
     }
 
     /**

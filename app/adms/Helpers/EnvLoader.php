@@ -26,17 +26,14 @@ class EnvLoader
             return true;
         }
 
-        // Verificar se o autoload existe
+        // Carregar apenas o autoload e o .env, sem manipular sessão
         $autoloadPath = __DIR__ . '/../../../vendor/autoload.php';
         if (!file_exists($autoloadPath)) {
             error_log('Autoload não encontrado em: ' . $autoloadPath);
             return false;
         }
-
-        // Carregar o autoload
         require_once $autoloadPath;
 
-        // Verificar se o .env existe
         $envPath = __DIR__ . '/../../../.env';
         if (!file_exists($envPath)) {
             error_log('Arquivo .env não encontrado em: ' . $envPath);
@@ -44,7 +41,6 @@ class EnvLoader
         }
 
         try {
-            // Carregar o .env
             $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__ . '/../../../');
             $dotenv->load();
             return true;
@@ -64,11 +60,9 @@ class EnvLoader
         if (!self::load()) {
             return false;
         }
-
         // Definir timezone
         $timezone = $_ENV['APP_TIMEZONE'] ?? 'UTC';
         date_default_timezone_set($timezone);
-
         return true;
     }
 } 

@@ -6,7 +6,6 @@ use App\adms\Controllers\Services\PageLayoutService;
 use App\adms\Controllers\Services\Validation\ValidationUserPasswordService;
 use App\adms\Helpers\CSRFHelper;
 use App\adms\Helpers\GenerateLog;
-use App\adms\Models\Repository\ButtonPermissionUserRepository;
 use App\adms\Models\Repository\UsersRepository;
 use App\adms\Views\Services\LoadViewService;
 
@@ -39,6 +38,12 @@ class UpdatePasswordUser
      */
     public function index(int|string $id): void
     {
+        // Verificar se o usuário está logado
+        if (empty($_SESSION['user_id'])) {
+            $_SESSION['error'] = 'Sessão inválida! Faça login para continuar.';
+            header('Location: ' . $_ENV['URL_ADM'] . 'login');
+            exit;
+        }
 
         // Receber os dados do formulário
         $this->data['form'] = filter_input_array(INPUT_POST, FILTER_DEFAULT);
@@ -94,7 +99,6 @@ class UpdatePasswordUser
         ];
         
         $pageLayoutService = new PageLayoutService();
-        $pageLayoutService->configurePageElements($pageElements);
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
 
         // Carregar a VIEW
@@ -119,10 +123,8 @@ class UpdatePasswordUser
 
         // Acessa o IF quando existir campo com dados incorretos
         if (!empty($this->data['errors'])) {
-
             // Chamar método carregar a view
             $this->viewUser();
-
             return;
         }
 
@@ -132,9 +134,14 @@ class UpdatePasswordUser
 
         // Acessa o IF se o repository retornou TRUE
         if($result){
-
             // Criar a mensagem de sucesso
-            $_SESSION['success'] = "Senha editada com suscesso!";
+            $_SESSION['success'] = "Senha alterada com sucesso! Agora você pode acessar o sistema normalmente.";
+
+            // Se for troca obrigatória, redirecionar para o dashboard
+            if (!empty($_GET['force'])) {
+                header("Location: {$_ENV['URL_ADM']}dashboard");
+                exit;
+            }
 
             // Redirecionar o usuário para a pagina view - visualizar usuario
             header("Location: {$_ENV['URL_ADM']}view-user/{$this->data['form']['id']}");

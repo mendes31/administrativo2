@@ -75,7 +75,6 @@ class ViewPage
             'buttonPermission' => ['ListPages', 'UpdatePage', 'DeletePage'],
         ];
         $pageLayoutService = new PageLayoutService();
-        $pageLayoutService->configurePageElements($pageElements);
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
 
         // Carregar a VIEW

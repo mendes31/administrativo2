@@ -34,13 +34,13 @@ use App\adms\Helpers\FormatHelper;
             <?php include './app/adms/Views/partials/alerts.php'; ?>
             <form method="GET" class="row g-2 mb-3 align-items-end">
                 <div class="col-md-1">
-                    <input type="text" name="codigo" class="form-control" placeholder="Código" value="<?= htmlspecialchars($_GET['codigo'] ?? '') ?>">
+                    <input type="text" name="codigo" class="form-control" placeholder="Digite parte do código" value="<?= htmlspecialchars($_GET['codigo'] ?? '') ?>">
                 </div>
                 <div class="col-md-2">
-                    <input type="text" name="nome" class="form-control" placeholder="Nome do treinamento" value="<?= htmlspecialchars($_GET['nome'] ?? '') ?>">
+                    <input type="text" name="nome" class="form-control" placeholder="Digite parte do nome do treinamento" value="<?= htmlspecialchars($_GET['nome'] ?? '') ?>">
                 </div>
                 <div class="col-md-2">
-                    <input type="text" name="instrutor" class="form-control" placeholder="Instrutor" value="<?= htmlspecialchars($_GET['instrutor'] ?? '') ?>">
+                    <input type="text" name="instrutor" class="form-control" placeholder="Digite parte do nome do instrutor" value="<?= htmlspecialchars($_GET['instrutor'] ?? '') ?>">
                 </div>
                 <div class="col-md-1">
                     <select name="reciclagem" class="form-select">
@@ -81,12 +81,12 @@ use App\adms\Helpers\FormatHelper;
                 </nav>
             <?php endif; ?> -->
             <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover">
+                <table class="table table-bordered table-striped table-hover" style="table-layout: fixed; width: 100%;">
                     <thead class="table-dark">
                         <tr>
                             <th style="width:60px;" class="text-center">ID</th>
                             <th style="width:100px;">Código</th>
-                            <th>Nome</th>
+                            <th class="col-nome">Nome</th>
                             <th style="width:80px;">Versão</th>
                             <th style="width:100px;">Reciclar</th>
                             <th style="width:100px;">Tipo</th>
@@ -107,7 +107,7 @@ use App\adms\Helpers\FormatHelper;
                                     <td>
                                         <strong><?php echo htmlspecialchars($training['codigo']); ?></strong>
                                     </td>
-                                    <td>
+                                    <td class="col-nome">
                                         <div>
                                             <strong><?php echo htmlspecialchars($training['nome']); ?></strong>
                                             <?php if (!empty($training['versao'])): ?>
@@ -138,7 +138,9 @@ use App\adms\Helpers\FormatHelper;
                                     </td>
                                     <td>
                                         <?php
-                                        if (!empty($training['user_name'])) {
+                                        if (!empty($training['instructor_name'])) {
+                                            echo '<i class="fas fa-user-tie me-1"></i>' . htmlspecialchars($training['instructor_name']);
+                                        } elseif (!empty($training['user_name'])) {
                                             echo '<i class="fas fa-user-tie me-1"></i>' . htmlspecialchars($training['user_name']);
                                         } elseif (!empty($training['instrutor'])) {
                                             echo htmlspecialchars($training['instrutor']);

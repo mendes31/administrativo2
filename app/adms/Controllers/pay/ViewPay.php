@@ -79,7 +79,6 @@ class ViewPay
             'buttonPermission' => ['ListPayments', 'UpdatePay', 'DeletePay', 'EditMovement','DeleteMovement'],
         ];
         $pageLayoutService = new PageLayoutService();
-        $pageLayoutService->configurePageElements($pageElements);
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
 
         // gravar logs na tabela adms-logs

@@ -12,17 +12,21 @@ class ValidationUserLogin
     /**
      * Retorna array de dados do usuário autenticado ou false em caso de falha
      * @param array $data
+     * @param bool $preserveSession Se true, não destrói a sessão atual (usado para validação AJAX)
      * @return array|false
      */
-    public function validationUserLogin(array $data)
+    public function validationUserLogin(array $data, bool $preserveSession = false)
     {
-        // Limpar sessão antiga, exceto CSRF token se necessário
-        $csrf = $_SESSION['csrf_token'] ?? null;
-        session_unset();
-        if ($csrf) {
-            $_SESSION['csrf_token'] = $csrf;
+        // Só limpar sessão se não for para preservar (usado para validação AJAX)
+        if (!$preserveSession) {
+            // Limpar sessão antiga, exceto CSRF token se necessário
+            $csrf = $_SESSION['csrf_token'] ?? null;
+            session_unset();
+            if ($csrf) {
+                $_SESSION['csrf_token'] = $csrf;
+            }
+            session_regenerate_id();
         }
-        session_regenerate_id(true);
 
         // Instanciar o Repository para validar o usuário no banco de dados
         $login = new LoginRepository();
@@ -91,20 +95,25 @@ class ValidationUserLogin
                 // Se não estava bloqueado, só zera tentativas
                 $login->resetarTentativasLogin($result['id']);
             }
-            // Extrair o array para imprimir o elemento do array através do nome
-            extract($result);
-            // Salvar os dados do usuário na sessão
-            $_SESSION['user_id'] = $id;
-            $_SESSION['user_name'] = $name;
-            $_SESSION['user_email'] = $email;
-            $_SESSION['user_username'] = $username;
-            $_SESSION['user_image'] = $image;
-            $_SESSION['user_department'] = $dep_name;
-            $_SESSION['user_position'] = $pos_name;
-            // Limpar mensagem de erro da sessão após login bem-sucedido
-            unset($_SESSION['error']);
-            // Log temporário para depuração de sessões
-            file_put_contents(__DIR__ . '/../../../logs/login_debug.log', date('Y-m-d H:i:s') . " - Login: username={$result['username']} id={$result['id']}\n", FILE_APPEND);
+            
+            // Só salvar dados na sessão se não for para preservar (usado para validação AJAX)
+            if (!$preserveSession) {
+                // Extrair o array para imprimir o elemento do array através do nome
+                extract($result);
+                // Salvar os dados do usuário na sessão
+                $_SESSION['user_id'] = $id;
+                $_SESSION['user_name'] = $name;
+                $_SESSION['user_email'] = $email;
+                $_SESSION['user_username'] = $username;
+                $_SESSION['user_image'] = $image;
+                $_SESSION['user_department'] = $dep_name;
+                $_SESSION['user_position'] = $pos_name;
+                // Limpar mensagem de erro da sessão após login bem-sucedido
+                unset($_SESSION['error']);
+                // Log temporário para depuração de sessões
+                file_put_contents(__DIR__ . '/../../../logs/login_debug.log', date('Y-m-d H:i:s') . " - Login: username={$result['username']} id={$result['id']}\n", FILE_APPEND);
+            }
+            
             return $result;
         }
         // Incrementar tentativas de login e aplicar bloqueio se necessário

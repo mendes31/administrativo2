@@ -73,7 +73,6 @@ class ViewBank
             'buttonPermission' => ['ListBanks', 'UpdateBank', 'DeleteBank'],
         ];
         $pageLayoutService = new PageLayoutService();
-        $pageLayoutService->configurePageElements($pageElements);
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
 
         // gravar logs na tabela adms-logs

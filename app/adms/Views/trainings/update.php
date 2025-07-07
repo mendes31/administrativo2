@@ -1,6 +1,13 @@
 <?php
 use App\adms\Helpers\CSRFHelper;
 $csrf_token = CSRFHelper::generateCSRFToken('form_update_training');
+// Determina o tipo de instrutor para preencher o select corretamente
+$instructor_type = '';
+if (!empty($this->data['training']['instructor_user_id'])) {
+    $instructor_type = 'internal';
+} elseif (!empty($this->data['training']['instructor_name'])) {
+    $instructor_type = 'external';
+}
 ?>
 <div class="container-fluid px-4">
     <div class="mb-1 hstack gap-2">
@@ -47,8 +54,8 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_update_training');
                     <label for="instructor_type" class="form-label">Tipo de Instrutor</label>
                     <select name="instructor_type" id="instructor_type" class="form-select" onchange="toggleInstructorFields()">
                         <option value="">Selecione...</option>
-                        <option value="internal" <?php echo (isset($this->data['training']['instructor_user_id']) && !empty($this->data['training']['instructor_user_id'])) ? 'selected' : ''; ?>>Colaborador Interno</option>
-                        <option value="external" <?php echo (isset($this->data['training']['instructor_user_id']) && empty($this->data['training']['instructor_user_id']) && !empty($this->data['training']['instructor_email'])) ? 'selected' : ''; ?>>Instrutor Externo</option>
+                        <option value="internal" <?php echo ($instructor_type === 'internal') ? 'selected' : ''; ?>>Colaborador Interno</option>
+                        <option value="external" <?php echo ($instructor_type === 'external') ? 'selected' : ''; ?>>Instrutor Externo</option>
                     </select>
                 </div>
                 <div class="col-md-3" id="instructor_user_div" style="display: none;">
@@ -61,12 +68,12 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_update_training');
                     </select>
                 </div>
                 <div class="col-md-3" id="instructor_name_div" style="display: none;">
-                    <label for="instrutor" class="form-label">Nome do Instrutor Externo</label>
-                    <input type="text" name="instrutor" class="form-control" id="instrutor" value="<?php echo $this->data['training']['instrutor'] ?? ''; ?>">
+                    <label for="instructor_name" class="form-label">Nome do Instrutor Externo</label>
+                    <input type="text" name="instructor_name" class="form-control" id="instructor_name" value="<?php echo $this->data['training']['instructor_name'] ?? ''; ?>">
                 </div>
                 <div class="col-md-3" id="instructor_email_div" style="display: none;">
                     <label for="instructor_email" class="form-label">E-mail do Instrutor</label>
-                    <input type="email" name="instructor_email" class="form-control" id="instructor_email" value="<?php echo $this->data['training']['instructor_email'] ?? ''; ?>">
+                    <input type="email" name="instructor_email" class="form-control" id="instructor_email" value="<?php echo htmlspecialchars($this->data['training']['instructor_email'] ?? ''); ?>">
                 </div>
                 <div class="col-md-3">
                     <label for="carga_horaria" class="form-label">Carga Horária</label>
@@ -99,7 +106,7 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_update_training');
                     var emailDiv = document.getElementById('instructor_email_div');
                     var userSelect = document.getElementById('instructor_user_id');
                     var emailInput = document.getElementById('instructor_email');
-                    var nameInput = document.getElementById('instrutor');
+                    var nameInput = document.getElementById('instructor_name');
 
                     if (typeSelect.value === 'internal') {
                         userDiv.style.display = 'block';
@@ -114,7 +121,6 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_update_training');
                         emailDiv.style.display = 'block';
                         emailInput.readOnly = false;
                         userSelect.value = '';
-                        emailInput.value = '';
                     } else {
                         userDiv.style.display = 'none';
                         nameDiv.style.display = 'none';
@@ -153,8 +159,12 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_update_training');
                     if (userSelect) {
                         userSelect.addEventListener('change', fillInstructorEmail);
                     }
-                    toggleInstructorFields();
+                    // Força o valor do select conforme o PHP determinou
                     var typeSelect = document.getElementById('instructor_type');
+                    if (typeSelect) {
+                        typeSelect.value = '<?php echo $instructor_type; ?>';
+                    }
+                    toggleInstructorFields();
                     if (typeSelect && typeSelect.value === 'internal') {
                         fillInstructorEmail();
                     }

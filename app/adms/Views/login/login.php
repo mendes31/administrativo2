@@ -2,6 +2,10 @@
 
 use App\adms\Helpers\CSRFHelper;
 
+// Exibir mensagem de erro vinda da query string
+if (!empty($_GET['error'])) {
+    echo '<div class="alert alert-danger" role="alert">' . htmlspecialchars($_GET['error']) . '</div>';
+}
 ?>
 
 <div class="col-lg-5">

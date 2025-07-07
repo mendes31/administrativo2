@@ -56,10 +56,10 @@
     <div class="row">
         <div class="col-12">
             <div class="table-responsive">
-                <table class="table table-bordered align-middle" id="lista-colaboradores">
+                <table class="table table-bordered align-middle" id="lista-colaboradores" style="table-layout: fixed; width: 100%;">
                     <thead class="table-light">
                         <tr>
-                            <th>Nome</th>
+                            <th class="col-nome">Nome</th>
                             <th>E-mail</th>
                             <th style="width: 90px;">Ação</th>
                         </tr>
@@ -67,9 +67,8 @@
                     <tbody>
                         <?php if (!empty($this->data['vinculados'])): ?>
                             <?php foreach ($this->data['vinculados'] as $user): ?>
-                                <!-- DEBUG: user_id=<?php echo $user['id']; ?> tipo=<?php echo $user['tipo']; ?> -->
                                 <tr id="user-row-<?php echo $user['id']; ?>">
-                                    <td>
+                                    <td class="col-nome">
                                         <?php echo htmlspecialchars($user['name']) . ' (' . htmlspecialchars($user['cargo_nome']) . ')'; ?>
                                         <?php if ($user['tipo'] === 'cargo'): ?>
                                             <span title="Vínculo pelo cargo" style="color:#888; font-size:0.95em;">(cargo)</span>
@@ -78,7 +77,6 @@
                                     <td><?php echo htmlspecialchars($user['email']); ?></td>
                                     <td>
                                         <?php if (isset($user['tipo']) && strtolower(trim($user['tipo'])) === 'individual'): ?>
-                                            <!-- DEBUG: FORM DE REMOCAO user_id=<?php echo $user['id']; ?> -->
                                             <form method="post" action="<?php echo $_ENV['URL_ADM']; ?>delete-training-user-link" style="display: inline;" id="form-remove-<?php echo $user['id']; ?>">
                                                 <input type="hidden" name="training_id" value="<?php echo htmlspecialchars($this->data['training_id']); ?>">
                                                 <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
@@ -126,7 +124,7 @@
         var tbody = document.querySelector('#lista-colaboradores tbody');
         var tr = document.createElement('tr');
         tr.id = 'user-row-' + userId;
-        tr.innerHTML = '<td>' + name + '</td>' +
+        tr.innerHTML = '<td class="col-nome">' + name + '</td>' +
                        '<td>' + email + '</td>' +
                        '<td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest(\'tr\').remove(); document.getElementById(\'hidden-user-' + userId + '\').remove();">Remover</button></td>';
         tbody.appendChild(tr);

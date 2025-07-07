@@ -12,13 +12,13 @@ use App\adms\Models\Repository\PositionsRepository;
 use App\adms\Models\Repository\UsersRepository;
 use App\adms\Views\Services\LoadViewService;
 
-// Carregar o .env antes da definição da classe
+// Reforço do carregamento do .env
 if (!isset($_ENV['DB_HOST'])) {
     require_once __DIR__ . '/../../Helpers/EnvLoader.php';
     \App\adms\Helpers\EnvLoader::load();
 }
 
-var_dump($_ENV);
+//var_dump($_ENV);
 // exit;
 
 /**
@@ -114,7 +114,6 @@ class UpdateUser
         ];
         
         $pageLayoutService = new PageLayoutService();
-        $pageLayoutService->configurePageElements($pageElements);
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
 
         // Carregar a VIEW

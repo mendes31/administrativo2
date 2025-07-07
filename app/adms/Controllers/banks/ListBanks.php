@@ -72,7 +72,6 @@ class ListBanks
             'buttonPermission' => ['CreateBank', 'ViewBank', 'UpdateBank', 'DeleteBank'],
         ];
         $pageLayoutService = new PageLayoutService();
-        $pageLayoutService->configurePageElements($pageElements);
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
 
         // Apresentar ou ocultar item de menu

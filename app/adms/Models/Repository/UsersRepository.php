@@ -62,7 +62,7 @@ class UsersRepository extends DbConnection
             $params[':email'] = '%' . $filtros['email'] . '%';
         }
         $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
-        $sql = 'SELECT usr.id, usr.name, usr.email, usr.username, usr.user_department_id, usr.user_position_id, dep.name name_dep, pos.name name_pos
+        $sql = 'SELECT usr.id, usr.name, usr.email, usr.username, usr.user_department_id, usr.user_position_id, usr.status, usr.bloqueado, usr.tentativas_login, usr.senha_nunca_expira, usr.modificar_senha_proximo_logon, dep.name name_dep, pos.name name_pos
                 FROM adms_users usr
                 INNER JOIN adms_departments dep ON usr.user_department_id = dep.id
                 INNER JOIN adms_positions pos ON usr.user_position_id = pos.id 
@@ -463,29 +463,16 @@ class UsersRepository extends DbConnection
      */
     public function updatePasswordUser(array $data): bool
     {
-
-        // Usar try e catch para gerenciar exceção/erro
-        try {  // Permanece no try se não houver nenhum erro
-
-            // QUERY para atualizar usuário
-            // Condição para indicar qual registro editar
-            $sql = 'UPDATE adms_users SET password = :password, updated_at = :updated_at WHERE id = :id';
-
-            // Preparar a QUERY
+        try {
+            // Atualizar senha e modificar_senha_proximo_logon
+            $sql = 'UPDATE adms_users SET password = :password, modificar_senha_proximo_logon = "Não", updated_at = :updated_at WHERE id = :id';
             $stmt = $this->getConnection()->prepare($sql);
-
-            // Substituir os links da QUERY pelo valor
             $stmt->bindValue(':password', password_hash($data['password'], PASSWORD_DEFAULT));
             $stmt->bindValue(':updated_at', date("Y-m-d H:i:s"));
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
-
-            // Retornar TRUE quando conseguir executar a QUERY SQL, não considerando se alterou dados do registro
             return $stmt->execute();
-        } catch (Exception $e) { // Acessa o catch quando houver erro no try
-
-            // Chamar o método para salvar o log
+        } catch (Exception $e) {
             GenerateLog::generateLog("error", "Senha não editada.", ['id' => $data['id'], 'error' => $e->getMessage()]);
-
             return false;
         }
     }

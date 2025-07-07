@@ -136,7 +136,7 @@ use App\adms\Helpers\FormatHelper;
         </div>
     </div>
     <div class="table-responsive" style="max-height: 70vh;">
-        <table class="table table-striped table-hover" style="min-width:900px;">
+        <table class="table table-striped table-hover" style="table-layout: fixed; width: 100%; min-width:900px;">
             <thead style="position:sticky;top:0;z-index:1;background:#f8f9fa;">
                 <tr>
                     <?php

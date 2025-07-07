@@ -26,7 +26,9 @@ class LoadPageAdm
     private string $classLoad;
 
     /** @var array $listPgPublic Recebe a lista de paginas publicas */
-    private array $listPgPublic = ["Login", "Error403", "NewUser", "ForgotPassword", "ResetPassword"];
+    private array $listPgPublic = [
+        "Login", "Error403", "NewUser", "ForgotPassword", "ResetPassword"
+    ];
 
     /** @var array $listPgPrivate Recebe a lista de paginas privadas */
     private array $listPgPrivate = [
@@ -67,6 +69,7 @@ class LoadPageAdm
         "AjaxSimplePasswordValidate",
         "AjaxPasswordPolicy",
         "ListLogAlteracoes", "ViewLogAlteracao", "ExportLogCsv", "ExportLogExcel", "ExportLogPdf", "ListLogAcessos", "ExportLogAcessosExcel", "ExportLogAcessosPdf",
+        "ForcePasswordChange",
     ];
 
     /** @var array $listDirectory Recebe a lista de diretórios com as controllers */

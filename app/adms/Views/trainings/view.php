@@ -54,8 +54,8 @@ use App\adms\Helpers\FormatHelper;
                         <tr>
                             <td><strong>Instrutor:</strong></td>
                             <td>
-                                <?php if (!empty($this->data['training']['instrutor'])): ?>
-                                    <i class="fas fa-user-tie me-1"></i><?php echo htmlspecialchars($this->data['training']['instrutor']); ?>
+                                <?php if (!empty($this->data['training']['instructor_name'])): ?>
+                                    <i class="fas fa-user-tie me-1"></i><?php echo htmlspecialchars($this->data['training']['instructor_name']); ?>
                                 <?php else: ?>
                                     <span class="text-muted">Não informado</span>
                                 <?php endif; ?>

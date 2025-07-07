@@ -75,6 +75,8 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_user');
                             <th scope="col" class="d-none d-md-table-cell">Usuário</th>
                             <th scope="col" class="d-none d-md-table-cell">Departamento</th>
                             <th scope="col" class="d-none d-md-table-cell">Cargo</th>
+                            <th scope="col" class="d-none d-md-table-cell">Status</th>
+                            <th scope="col" class="d-none d-md-table-cell">Bloqueado</th>
                             <th scope="col" class="text-center">Ações</th>
                         </tr>
                     </thead>
@@ -87,6 +89,8 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_user');
                                 <td class="d-none d-md-table-cell"><?= $username ?></td>
                                 <td class="d-none d-md-table-cell"><?= $name_dep ?></td>
                                 <td class="d-none d-md-table-cell"><?= $name_pos ?></td>
+                                <td class="d-none d-md-table-cell"><?= $status ?></td>
+                                <td class="d-none d-md-table-cell"><?= $bloqueado ?></td>
                                 <td class="text-center">
                                     <?php
                                     if (in_array('ViewUser', $this->data['buttonPermission'])) {

@@ -36,9 +36,23 @@ class MatrixByUser
             'cargo' => $_GET['cargo'] ?? null,
             'treinamento' => $_GET['treinamento'] ?? null,
         ];
-        $matrixByUser = $this->trainingUsersRepo->getMandatoryMatrixByUser($filters, $perPage, $offset);
-        // Calcular total filtrado
-        $total = count($this->trainingUsersRepo->getMandatoryMatrixByUser($filters, 1000000, 0));
+        
+        $matrixByUser = [];
+        $total = 0;
+        if (!empty($filters['treinamento'])) {
+            // Se filtrou por um treinamento específico, traz todos os vinculados (cargo e individual)
+            $matrixByUser = $this->trainingUsersRepo->getAllVinculadosPorTreinamento($filters['treinamento']);
+            $total = count($matrixByUser);
+            // Paginação manual
+            $matrixByUser = array_slice($matrixByUser, $offset, $perPage);
+        } else {
+            // Comportamento padrão (apenas obrigatórios por cargo)
+            $matrixByUser = $this->trainingUsersRepo->getMandatoryMatrixByUser($filters, $perPage, $offset);
+            if (!is_array($matrixByUser)) {
+                $matrixByUser = [];
+            }
+            $total = count($this->trainingUsersRepo->getMandatoryMatrixByUser($filters, 1000000, 0));
+        }
         $pagination = \App\adms\Controllers\Services\PaginationService::generatePagination(
             $total,
             $perPage,
@@ -59,6 +73,7 @@ class MatrixByUser
             'pagination' => $pagination,
             'per_page' => $perPage,
         ];
+        
         $pageLayout = new \App\adms\Controllers\Services\PageLayoutService();
         $data = $pageLayout->configurePageElements($data);
         $loadView = new \App\adms\Views\Services\LoadViewService('adms/Views/trainings/matrixByUser', $data);

@@ -56,12 +56,12 @@ class AjaxPasswordPolicy
             exit;
         }
 
-        // Usa o serviço de validação
+        // Usa o serviço de validação com preserveSession=true para não destruir a sessão atual
         $validador = new ValidationUserLogin();
         $ok = $validador->validationUserLogin([
             'username' => $username,
             'password' => $senha
-        ]);
+        ], true); // preserveSession=true para validação AJAX
         GenerateLog::generateLog('debug', 'Validação de senha na modal', [
             'session' => $_SESSION,
             'input' => $input,

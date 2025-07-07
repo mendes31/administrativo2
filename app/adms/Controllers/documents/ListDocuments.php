@@ -60,7 +60,6 @@ class ListDocuments
             'buttonPermission' => ['CreateDocument', 'ViewDocument', 'UpdateDocument', 'DeleteDocument', 'ListDocumentPositions'],
         ];
         $pageLayoutService = new PageLayoutService();
-        $pageLayoutService->configurePageElements($pageElements);
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
 
         // Apresentar ou ocultar item de menu

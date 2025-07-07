@@ -1,4 +1,20 @@
 <?php
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
+// Teste de execução do layout
+echo "<!-- LAYOUT MAIN EXECUTADO -->";
+
+// Log alternativo com caminho absoluto
+file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+    date('Y-m-d H:i:s') . ' - [main] session_id(): ' . session_id() .
+    ' | $_SESSION[session_id]: ' . ($_SESSION['session_id'] ?? 'null') .
+    ' | Cookie PHPSESSID: ' . ($_COOKIE['PHPSESSID'] ?? 'null') .
+    ' | $_SESSION: ' . json_encode($_SESSION) . "\n",
+    FILE_APPEND
+);
+
 if (!isset($_ENV['DB_HOST'])) {
     require_once __DIR__ . '/../../Helpers/EnvLoader.php';
     \App\adms\Helpers\EnvLoader::load();
@@ -6,35 +22,44 @@ if (!isset($_ENV['DB_HOST'])) {
 // Supondo que o .env já esteja carregado via alguma lib tipo vlucas/phpdotenv
 $urlAdm = getenv('URL_ADM');
 
-if (!isset($_SESSION['session_id'])) {
+if (!isset($_SESSION['session_id']) || $_SESSION['session_id'] !== session_id()) {
     $_SESSION['session_id'] = session_id();
 }
 
 // Checagem de sessão invalidada
 if (isset($_SESSION['user_id']) && isset($_SESSION['session_id'])) {
     $sessionRepo = new \App\adms\Models\Repository\AdmsSessionsRepository();
-    $sess = $sessionRepo->getSessionByUserIdAndSessionId($_SESSION['user_id'], $_SESSION['session_id']);
-    $userRepo = new \App\adms\Models\Repository\LoginRepository();
-    $user = $userRepo->getUserById($_SESSION['user_id']);
+    $sess = $sessionRepo->getSessionByUserIdAndSessionId($_SESSION['user_id'], session_id());
+    
+    // Log da consulta ao banco com caminho absoluto
+    file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+        date('Y-m-d H:i:s') . ' - [main] CONSULTA BANCO - user_id: ' . $_SESSION['user_id'] . 
+        ' | session_id(): ' . session_id() . 
+        ' | Resultado: ' . json_encode($sess) . "\n",
+        FILE_APPEND
+    );
+    
     $motivos = [];
-    if (!$sess || !$user) {
-        $motivos[] = 'Sessão inválida';
-    } else {
-        if ($sess['status'] === 'invalidada') {
-            if ($user['status'] === 'Inativo') {
-                $motivos[] = 'Usuário Inativo';
-            }
-            if ($user['bloqueado'] === 'Sim') {
-                $motivos[] = 'Usuário Bloqueado';
-            }
-        }
+    
+    if (!$sess) {
+        $motivos[] = 'Sessão não encontrada no banco';
+    } elseif ($sess['status'] !== 'ativa') {
+        $motivos[] = 'Sessão inativa';
     }
+    
     if (!empty($motivos) || ($sess && $sess['status'] === 'invalidada')) {
         $msg = !empty($motivos) ? implode(' e ', $motivos) . '! Contate o Administrador do sistema.' : 'Sessão invalidada. Faça login novamente.';
-        session_destroy();
-        session_start();
-        $_SESSION['error'] = $msg;
-        header('Location: /administrativo2/login');
+        // Limpar apenas a sessão do usuário impactado
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params['path'], $params['domain'],
+                $params['secure'], $params['httponly']
+            );
+        }
+        // session_destroy(); // Removido para evitar destruição global da sessão
+        header("Location: {$_ENV['URL_ADM']}login?msg=" . urlencode($msg));
         exit;
     }
     // Buscar política de senha para expiração dinâmica
@@ -47,16 +72,24 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['session_id'])) {
         $ultimaAtividade = strtotime($sess['updated_at'] ?? $sess['created_at']);
         if ($agora - $ultimaAtividade > $limite) {
             $sessionRepo->invalidateSessionByUserIdAndSessionId($_SESSION['user_id'], $_SESSION['session_id']);
-            session_destroy();
-            session_start();
-            $_SESSION['error'] = 'Sua sessão expirou por inatividade. Faça login novamente.';
-            header('Location: /administrativo2/login');
+            $_SESSION = [];
+            if (ini_get('session.use_cookies')) {
+                $params = session_get_cookie_params();
+                setcookie(session_name(), '', time() - 42000,
+                    $params['path'], $params['domain'],
+                    $params['secure'], $params['httponly']
+                );
+            }
+            // session_destroy(); // Removido para evitar destruição global da sessão
+            header('Location: /administrativo2/login?error=' . urlencode('Sua sessão expirou por inatividade. Faça login novamente.'));
             exit;
         }
     }
     // Atualiza o updated_at da sessão ativa
     $sessionRepo->updateSessionActivity($_SESSION['user_id'], $_SESSION['session_id']);
 }
+
+file_put_contents('caminho_do_log', 'session_id: ' . session_id() . ' - ' . json_encode($_SESSION) . PHP_EOL, FILE_APPEND);
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $_ENV['APP_LOCALE']; ?>">
@@ -81,10 +114,9 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['session_id'])) {
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
- 
-
-
-
+    <!-- CSS Reset e Ajustes de Padronização -->
+    <link rel="stylesheet" href="<?php echo $_ENV['URL_ADM']; ?>adms/css/reset.css">
+    <link rel="stylesheet" href="<?php echo $_ENV['URL_ADM']; ?>adms/css/custom-ajustes.css">
 
     <!-- JQ por CDN -->
     <!-- <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script> -->

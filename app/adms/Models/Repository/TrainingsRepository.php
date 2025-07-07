@@ -65,7 +65,7 @@ class TrainingsRepository extends DbConnection
     public function createTraining(array $data): bool|int
     {
         try {
-            $sql = 'INSERT INTO adms_trainings (nome, codigo, versao, validade, tipo, instrutor, carga_horaria, ativo, created_at, instructor_user_id, instructor_email, reciclagem, reciclagem_periodo) VALUES (:nome, :codigo, :versao, :validade, :tipo, :instrutor, :carga_horaria, :ativo, NOW(), :instructor_user_id, :instructor_email, :reciclagem, :reciclagem_periodo)';
+            $sql = 'INSERT INTO adms_trainings (nome, codigo, versao, validade, tipo, instrutor, carga_horaria, ativo, created_at, instructor_user_id, instructor_email, instructor_name, reciclagem, reciclagem_periodo) VALUES (:nome, :codigo, :versao, :validade, :tipo, :instrutor, :carga_horaria, :ativo, NOW(), :instructor_user_id, :instructor_email, :instructor_name, :reciclagem, :reciclagem_periodo)';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':nome', $data['nome'], PDO::PARAM_STR);
             $stmt->bindValue(':codigo', $data['codigo'], PDO::PARAM_STR);
@@ -77,6 +77,7 @@ class TrainingsRepository extends DbConnection
             $stmt->bindValue(':ativo', $data['ativo'] ?? 1, PDO::PARAM_BOOL);
             $stmt->bindValue(':instructor_user_id', $data['instructor_user_id'] ?? null, PDO::PARAM_INT);
             $stmt->bindValue(':instructor_email', $data['instructor_email'] ?? null, PDO::PARAM_STR);
+            $stmt->bindValue(':instructor_name', $data['instructor_name'] ?? null, PDO::PARAM_STR);
             $stmt->bindValue(':reciclagem', $data['reciclagem'] ?? 0, PDO::PARAM_BOOL);
             $stmt->bindValue(':reciclagem_periodo', $data['reciclagem_periodo'] ?? null, PDO::PARAM_INT);
             $stmt->execute();
@@ -96,6 +97,7 @@ class TrainingsRepository extends DbConnection
                     'ativo' => $data['ativo'] ?? 1,
                     'instructor_user_id' => $data['instructor_user_id'] ?? null,
                     'instructor_email' => $data['instructor_email'] ?? null,
+                    'instructor_name' => $data['instructor_name'] ?? null,
                     'reciclagem' => $data['reciclagem'] ?? 0,
                     'reciclagem_periodo' => $data['reciclagem_periodo'] ?? null,
                 ];
@@ -125,7 +127,7 @@ class TrainingsRepository extends DbConnection
             // Captura os dados antigos antes da alteração
             $dadosAntes = $this->getTraining($id);
             
-            $sql = 'UPDATE adms_trainings SET nome = :nome, codigo = :codigo, versao = :versao, validade = :validade, tipo = :tipo, instrutor = :instrutor, carga_horaria = :carga_horaria, ativo = :ativo, instructor_user_id = :instructor_user_id, instructor_email = :instructor_email, reciclagem = :reciclagem, reciclagem_periodo = :reciclagem_periodo, updated_at = NOW() WHERE id = :id';
+            $sql = 'UPDATE adms_trainings SET nome = :nome, codigo = :codigo, versao = :versao, validade = :validade, tipo = :tipo, instrutor = :instrutor, carga_horaria = :carga_horaria, ativo = :ativo, instructor_user_id = :instructor_user_id, instructor_email = :instructor_email, instructor_name = :instructor_name, reciclagem = :reciclagem, reciclagem_periodo = :reciclagem_periodo, updated_at = NOW() WHERE id = :id';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':nome', $data['nome'], PDO::PARAM_STR);
             $stmt->bindValue(':codigo', $data['codigo'], PDO::PARAM_STR);
@@ -137,6 +139,7 @@ class TrainingsRepository extends DbConnection
             $stmt->bindValue(':ativo', $data['ativo'] ?? 1, PDO::PARAM_BOOL);
             $stmt->bindValue(':instructor_user_id', $data['instructor_user_id'] ?? null, PDO::PARAM_INT);
             $stmt->bindValue(':instructor_email', $data['instructor_email'] ?? null, PDO::PARAM_STR);
+            $stmt->bindValue(':instructor_name', $data['instructor_name'] ?? null, PDO::PARAM_STR);
             $stmt->bindValue(':reciclagem', $data['reciclagem'] ?? 0, PDO::PARAM_BOOL);
             $stmt->bindValue(':reciclagem_periodo', $data['reciclagem_periodo'] ?? null, PDO::PARAM_INT);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
@@ -156,6 +159,7 @@ class TrainingsRepository extends DbConnection
                     'ativo' => $data['ativo'] ?? 1,
                     'instructor_user_id' => $data['instructor_user_id'] ?? null,
                     'instructor_email' => $data['instructor_email'] ?? null,
+                    'instructor_name' => $data['instructor_name'] ?? null,
                     'reciclagem' => $data['reciclagem'] ?? 0,
                     'reciclagem_periodo' => $data['reciclagem_periodo'] ?? null,
                 ];
@@ -236,11 +240,11 @@ class TrainingsRepository extends DbConnection
         $where = [];
         $params = [];
         if (!empty($filters['nome'])) {
-            $where[] = 'nome LIKE :nome';
+            $where[] = 't.nome LIKE :nome';
             $params[':nome'] = '%' . $filters['nome'] . '%';
         }
         if (isset($filters['ativo']) && $filters['ativo'] !== '') {
-            $where[] = 'ativo = :ativo';
+            $where[] = 't.ativo = :ativo';
             $params[':ativo'] = (int)$filters['ativo'];
         }
         if (!empty($filters['instrutor'])) {
@@ -260,7 +264,9 @@ class TrainingsRepository extends DbConnection
             $params[':reciclagem'] = (int)$filters['reciclagem'];
         }
         $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
-        $sql = 'SELECT COUNT(*) as total FROM adms_trainings ' . $whereSql;
+        $sql = 'SELECT COUNT(*) as total FROM adms_trainings t
+                LEFT JOIN adms_users u ON u.id = t.instructor_user_id
+                ' . $whereSql;
         $stmt = $this->getConnection()->prepare($sql);
         foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value);

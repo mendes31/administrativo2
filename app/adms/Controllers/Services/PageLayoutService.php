@@ -79,20 +79,14 @@ class PageLayoutService
             return array_merge($data, ['menuPermission' => $menu]);
         }
 
-        // Definir o título da página
-        $pageElements['title_head'] = $data['title_head'] ?? '';
-
-        // Ativar o item de menu
-        $pageElements['menu'] = $data['menu'] ?? '';
-
         // Apresentar ou ocultar botão
         $buttonPermission = new ButtonPermissionUserRepository();
-        $pageElements['buttonPermission'] = $buttonPermission->buttonPermission($data['buttonPermission'] ?? []);
+        $data['buttonPermission'] = $buttonPermission->buttonPermission($data['buttonPermission'] ?? []);
 
         // Apresentar ou ocultar item de menu
         $menuPermission = new MenuPermissionUserRepository();
-        $pageElements['menuPermission'] = $menuPermission->menuPermission($menu);
+        $data['menuPermission'] = $menuPermission->menuPermission($menu);
 
-        return $pageElements;
+        return $data;
     }
 }

@@ -69,7 +69,6 @@ class MovBetweenAccounts
             'buttonPermission' => ['ListMovBetweenAccounts'],
         ];
         $pageLayoutService = new PageLayoutService();
-        $pageLayoutService->configurePageElements($pageElements);
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
 
         // Carregar a VIEW

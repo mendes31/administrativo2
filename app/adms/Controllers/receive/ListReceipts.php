@@ -135,7 +135,6 @@ class ListReceipts
             'buttonPermission' => ['CreateReceive', 'ViewReceive', 'InstallmentsReceive', 'Receive', 'UpdateReceive', 'DeleteReceive'],
         ];
         $pageLayoutService = new PageLayoutService();
-        $pageLayoutService->configurePageElements($pageElements);
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
 
         $loadView = new LoadViewService("adms/Views/receive/list", $this->data);

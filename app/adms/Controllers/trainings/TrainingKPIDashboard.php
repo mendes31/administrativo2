@@ -80,6 +80,7 @@ class TrainingKPIDashboard
     private function getDepartmentStatistics(): array
     {
         $sql = "SELECT 
+                    d.id as department_id,
                     d.name as department_name,
                     COUNT(tu.id) as total_vinculos,
                     SUM(CASE WHEN tu.status = 'concluido' THEN 1 ELSE 0 END) as concluidos,

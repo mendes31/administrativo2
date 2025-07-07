@@ -505,15 +505,16 @@ class SecurityService
             $msg = implode(' e ', $motivos) . '! Contate o Administrador do sistema.';
             $_SESSION['error'] = $msg;
         }
-        // Sempre invalidar a sessão do usuário-alvo
+        // Sempre invalidar a sessão do usuário-alvo no banco
         $sessionRepo = new \App\adms\Models\Repository\AdmsSessionsRepository();
         $sessionRepo->invalidateSessionByUserId($userId);
-        // Se for o próprio usuário logado, destruir a sessão normalmente
+        // Só destruir a sessão se for o próprio usuário logado
         if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $userId) {
             session_destroy();
             header('Location: ' . $_ENV['URL_ADM'] . 'login');
             exit;
         }
+        // Se não for o usuário logado, não manipular $_SESSION nem session_destroy()
     }
 
     /**

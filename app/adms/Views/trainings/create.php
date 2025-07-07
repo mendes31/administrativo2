@@ -61,8 +61,8 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_create_training');
                     </select>
                 </div>
                 <div class="col-md-3" id="instructor_name_div" style="display: none;">
-                    <label for="instrutor" class="form-label">Nome do Instrutor Externo</label>
-                    <input type="text" name="instrutor" class="form-control" id="instrutor" value="<?php echo $this->data['form']['instrutor'] ?? ''; ?>">
+                    <label for="instructor_name" class="form-label">Nome do Instrutor Externo</label>
+                    <input type="text" name="instructor_name" class="form-control" id="instructor_name" value="<?php echo $this->data['form']['instructor_name'] ?? ''; ?>">
                 </div>
                 <div class="col-md-3" id="instructor_email_div" style="display: none;">
                     <label for="instructor_email" class="form-label">E-mail do Instrutor</label>
@@ -105,7 +105,7 @@ function toggleInstructorFields() {
     var emailDiv = document.getElementById('instructor_email_div');
     var userSelect = document.getElementById('instructor_user_id');
     var emailInput = document.getElementById('instructor_email');
-    var nameInput = document.getElementById('instrutor');
+    var nameInput = document.getElementById('instructor_name');
 
     if (typeSelect.value === 'internal') {
         userDiv.style.display = 'block';

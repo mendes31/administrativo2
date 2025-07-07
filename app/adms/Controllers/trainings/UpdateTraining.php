@@ -48,23 +48,27 @@ class UpdateTraining
     {
         // Determinar tipo de instrutor e ajustar campos
         if (!empty($this->data['form']['instructor_user_id'])) {
-            // Instrutor interno - buscar e-mail do usuário
+            // Instrutor interno - buscar nome e e-mail do usuário
             $usersRepo = new UsersRepository();
             $user = $usersRepo->getUser((int)$this->data['form']['instructor_user_id']);
             if ($user) {
                 $this->data['form']['instructor_email'] = $user['email'];
+                $this->data['form']['instructor_name'] = $user['name']; // Salva o nome do usuário
             }
             // Limpar campo de instrutor externo se existir
             $this->data['form']['instrutor'] = '';
-        } elseif (!empty($this->data['form']['instructor_email'])) {
+        } elseif (!empty($this->data['form']['instructor_name'])) {
             // Instrutor externo - limpar campo de usuário interno
             $this->data['form']['instructor_user_id'] = null;
             $this->data['form']['instrutor'] = 'Instrutor Externo';
+            // Salva o nome digitado
+            // (já está em instructor_name)
         } else {
             // Nenhum instrutor definido - limpar campos
             $this->data['form']['instructor_user_id'] = null;
             $this->data['form']['instructor_email'] = null;
             $this->data['form']['instrutor'] = '';
+            $this->data['form']['instructor_name'] = null;
         }
         
         $repo = new TrainingsRepository();

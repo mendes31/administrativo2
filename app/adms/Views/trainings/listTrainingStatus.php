@@ -166,9 +166,12 @@
                 </div>
             </form>
             <div class="table-responsive table-scroll">
-                <table class="table table-striped table-hover table-sticky-header">
+                <table class="table table-striped table-hover table-sticky-header" style="table-layout: fixed; width: 100%;">
                     <thead>
                         <tr>
+                            <th>ID</th>
+                            <th>Código</th>
+                            <th class="col-nome">Nome</th>
                             <th>Colaborador</th>
                             <th>Departamento</th>
                             <th>Cargo</th>
@@ -191,6 +194,9 @@
                             $status = $row['status_dinamico'] ?? $row['status'] ?? 'pendente';
                             ?>
                             <tr>
+                                <td><?= $row['training_user_id'] ?? '-' ?></td>
+                                <td><?= htmlspecialchars($row['codigo']) ?></td>
+                                <td class="col-nome"><?= htmlspecialchars($row['training_name']) ?></td>
                                 <td><?= htmlspecialchars($row['user_name']) ?></td>
                                 <td><?= htmlspecialchars($row['department']) ?></td>
                                 <td><?= htmlspecialchars($row['position']) ?></td>

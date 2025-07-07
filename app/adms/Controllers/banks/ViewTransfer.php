@@ -73,7 +73,6 @@ class ViewTransfer
             'buttonPermission' => ['ListMovBetweenAccounts', 'UpdateMovBetweenAccounts', 'DeleteMovBetweenAccounts', 'MovBetweenAccounts'],
         ];
         $pageLayoutService = new PageLayoutService();
-        $pageLayoutService->configurePageElements($pageElements);
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
         //var_dump($this->data);
         //exit;

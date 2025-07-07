@@ -6,6 +6,7 @@ use App\adms\Helpers\CSRFHelper;
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Repository\UsersRepository;
 use App\adms\Models\Repository\TrainingUsersRepository;
+use App\adms\Views\Services\LoadViewService;
 
 /**
  * Controller para exclusão de usuário

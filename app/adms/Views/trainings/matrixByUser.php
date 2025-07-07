@@ -1,4 +1,7 @@
 <?php
+if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser'])) {
+    $this->data['matrixByUser'] = [];
+}
 // View: Matriz de Treinamentos por Colaborador
 ?>
 <div class="container-fluid px-4">
@@ -81,10 +84,11 @@
                 <!-- seletor removido daqui -->
             </div>
             <div class="table-responsive">
-                <table class="table table-striped table-hover" id="matrixByUserTable">
+                <table class="table table-striped table-hover" id="matrixByUserTable" style="table-layout: fixed; width: 100%;">
                     <thead>
                         <tr>
-                            <th>Colaborador</th>
+                            <th>ID</th>
+                            <th class="col-nome">Nome</th>
                             <th>Departamento</th>
                             <th>Cargo</th>
                             <th>Treinamento Obrigatório</th>
@@ -97,30 +101,31 @@
                         <?php if (!empty($this->data['matrixByUser'])): ?>
                             <?php foreach ($this->data['matrixByUser'] as $item): ?>
                                 <tr>
-                                    <td>
-                                        <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $item['user_id'] ?>-<?= $item['training_id'] ?>" 
+                                    <td><?= $item['id'] ?? $item['user_id'] ?? '-' ?></td>
+                                    <td class="col-nome">
+                                        <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $item['user_id'] ?? $item['id'] ?>-<?= $item['training_id'] ?>" 
                                            class="text-decoration-none" title="Ver histórico de reciclagem">
-                                            <?= htmlspecialchars($item['user_name']) ?>
+                                            <?= htmlspecialchars($item['user_name'] ?? $item['name'] ?? '') ?>
                                         </a>
                                     </td>
-                                    <td><?= htmlspecialchars($item['department']) ?></td>
-                                    <td><?= htmlspecialchars($item['position']) ?></td>
+                                    <td><?= htmlspecialchars($item['department'] ?? $item['department_nome'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($item['position'] ?? $item['cargo_nome'] ?? '') ?></td>
                                     <td>
-                                        <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $item['user_id'] ?>-<?= $item['training_id'] ?>" 
+                                        <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $item['user_id'] ?? $item['id'] ?>-<?= $item['training_id'] ?>" 
                                            class="text-decoration-none" title="Ver histórico de reciclagem">
-                                            <?= htmlspecialchars($item['training_name']) ?>
+                                            <?= htmlspecialchars($item['training_name'] ?? $item['treinamento_nome'] ?? '') ?>
                                         </a>
                                     </td>
-                                    <td><?= htmlspecialchars($item['codigo']) ?></td>
+                                    <td><?= htmlspecialchars($item['codigo'] ?? '') ?></td>
                                     <td>
-                                        <?php if ($item['reciclagem'] && $item['reciclagem_periodo']): ?>
+                                        <?php if (($item['reciclagem'] ?? false) && ($item['reciclagem_periodo'] ?? false)): ?>
                                             <?= $item['reciclagem_periodo'] ?> meses
                                         <?php else: ?>
                                             <span class="text-muted">Não exige</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <?php if ($item['validade']): ?>
+                                        <?php if ($item['validade'] ?? false): ?>
                                             <?= htmlspecialchars($item['validade']) ?>
                                         <?php else: ?>
                                             <span class="text-muted">-</span>
@@ -129,7 +134,7 @@
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <tr><td colspan="7" class="text-center text-muted">Nenhum vínculo obrigatório encontrado.</td></tr>
+                            <tr><td colspan="8" class="text-center text-muted">Nenhum vínculo obrigatório encontrado.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>

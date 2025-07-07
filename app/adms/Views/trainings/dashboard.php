@@ -195,10 +195,11 @@
         <div class="card-body">
             <?php if (!empty($this->data['matrix'])): ?>
             <div class="table-responsive">
-                <table class="table table-striped table-hover" id="matrixTable">
+                <table class="table table-striped table-hover" style="table-layout: fixed; width: 100%;" id="matrixTable">
                     <thead>
                         <tr>
-                            <th>Colaborador</th>
+                            <th>ID</th>
+                            <th class="col-nome">Colaborador</th>
                             <th>Departamento</th>
                             <th>Cargo</th>
                             <th>Código</th>
@@ -212,7 +213,8 @@
                     <tbody>
                         <?php foreach ($this->data['matrix'] as $item): ?>
                         <tr>
-                            <td>
+                            <td><?= $item['user_id'] ?></td>
+                            <td class="col-nome">
                                 <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $item['user_id'] ?>-<?= $item['training_id'] ?>" class="text-decoration-none" title="Ver histórico de reciclagem">
                                     <?= htmlspecialchars($item['user_name']) ?>
                                 </a>
