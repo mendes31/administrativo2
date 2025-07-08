@@ -1,6 +1,7 @@
     <?php
 // Filtros
 $performanceFilter = $_GET['performance'] ?? '';
+$codigoFiltro = trim($_GET['codigo'] ?? '');
 ?>
 <style>
 .table-sticky-header thead th {
@@ -164,6 +165,10 @@ $performanceFilter = $_GET['performance'] ?? '';
                     </select>
                 </div>
                 <div class="col-md-2">
+                    <label for="codigo" class="form-label">Código</label>
+                    <input type="text" name="codigo" id="codigo" class="form-control" placeholder="Digite parte do código" value="<?= htmlspecialchars($this->data['filters']['codigo'] ?? '') ?>">
+                </div>
+                <div class="col-md-2">
                     <label for="status" class="form-label">Status</label>
                     <select name="status" id="status" class="form-select">
                         <option value="">Todos</option>
@@ -197,11 +202,10 @@ $performanceFilter = $_GET['performance'] ?? '';
                         <tr>
                             <th>ID</th>
                             <th>Código</th>
-                            <th class="col-nome">Nome</th>
+                            <th>Treinamento</th>
                             <th>Colaborador</th>
                             <th>Departamento</th>
                             <th>Cargo</th>
-                            <th>Treinamento</th>
                             <th>Data Realização</th>
                             <th>Data Agendada</th>
                             <th>Vencimento</th>
@@ -230,18 +234,23 @@ $performanceFilter = $_GET['performance'] ?? '';
                                 $filterMatch = true;
                             }
                             if (!$filterMatch) continue;
+                            // Filtro por código (parcial)
+                            $matchCodigo = true;
+                            if ($codigoFiltro !== '') {
+                                $matchCodigo = (stripos($row['codigo'], $codigoFiltro) !== false);
+                            }
+                            if (!$matchCodigo) continue;
                             ?>
                             <tr>
                                 <td><?= $row['training_user_id'] ?? '-' ?></td>
                                 <td><?= htmlspecialchars($row['codigo']) ?></td>
-                                <td class="col-nome"><?= htmlspecialchars($row['training_name']) ?></td>
-                                <td><?= htmlspecialchars($row['user_name']) ?></td>
-                                <td><?= htmlspecialchars($row['department']) ?></td>
-                                <td><?= htmlspecialchars($row['position']) ?></td>
                                 <td>
                                     <strong><?= htmlspecialchars($row['training_name']) ?></strong>
                                     <br><small class="text-muted"><?= htmlspecialchars($row['codigo']) ?></small>
                                 </td>
+                                <td><?= htmlspecialchars($row['user_name']) ?></td>
+                                <td><?= htmlspecialchars($row['department']) ?></td>
+                                <td><?= htmlspecialchars($row['position']) ?></td>
                                 <td>
                                     <?php if (!empty($row['data_realizacao'])): ?>
                                         <?= (new DateTime($row['data_realizacao']))->format('d/m/Y') ?>
