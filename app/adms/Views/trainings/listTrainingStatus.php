@@ -1,5 +1,6 @@
     <?php
 // Filtros
+$performanceFilter = $_GET['performance'] ?? '';
 ?>
 <style>
 .table-sticky-header thead th {
@@ -22,6 +23,21 @@
 .table-scroll {
     max-height: 60vh;
     overflow-y: auto;
+}
+.performance-reprovado {
+    background-color: #ffcccc !important;
+    color: #b20000 !important;
+    font-weight: bold !important;
+}
+.performance-exame {
+    background-color: #fff3cd !important;
+    color: #b8860b !important;
+    font-weight: bold !important;
+}
+.performance-aprovado {
+    background-color: #d4edda !important;
+    color: #155724 !important;
+    font-weight: bold !important;
 }
 </style>
 <div class="container-fluid px-4">
@@ -158,6 +174,16 @@
                         <option value="vencido" <?= ($this->data['filters']['status'] ?? '') == 'vencido' ? 'selected' : '' ?>>Vencido</option>
                     </select>
                 </div>
+                <div class="col-md-2">
+                    <label for="performance" class="form-label">Aproveitamento</label>
+                    <select name="performance" id="performance" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="aprovado" <?= $performanceFilter === 'aprovado' ? 'selected' : '' ?>>Aprovado</option>
+                        <option value="exame" <?= $performanceFilter === 'exame' ? 'selected' : '' ?>>Exame</option>
+                        <option value="reprovado" <?= $performanceFilter === 'reprovado' ? 'selected' : '' ?>>Reprovado</option>
+                        <option value="vazio" <?= $performanceFilter === 'vazio' ? 'selected' : '' ?>>Vazio</option>
+                    </select>
+                </div>
                 <div class="col-md-1 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary w-100">Filtrar</button>
                 </div>
@@ -181,6 +207,7 @@
                             <th>Vencimento</th>
                             <th>Status</th>
                             <th>Nota</th>
+                            <th>Aproveitamento</th>
                             <th style="width:100px;" class="text-center">Ações</th>
                         </tr>
                     </thead>
@@ -192,6 +219,17 @@
                             $matrix as $row): ?>
                             <?php 
                             $status = $row['status_dinamico'] ?? $row['status'] ?? 'pendente';
+                            $performance = getPerformanceStatus($row['nota'] ?? null);
+                            // Filtro por performance
+                            $filterMatch = false;
+                            if ($performanceFilter === '' ||
+                                ($performanceFilter === 'aprovado' && $performance['label'] === 'Aprovado') ||
+                                ($performanceFilter === 'exame' && $performance['label'] === 'Exame') ||
+                                ($performanceFilter === 'reprovado' && $performance['label'] === 'Reprovado') ||
+                                ($performanceFilter === 'vazio' && $performance['label'] === '')) {
+                                $filterMatch = true;
+                            }
+                            if (!$filterMatch) continue;
                             ?>
                             <tr>
                                 <td><?= $row['training_user_id'] ?? '-' ?></td>
@@ -251,6 +289,7 @@
                                     <span class="badge <?= $statusClass ?>"><?= $statusText ?></span>
                                 </td>
                                 <td><?= htmlspecialchars($row['nota'] ?? '-') ?></td>
+                                <td class="<?= $performance['class'] ?>"><?= $performance['label'] ?></td>
                                 <td class="text-center">
                                     <a href="<?= $_ENV['URL_ADM'] ?>schedule-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-info mb-1" title="Agendar"><i class="fas fa-calendar-plus"></i></a>
                                     <a href="<?= $_ENV['URL_ADM'] ?>apply-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-success mb-1" title="Aplicar"><i class="fas fa-check"></i></a>
@@ -263,4 +302,19 @@
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+<?php
+// Função para determinar o aproveitamento
+function getPerformanceStatus($grade) {
+    if ($grade === null || $grade === '' || $grade === '-') {
+        return ['label' => '', 'class' => ''];
+    } elseif ($grade <= 5) {
+        return ['label' => 'Reprovado', 'class' => 'performance-reprovado'];
+    } elseif ($grade < 7) {
+        return ['label' => 'Exame', 'class' => 'performance-exame'];
+    } else {
+        return ['label' => 'Aprovado', 'class' => 'performance-aprovado'];
+    }
+}
+?> 

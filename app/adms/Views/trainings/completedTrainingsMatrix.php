@@ -1,6 +1,37 @@
 <?php
 use App\adms\Helpers\FormatHelper;
+
+// Função para determinar o aproveitamento
+function getPerformanceStatus($grade) {
+    if ($grade === null || $grade === '' || $grade === '-') {
+        return ['label' => '', 'class' => ''];
+    } elseif ($grade <= 5) {
+        return ['label' => 'Reprovado', 'class' => 'performance-reprovado'];
+    } elseif ($grade < 7) {
+        return ['label' => 'Exame', 'class' => 'performance-exame'];
+    } else {
+        return ['label' => 'Aprovado', 'class' => 'performance-aprovado'];
+    }
+}
+$performanceFilter = $_GET['performance'] ?? '';
 ?>
+<style>
+.performance-reprovado {
+    background-color: #ffcccc !important;
+    color: #b20000 !important;
+    font-weight: bold !important;
+}
+.performance-exame {
+    background-color: #fff3cd !important;
+    color: #b8860b !important;
+    font-weight: bold !important;
+}
+.performance-aprovado {
+    background-color: #d4edda !important;
+    color: #155724 !important;
+    font-weight: bold !important;
+}
+</style>
 <div class="container-fluid px-4">
     <div class="mb-1 d-flex align-items-center justify-content-between" style="min-height:48px;">
         <h2 class="mt-3 mb-0">Matriz de Treinamentos Realizados</h2>
@@ -119,6 +150,16 @@ use App\adms\Helpers\FormatHelper;
                         <?php endfor; ?>
                     </select>
                 </div>
+                <div class="col-md-2">
+                    <label for="performance" class="form-label mb-1">Aproveitamento</label>
+                    <select name="performance" id="performance" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="aprovado" <?= $performanceFilter === 'aprovado' ? 'selected' : '' ?>>Aprovado</option>
+                        <option value="exame" <?= $performanceFilter === 'exame' ? 'selected' : '' ?>>Exame</option>
+                        <option value="reprovado" <?= $performanceFilter === 'reprovado' ? 'selected' : '' ?>>Reprovado</option>
+                        <option value="vazio" <?= $performanceFilter === 'vazio' ? 'selected' : '' ?>>Vazio</option>
+                    </select>
+                </div>
                 <div class="col-md-2 d-flex gap-2 align-items-end">
                     <button type="submit" class="btn btn-primary btn-lg px-4"><i class="fas fa-search me-2"></i>Filtrar</button>
                     <a href="<?= $_ENV['URL_ADM'] ?>completed-trainings-matrix" class="btn btn-secondary btn-lg px-4"><i class="fas fa-times me-2"></i>Limpar</a>
@@ -161,24 +202,44 @@ use App\adms\Helpers\FormatHelper;
                     <th><?= sort_link('data_realizacao', 'Data Realização', $sort, $order, $params) ?></th>
                     <th><?= sort_link('instrutor_nome', 'Instrutor', $sort, $order, $params) ?></th>
                     <th><?= sort_link('nota', 'Nota', $sort, $order, $params) ?></th>
+                    <th>Aproveitamento</th>
                     <th><?= sort_link('observacoes', 'Observações', $sort, $order, $params) ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (!empty($this->data['matrix'])): ?>
-                    <?php foreach ($this->data['matrix'] as $item): ?>
+                    <?php foreach ($this->data['matrix'] as $item):
+                        $performance = getPerformanceStatus($item['nota'] ?? null);
+                        // Filtro
+                        $filterMatch = false;
+                        if ($performanceFilter === '' ||
+                            ($performanceFilter === 'aprovado' && $performance['label'] === 'Aprovado') ||
+                            ($performanceFilter === 'exame' && $performance['label'] === 'Exame') ||
+                            ($performanceFilter === 'reprovado' && $performance['label'] === 'Reprovado') ||
+                            ($performanceFilter === 'vazio' && $performance['label'] === '')) {
+                            $filterMatch = true;
+                        }
+                        if (!$filterMatch) continue;
+                    ?>
                         <tr>
                             <td><?= htmlspecialchars($item['user_name']) ?></td>
                             <td><?= htmlspecialchars($item['training_name']) ?></td>
                             <td><?= htmlspecialchars($item['training_code']) ?></td>
-                            <td><?= $item['data_realizacao'] ? FormatHelper::formatDate($item['data_realizacao']) : '-' ?></td>
+                            <td>
+                                <?php if (!empty($item['data_realizacao'])): ?>
+                                    <?= (new DateTime($item['data_realizacao']))->format('d/m/Y H:i') ?>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
                             <td><?= htmlspecialchars($item['instrutor_nome'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($item['nota'] ?? '-') ?></td>
+                            <td class="<?= $performance['class'] ?>"><?= $performance['label'] ?></td>
                             <td><?= htmlspecialchars($item['observacoes'] ?? '-') ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <tr><td colspan="7" class="text-center text-muted">Nenhum treinamento realizado encontrado.</td></tr>
+                    <tr><td colspan="8" class="text-center text-muted">Nenhum treinamento realizado encontrado.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

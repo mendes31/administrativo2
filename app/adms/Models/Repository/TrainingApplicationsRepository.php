@@ -15,10 +15,22 @@ class TrainingApplicationsRepository extends DbConnection
     public function insert(array $data): int|bool
     {
         try {
+            // Verifica se já existe aplicação igual (mesmo user, treinamento, nota e created_at)
+            $sqlCheck = 'SELECT id FROM adms_training_applications WHERE adms_user_id = :adms_user_id AND adms_training_id = :adms_training_id AND ((nota IS NULL AND :nota IS NULL) OR nota = :nota) AND created_at = :created_at';
+            $stmtCheck = $this->getConnection()->prepare($sqlCheck);
+            $stmtCheck->bindValue(':adms_user_id', $data['adms_user_id'], PDO::PARAM_INT);
+            $stmtCheck->bindValue(':adms_training_id', $data['adms_training_id'], PDO::PARAM_INT);
+            $stmtCheck->bindValue(':nota', $data['nota'] ?? null, PDO::PARAM_STR);
+            $stmtCheck->bindValue(':created_at', $data['created_at'] ?? date('Y-m-d H:i:s'), PDO::PARAM_STR);
+            $stmtCheck->execute();
+            $existing = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+            if ($existing && isset($existing['id'])) {
+                return $existing['id']; // Já existe, não insere novamente
+            }
             $sql = 'INSERT INTO adms_training_applications (
                         adms_user_id, adms_training_id, data_realizacao, data_agendada, instrutor_nome, instrutor_email, aplicado_por, nota, observacoes, status, created_at, updated_at
                     ) VALUES (
-                        :adms_user_id, :adms_training_id, :data_realizacao, :data_agendada, :instrutor_nome, :instrutor_email, :aplicado_por, :nota, :observacoes, :status, NOW(), NOW()
+                        :adms_user_id, :adms_training_id, :data_realizacao, :data_agendada, :instrutor_nome, :instrutor_email, :aplicado_por, :nota, :observacoes, :status, :created_at, NOW()
                     )';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':adms_user_id', $data['adms_user_id'], PDO::PARAM_INT);
@@ -31,6 +43,7 @@ class TrainingApplicationsRepository extends DbConnection
             $stmt->bindValue(':nota', $data['nota'] ?? null, PDO::PARAM_STR);
             $stmt->bindValue(':observacoes', $data['observacoes'] ?? null, PDO::PARAM_STR);
             $stmt->bindValue(':status', $data['status'] ?? 'agendado', PDO::PARAM_STR);
+            $stmt->bindValue(':created_at', $data['created_at'] ?? date('Y-m-d H:i:s'), PDO::PARAM_STR);
             $stmt->execute();
             $novoId = $this->getConnection()->lastInsertId();
             
@@ -48,6 +61,7 @@ class TrainingApplicationsRepository extends DbConnection
                     'nota' => $data['nota'] ?? null,
                     'observacoes' => $data['observacoes'] ?? null,
                     'status' => $data['status'] ?? 'agendado',
+                    'created_at' => $data['created_at'] ?? date('Y-m-d H:i:s'),
                 ];
                 \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
                     'adms_training_applications',

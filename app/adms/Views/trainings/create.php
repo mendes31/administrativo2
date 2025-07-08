@@ -40,8 +40,12 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_create_training');
                     <input type="date" name="validade" class="form-control" id="validade" value="<?php echo $this->data['form']['validade'] ?? ''; ?>">
                 </div>
                 <div class="col-md-3">
-                    <label for="tipo" class="form-label">Tipo</label>
-                    <input type="text" name="tipo" class="form-control" id="tipo" value="<?php echo $this->data['form']['tipo'] ?? ''; ?>">
+                    <label for="categoria" class="form-label">Categoria</label>
+                    <select name="categoria" class="form-select" id="categoria" required>
+                        <option value="">Selecione...</option>
+                        <option value="Autotreinamento" <?php echo (isset($this->data['form']['categoria']) && $this->data['form']['categoria'] == 'Autotreinamento') ? 'selected' : ''; ?>>Autotreinamento</option>
+                        <option value="Ministrado" <?php echo (isset($this->data['form']['categoria']) && $this->data['form']['categoria'] == 'Ministrado') ? 'selected' : ''; ?>>Ministrado</option>
+                    </select>
                 </div>
                 <div class="col-md-3">
                     <label for="instructor_type" class="form-label">Tipo de Instrutor</label>

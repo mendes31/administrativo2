@@ -472,6 +472,10 @@ class TrainingUsersRepository extends DbConnection
      */
     public function applyTraining(int $userId, int $trainingId, array $data): bool
     {
+        // Garante que data_realizacao tenha data e hora
+        if (empty($data['data_realizacao'])) {
+            $data['data_realizacao'] = date('Y-m-d H:i:s');
+        }
         // Atualiza o vínculo na tabela de usuários
         $sql = 'INSERT INTO adms_training_users (adms_user_id, adms_training_id, data_realizacao, data_agendada, nota, observacoes, status, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
