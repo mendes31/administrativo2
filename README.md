@@ -157,3 +157,5 @@ git push origin dev-master
 004 - LoadPageAdm.php - Não encontrou o metodo
 005 - LoadViewService.php - Não encontrou a VIEW
 006 - Teste 1
+
+var_dump($dados); exit;

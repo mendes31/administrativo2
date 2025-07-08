@@ -123,6 +123,61 @@ use App\adms\Helpers\FormatHelper;
                             </div>
                         </div>
 
+                        <!-- Campos do Instrutor -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label for="instructor_type" class="form-label">
+                                    <strong>Tipo de Instrutor</strong>
+                                </label>
+                                <select name="instructor_type" id="instructor_type" class="form-select" onchange="toggleInstructorFields()">
+                                    <option value="">Selecione...</option>
+                                    <option value="internal" <?php echo (isset($this->data['form_instructor_type']) && $this->data['form_instructor_type'] == 'internal') ? 'selected' : ''; ?>>Colaborador Interno</option>
+                                    <option value="external" <?php echo (isset($this->data['form_instructor_type']) && $this->data['form_instructor_type'] == 'external') ? 'selected' : ''; ?>>Instrutor Externo</option>
+                                </select>
+                                <div class="form-text">Selecione o tipo de instrutor</div>
+                            </div>
+                            <div class="col-md-3" id="instructor_user_div" style="display: none;">
+                                <label for="instructor_user_id" class="form-label">
+                                    <strong>Instrutor (Colaborador Interno)</strong>
+                                </label>
+                                <select name="instructor_user_id" id="instructor_user_id" class="form-select" onchange="fillInstructorEmail()">
+                                    <option value="">Selecione um usuário...</option>
+                                    <?php foreach (($this->data['listUsers'] ?? []) as $user): ?>
+                                        <option value="<?php echo $user['id']; ?>" 
+                                                data-email="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" 
+                                                <?php echo (isset($this->data['form_instructor_user_id']) && $this->data['form_instructor_user_id'] == $user['id']) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($user['name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <div class="form-text">Selecione o colaborador instrutor</div>
+                            </div>
+                            <div class="col-md-3" id="instructor_name_div" style="display: none;">
+                                <label for="instrutor_nome" class="form-label">
+                                    <strong>Nome do Instrutor Externo</strong>
+                                </label>
+                                <input type="text" 
+                                       name="instrutor_nome" 
+                                       class="form-control" 
+                                       id="instrutor_nome" 
+                                       value="<?php echo htmlspecialchars($this->data['form_instrutor_nome'] ?? ''); ?>"
+                                       placeholder="Nome do instrutor externo">
+                                <div class="form-text">Nome do instrutor externo</div>
+                            </div>
+                            <div class="col-md-3" id="instructor_email_div" style="display: none;">
+                                <label for="instrutor_email" class="form-label">
+                                    <strong>E-mail do Instrutor</strong>
+                                </label>
+                                <input type="email" 
+                                       name="instrutor_email" 
+                                       class="form-control" 
+                                       id="instrutor_email" 
+                                       value="<?php echo htmlspecialchars($this->data['form_instrutor_email'] ?? ''); ?>"
+                                       placeholder="email@exemplo.com">
+                                <div class="form-text">E-mail do instrutor</div>
+                            </div>
+                        </div>
+
                         <div class="row mb-3">
                             <div class="col-md-12">
                                 <label for="observacoes" class="form-label">
@@ -244,6 +299,7 @@ use App\adms\Helpers\FormatHelper;
         </div>
     </div>
 </div>
+
 <script>
 // Exibe apenas o bloco do tipo correto
 const tipoRegistro = '<?= $tipoRegistro ?>';
@@ -255,5 +311,55 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('div_realizacao').style.display = 'none';
         document.getElementById('div_agendamento').style.display = '';
     }
+    
+    // Inicializar campos do instrutor
+    toggleInstructorFields();
+    if (document.getElementById('instructor_type').value === 'internal') {
+        fillInstructorEmail();
+    }
 });
+
+function toggleInstructorFields() {
+    var typeSelect = document.getElementById('instructor_type');
+    var userDiv = document.getElementById('instructor_user_div');
+    var nameDiv = document.getElementById('instructor_name_div');
+    var emailDiv = document.getElementById('instructor_email_div');
+    var userSelect = document.getElementById('instructor_user_id');
+    var emailInput = document.getElementById('instrutor_email');
+    var nameInput = document.getElementById('instrutor_nome');
+
+    if (typeSelect.value === 'internal') {
+        userDiv.style.display = 'block';
+        nameDiv.style.display = 'none';
+        emailDiv.style.display = 'block';
+        emailInput.readOnly = true;
+        nameInput.value = '';
+        setTimeout(fillInstructorEmail, 10);
+    } else if (typeSelect.value === 'external') {
+        userDiv.style.display = 'none';
+        nameDiv.style.display = 'block';
+        emailDiv.style.display = 'block';
+        emailInput.readOnly = false;
+        userSelect.value = '';
+    } else {
+        userDiv.style.display = 'none';
+        nameDiv.style.display = 'none';
+        emailDiv.style.display = 'none';
+        userSelect.value = '';
+        emailInput.value = '';
+        nameInput.value = '';
+    }
+}
+
+function fillInstructorEmail() {
+    var userSelect = document.getElementById('instructor_user_id');
+    var emailInput = document.getElementById('instrutor_email');
+    if (!userSelect || !emailInput) return;
+    var selectedOption = userSelect.options[userSelect.selectedIndex];
+    if (userSelect.value && selectedOption && selectedOption.getAttribute('data-email')) {
+        emailInput.value = selectedOption.getAttribute('data-email');
+    } else {
+        emailInput.value = '';
+    }
+}
 </script> 

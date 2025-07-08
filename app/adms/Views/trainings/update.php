@@ -47,8 +47,12 @@ if (!empty($this->data['training']['instructor_user_id'])) {
                     <input type="date" name="validade" class="form-control" id="validade" value="<?php echo $this->data['training']['validade'] ?? ''; ?>">
                 </div>
                 <div class="col-md-3">
-                    <label for="tipo" class="form-label">Tipo</label>
-                    <input type="text" name="tipo" class="form-control" id="tipo" value="<?php echo $this->data['training']['tipo'] ?? ''; ?>">
+                    <label for="tipo" class="form-label">Categoria</label>
+                    <select name="tipo" class="form-select" id="tipo" required>
+                        <option value="">Selecione...</option>
+                        <option value="Autotreinamento" <?php echo (isset($this->data['training']['tipo']) && $this->data['training']['tipo'] == 'Autotreinamento') ? 'selected' : ''; ?>>Autotreinamento</option>
+                        <option value="Ministrado" <?php echo (isset($this->data['training']['tipo']) && $this->data['training']['tipo'] == 'Ministrado') ? 'selected' : ''; ?>>Ministrado</option>
+                    </select>
                 </div>
                 <div class="col-md-3">
                     <label for="instructor_type" class="form-label">Tipo de Instrutor</label>

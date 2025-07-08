@@ -495,23 +495,6 @@ class TrainingUsersRepository extends DbConnection
         $stmt->bindValue(6, $data['observacoes'] ?? null, PDO::PARAM_STR);
         $stmt->bindValue(7, $data['status'], PDO::PARAM_STR);
         $ok = $stmt->execute();
-
-        // Sempre cria um registro na tabela de aplicações
-        if ($ok) {
-            $appRepo = new \App\adms\Models\Repository\TrainingApplicationsRepository();
-            $appRepo->insert([
-                'adms_user_id' => $userId,
-                'adms_training_id' => $trainingId,
-                'data_realizacao' => $data['data_realizacao'] ?? null,
-                'data_agendada' => $data['data_agendada'] ?? null,
-                'instrutor_nome' => $data['instrutor_nome'] ?? null,
-                'instrutor_email' => $data['instrutor_email'] ?? null,
-                'aplicado_por' => $data['aplicado_por'] ?? null,
-                'nota' => $data['nota'] ?? null,
-                'observacoes' => $data['observacoes'] ?? null,
-                'status' => $data['status'] ?? 'agendado',
-            ]);
-        }
         return $ok;
     }
 
@@ -1018,11 +1001,14 @@ class TrainingUsersRepository extends DbConnection
                     t.codigo as training_code,
                     ta.data_realizacao,
                     ta.instrutor_nome,
+                    ta.instructor_user_id,
+                    u2.name as instructor_user_name,
                     ta.nota,
                     ta.observacoes
                 FROM adms_training_applications ta
                 INNER JOIN adms_users u ON u.id = ta.adms_user_id
                 INNER JOIN adms_trainings t ON t.id = ta.adms_training_id
+                LEFT JOIN adms_users u2 ON u2.id = ta.instructor_user_id
                 WHERE ta.status = "concluido"';
         $params = [];
         if (!empty($filters['colaborador'])) {

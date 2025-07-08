@@ -68,7 +68,7 @@ class CreateTraining
         }
         
         // Depuração: ver o que está sendo enviado para o banco
-        var_dump($this->data['form']); exit;
+        // var_dump($this->data['form']); exit;
         
         $repo = new TrainingsRepository();
         $result = $repo->createTraining($this->data['form']);

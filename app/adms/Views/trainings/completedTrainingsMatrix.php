@@ -232,7 +232,17 @@ $performanceFilter = $_GET['performance'] ?? '';
                                     -
                                 <?php endif; ?>
                             </td>
-                            <td><?= htmlspecialchars($item['instrutor_nome'] ?? '-') ?></td>
+                            <td>
+                                <?php
+                                if (!empty($item['instrutor_nome'])) {
+                                    echo htmlspecialchars($item['instrutor_nome']);
+                                } elseif (!empty($item['instructor_user_name'])) {
+                                    echo htmlspecialchars($item['instructor_user_name']);
+                                } else {
+                                    echo '-';
+                                }
+                                ?>
+                            </td>
                             <td><?= htmlspecialchars($item['nota'] ?? '-') ?></td>
                             <td class="<?= $performance['class'] ?>"><?= $performance['label'] ?></td>
                             <td><?= htmlspecialchars($item['observacoes'] ?? '-') ?></td>

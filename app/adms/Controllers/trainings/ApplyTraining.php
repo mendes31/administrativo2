@@ -53,6 +53,9 @@ class ApplyTraining
             exit;
         }
 
+        // Buscar lista de usuários para select de instrutor interno
+        $this->data['listUsers'] = $usersRepo->getAllUsersSelect();
+
         // Se for edição, buscar dados da aplicação
         if ($this->data['edit_id']) {
             $this->data['application'] = $applicationsRepo->getById($this->data['edit_id']);
@@ -69,6 +72,25 @@ class ApplyTraining
         $this->data['form_observacoes'] = $this->data['application']['observacoes'] ?? '';
         $this->data['form_instrutor_nome'] = $this->data['application']['instrutor_nome'] ?? '';
         $this->data['form_instrutor_email'] = $this->data['application']['instrutor_email'] ?? '';
+        
+        // Determinar tipo de instrutor para preencher o select corretamente
+        $this->data['form_instructor_type'] = '';
+        $this->data['form_instructor_user_id'] = '';
+        if (!empty($this->data['application']['instrutor_nome']) && !empty($this->data['application']['instrutor_email'])) {
+            // Verificar se é um usuário interno
+            foreach ($this->data['listUsers'] as $user) {
+                if ($user['name'] === $this->data['application']['instrutor_nome'] && 
+                    $user['email'] === $this->data['application']['instrutor_email']) {
+                    $this->data['form_instructor_type'] = 'internal';
+                    $this->data['form_instructor_user_id'] = $user['id'];
+                    break;
+                }
+            }
+            // Se não encontrou como interno, é externo
+            if (empty($this->data['form_instructor_type'])) {
+                $this->data['form_instructor_type'] = 'external';
+            }
+        }
 
         // Elementos de página
         $pageElements = [
@@ -93,6 +115,8 @@ class ApplyTraining
         $data_agendada = $_POST['data_agendada'] ?? null;
         $nota = $_POST['nota'] ?? null;
         $observacoes = $_POST['observacoes'] ?? null;
+        $instructor_type = $_POST['instructor_type'] ?? null;
+        $instructor_user_id = (int) ($_POST['instructor_user_id'] ?? 0);
         $instrutor_nome = $_POST['instrutor_nome'] ?? null;
         $instrutor_email = $_POST['instrutor_email'] ?? null;
         $aplicado_por = $_SESSION['user_id'] ?? null;
@@ -128,6 +152,26 @@ class ApplyTraining
             exit;
         }
 
+        // Processar dados do instrutor
+        $real_instructor_nome = null;
+        $real_instructor_email = null;
+        $instructor_user_id_to_save = null;
+        if (!empty($instructor_user_id)) {
+            // Instrutor interno - buscar nome e e-mail do usuário
+            $usersRepo = new UsersRepository();
+            $user = $usersRepo->getUser((int)$instructor_user_id);
+            if ($user) {
+                $real_instructor_nome = $user['name'];
+                $real_instructor_email = $user['email'];
+                $instructor_user_id_to_save = $user['id'];
+            }
+        } elseif (!empty($instrutor_nome)) {
+            // Instrutor externo
+            $real_instructor_nome = $instrutor_nome;
+            $real_instructor_email = $instrutor_email;
+            $instructor_user_id_to_save = null;
+        }
+
         $applicationsRepo = new TrainingApplicationsRepository();
         $trainingUsersRepo = new TrainingUsersRepository();
         $trainingsRepo = new TrainingsRepository();
@@ -142,9 +186,13 @@ class ApplyTraining
                 'observacoes' => $observacoes,
                 'instrutor_nome' => $instrutor_nome,
                 'instrutor_email' => $instrutor_email,
+                'instructor_user_id' => $instructor_user_id_to_save,
+                'real_instructor_nome' => $real_instructor_nome,
+                'real_instructor_email' => $real_instructor_email,
                 'aplicado_por' => $aplicado_por,
                 'status' => $data_realizacao ? 'concluido' : 'agendado'
             ];
+           // var_dump($dados); exit;
 
             // Atualizar vínculo principal
             $trainingUsersRepo->applyTraining($user_id, $training_id, [
