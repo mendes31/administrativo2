@@ -68,6 +68,7 @@ class PageLayoutService
             "PasswordPolicy",
             'ListLogAlteracoes',
             'ListLogAcessos',
+            'ListStrategicPlans',
 
             // Adicione aqui outras permissões de páginas/submenus que possam existir no futuro
         ];

@@ -1,4 +1,5 @@
 <?php
+// var_dump($this->data['menuPermission']); // DEBUG: Exibe as permissões do menu do usuário
 use App\adms\Models\Repository\AdmsPasswordPolicyRepository;
 $policyId = null;
 try {
@@ -324,6 +325,18 @@ $menus = [
                 'label' => 'Fornecedores',
                 'url' => $_ENV['URL_ADM'] . 'list-suppliers',
                 'permission' => 'ListSuppliers'
+            ],
+        ]
+    ],
+    [
+        'id' => 'planejamento-estrategico',
+        'icon' => 'fa-solid fa-bullseye',
+        'label' => 'Planejamento Estratégico',
+        'submenu' => [
+            [
+                'label' => 'Listar Planos Estratégicos',
+                'url' => $_ENV['URL_ADM'] . 'list-strategic-plans',
+                'permission' => 'ListStrategicPlans'
             ],
         ]
     ],

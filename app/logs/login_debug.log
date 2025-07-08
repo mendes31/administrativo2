@@ -667,3 +667,38 @@
 2025-07-08 11:12:57 - Login: username=camila.lago id=7
 2025-07-08 11:12:57 - Após autenticação: {"id":7,"name":"Camila Carvalho Lago","email":"camila.lago@tiaraju.com.br","username":"camila.lago","image":null,"password":"$2y$10$dZhiSrucBEDRQBm5hbFUZOJbVcU9Cv\/uWEl3S227al0kP1YvqRhMa","user_department_id":10,"user_position_id":2,"created_at":"2025-06-30 16:31:17","updated_at":"2025-07-07 09:11:59","bloqueado":"N\u00e3o","bloqueado_temporario":"N\u00e3o","data_bloqueio_temporario":null,"tentativas_login":0,"status":"Ativo","modificar_senha_proximo_logon":"N\u00e3o","dep_name":"Garantia da Qualidade","pos_name":"Analista"}
 2025-07-08 11:12:57 - Redirecionando para dashboard
+2025-07-08 13:19:37 - Início do método login
+2025-07-08 13:19:37 - Após validação: []
+2025-07-08 13:19:37 - Login: username=manager id=1
+2025-07-08 13:19:37 - Após autenticação: {"id":1,"name":"Manager","email":"manager@tiaraju.com.br","username":"manager","image":null,"password":"$2y$10$1OTbxLoMuCRVazy5efQI6e4J5EOqaRvc5bEsOVNj5ah0XmIUg1gly","user_department_id":18,"user_position_id":9,"created_at":"2025-04-07 10:13:06","updated_at":"2025-07-03 09:42:13","bloqueado":"N\u00e3o","bloqueado_temporario":"N\u00e3o","data_bloqueio_temporario":null,"tentativas_login":0,"status":"Ativo","modificar_senha_proximo_logon":"N\u00e3o","dep_name":"Tecnologia da Informa\u00e7\u00e3o","pos_name":"Lider"}
+2025-07-08 13:19:37 - Redirecionando para dashboard
+2025-07-08 13:21:06 - Início do método login
+2025-07-08 13:21:06 - Após validação: []
+2025-07-08 13:21:06 - Login: username=manager id=1
+2025-07-08 13:21:06 - Após autenticação: {"id":1,"name":"Manager","email":"manager@tiaraju.com.br","username":"manager","image":null,"password":"$2y$10$1OTbxLoMuCRVazy5efQI6e4J5EOqaRvc5bEsOVNj5ah0XmIUg1gly","user_department_id":18,"user_position_id":9,"created_at":"2025-04-07 10:13:06","updated_at":"2025-07-03 09:42:13","bloqueado":"N\u00e3o","bloqueado_temporario":"N\u00e3o","data_bloqueio_temporario":null,"tentativas_login":0,"status":"Ativo","modificar_senha_proximo_logon":"N\u00e3o","dep_name":"Tecnologia da Informa\u00e7\u00e3o","pos_name":"Lider"}
+2025-07-08 13:21:06 - Redirecionando para dashboard
+2025-07-08 14:08:58 - Início do método login
+2025-07-08 14:08:58 - Após validação: []
+2025-07-08 14:08:58 - Login: username=camila.lago id=7
+2025-07-08 14:08:58 - Após autenticação: {"id":7,"name":"Camila Carvalho Lago","email":"camila.lago@tiaraju.com.br","username":"camila.lago","image":null,"password":"$2y$10$dZhiSrucBEDRQBm5hbFUZOJbVcU9Cv\/uWEl3S227al0kP1YvqRhMa","user_department_id":10,"user_position_id":2,"created_at":"2025-06-30 16:31:17","updated_at":"2025-07-07 09:11:59","bloqueado":"N\u00e3o","bloqueado_temporario":"N\u00e3o","data_bloqueio_temporario":null,"tentativas_login":0,"status":"Ativo","modificar_senha_proximo_logon":"N\u00e3o","dep_name":"Garantia da Qualidade","pos_name":"Analista"}
+2025-07-08 14:08:58 - Redirecionando para dashboard
+2025-07-08 14:34:56 - Início do método login
+2025-07-08 14:34:56 - Após validação: []
+2025-07-08 14:34:56 - Login: username=manager id=1
+2025-07-08 14:34:56 - Após autenticação: {"id":1,"name":"Manager","email":"manager@tiaraju.com.br","username":"manager","image":null,"password":"$2y$10$1OTbxLoMuCRVazy5efQI6e4J5EOqaRvc5bEsOVNj5ah0XmIUg1gly","user_department_id":18,"user_position_id":9,"created_at":"2025-04-07 10:13:06","updated_at":"2025-07-03 09:42:13","bloqueado":"N\u00e3o","bloqueado_temporario":"N\u00e3o","data_bloqueio_temporario":null,"tentativas_login":0,"status":"Ativo","modificar_senha_proximo_logon":"N\u00e3o","dep_name":"Tecnologia da Informa\u00e7\u00e3o","pos_name":"Lider"}
+2025-07-08 14:34:56 - Redirecionando para dashboard
+2025-07-08 15:06:18 - Início do método login
+2025-07-08 15:06:18 - Após validação: []
+2025-07-08 15:06:18 - Login: username=camila.lago id=7
+2025-07-08 15:06:18 - Após autenticação: {"id":7,"name":"Camila Carvalho Lago","email":"camila.lago@tiaraju.com.br","username":"camila.lago","image":null,"password":"$2y$10$dZhiSrucBEDRQBm5hbFUZOJbVcU9Cv\/uWEl3S227al0kP1YvqRhMa","user_department_id":10,"user_position_id":2,"created_at":"2025-06-30 16:31:17","updated_at":"2025-07-07 09:11:59","bloqueado":"N\u00e3o","bloqueado_temporario":"N\u00e3o","data_bloqueio_temporario":null,"tentativas_login":0,"status":"Ativo","modificar_senha_proximo_logon":"N\u00e3o","dep_name":"Garantia da Qualidade","pos_name":"Analista"}
+2025-07-08 15:06:18 - Redirecionando para dashboard
+2025-07-08 15:20:45 - Início do método login
+2025-07-08 15:20:45 - Após validação: []
+2025-07-08 15:20:46 - Login: username=manager id=1
+2025-07-08 15:20:46 - Após autenticação: {"id":1,"name":"Manager","email":"manager@tiaraju.com.br","username":"manager","image":null,"password":"$2y$10$1OTbxLoMuCRVazy5efQI6e4J5EOqaRvc5bEsOVNj5ah0XmIUg1gly","user_department_id":18,"user_position_id":9,"created_at":"2025-04-07 10:13:06","updated_at":"2025-07-03 09:42:13","bloqueado":"N\u00e3o","bloqueado_temporario":"N\u00e3o","data_bloqueio_temporario":null,"tentativas_login":0,"status":"Ativo","modificar_senha_proximo_logon":"N\u00e3o","dep_name":"Tecnologia da Informa\u00e7\u00e3o","pos_name":"Lider"}
+2025-07-08 15:20:46 - Redirecionando para dashboard
+2025-07-08 16:12:22 - Início do método login
+2025-07-08 16:12:22 - Após validação: []
+2025-07-08 16:12:23 - Login: username=manager id=1
+2025-07-08 16:12:23 - Após autenticação: {"id":1,"name":"Manager","email":"manager@tiaraju.com.br","username":"manager","image":null,"password":"$2y$10$1OTbxLoMuCRVazy5efQI6e4J5EOqaRvc5bEsOVNj5ah0XmIUg1gly","user_department_id":18,"user_position_id":9,"created_at":"2025-04-07 10:13:06","updated_at":"2025-07-03 09:42:13","bloqueado":"N\u00e3o","bloqueado_temporario":"N\u00e3o","data_bloqueio_temporario":null,"tentativas_login":0,"status":"Ativo","modificar_senha_proximo_logon":"N\u00e3o","dep_name":"Tecnologia da Informa\u00e7\u00e3o","pos_name":"Lider"}
+2025-07-08 16:12:23 - Redirecionando para dashboard

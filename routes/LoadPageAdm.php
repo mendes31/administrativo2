@@ -70,6 +70,8 @@ class LoadPageAdm
         "AjaxPasswordPolicy",
         "ListLogAlteracoes", "ViewLogAlteracao", "ExportLogCsv", "ExportLogExcel", "ExportLogPdf", "ListLogAcessos", "ExportLogAcessosExcel", "ExportLogAcessosPdf",
         "ForcePasswordChange",
+        "ListStrategicPlans", "CreateStrategicPlan", "EditStrategicPlan", "UpdateStrategicPlan", "DeleteStrategicPlan", "ViewStrategicPlan",
+        "ListStrategicIndicators", "CreateStrategicIndicator", "EditStrategicIndicator", "UpdateStrategicIndicator", "DeleteStrategicIndicator", "ViewStrategicIndicator",
     ];
 
     /** @var array $listDirectory Recebe a lista de diretórios com as controllers */
@@ -99,7 +101,9 @@ class LoadPageAdm
         "qualityAssurance",
         "trainings",
         "evaluations",  
-        "settings"
+        "settings",
+        "strategicPlans",
+        "strategicIndicators"
     ];
 
     /** @var array $listPackages Recebe a lista de pacotes com as controllers */

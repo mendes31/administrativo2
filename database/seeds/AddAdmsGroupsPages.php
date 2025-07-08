@@ -48,6 +48,7 @@ class AddAdmsGroupsPages extends AbstractSeed
             ['name' => 'Configurações', 'obs' => 'Configurações gerais do sistema'], // Nº 26
             ['name' => 'Administração de Senhas', 'obs' => 'Administração de Senhas'], // Nº 27
             ['name' => 'Logs', 'obs' => 'Páginas de auditoria e logs do sistema'], // Nº 28
+            ['name' => 'Planejamento Estratégico', 'obs' => 'Gestão de planos e indicadores estratégicos'], // Nº 29
         ];
 
         foreach ($grupos as $grupo) {
