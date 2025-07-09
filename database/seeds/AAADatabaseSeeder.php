@@ -24,6 +24,7 @@ class AAADatabaseSeeder extends AbstractSeed
             'AddAdmsPackagesPages',
             'AddAdmsGroupsPages',
             'AddAdmsPages',
+            'SyncAccessLevelsPages',
             
         ];
     }

@@ -109,3 +109,45 @@ PARAMS: Array
 )
 
 Novo ID: 94
+
+==== NOVO INSERT ====
+2025-07-09 14:42:51
+Array
+(
+    [adms_user_id] => 6
+    [adms_training_id] => 11
+    [data_realizacao] => 
+    [data_agendada] => 2025-07-10
+    [nota] => 
+    [observacoes] => 
+    [instrutor_nome] => 
+    [instrutor_email] => 
+    [aplicado_por] => 1
+    [status] => agendado
+)
+
+SQL: INSERT INTO adms_training_applications (
+                        adms_user_id, adms_training_id, data_realizacao, data_agendada, instrutor_nome, instrutor_email, instructor_user_id, real_instructor_nome, real_instructor_email, aplicado_por, nota, observacoes, status, created_at, updated_at
+                    ) VALUES (
+                        :adms_user_id, :adms_training_id, :data_realizacao, :data_agendada, :instrutor_nome, :instrutor_email, :instructor_user_id, :real_instructor_nome, :real_instructor_email, :aplicado_por, :nota, :observacoes, :status, :created_at, NOW()
+                    )
+
+PARAMS: Array
+(
+    [:adms_user_id] => 6
+    [:adms_training_id] => 11
+    [:data_realizacao] => 
+    [:data_agendada] => 2025-07-10
+    [:instrutor_nome] => 
+    [:instrutor_email] => 
+    [:instructor_user_id] => 
+    [:real_instructor_nome] => 
+    [:real_instructor_email] => 
+    [:aplicado_por] => 1
+    [:nota] => 
+    [:observacoes] => 
+    [:status] => agendado
+    [:created_at] => 2025-07-09 14:42:51
+)
+
+Novo ID: 95

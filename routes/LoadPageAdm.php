@@ -72,6 +72,7 @@ class LoadPageAdm
         "ForcePasswordChange",
         "ListStrategicPlans", "CreateStrategicPlan", "EditStrategicPlan", "UpdateStrategicPlan", "DeleteStrategicPlan", "ViewStrategicPlan",
         "ListStrategicIndicators", "CreateStrategicIndicator", "EditStrategicIndicator", "UpdateStrategicIndicator", "DeleteStrategicIndicator", "ViewStrategicIndicator",
+        "ListBranches", "CreateBranch", "ViewBranch", "UpdateBranch", "DeleteBranch",
     ];
 
     /** @var array $listDirectory Recebe a lista de diretórios com as controllers */
@@ -103,7 +104,8 @@ class LoadPageAdm
         "evaluations",  
         "settings",
         "strategicPlans",
-        "strategicIndicators"
+        "strategicIndicators",
+        "branches"
     ];
 
     /** @var array $listPackages Recebe a lista de pacotes com as controllers */

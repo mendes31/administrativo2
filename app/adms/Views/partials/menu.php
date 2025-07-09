@@ -47,6 +47,11 @@ $menus = [
                             'url' => $_ENV['URL_ADM'] . 'password-policy' . ($policyId ? '/' . $policyId : ''),
                             'permission' => 'PasswordPolicy'
                         ],
+                        [
+                            'label' => 'Filiais',
+                            'url' => $_ENV['URL_ADM'] . 'list-branches',
+                            'permission' => 'ListBranches'
+                        ],
                     ]
                 ],             
                
