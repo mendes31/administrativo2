@@ -66,19 +66,14 @@ use App\adms\Helpers\FormatHelper;
                 <div class="col-md-6">
                     <table class="table table-borderless">
                         <tr>
-                            <td><strong>Validade:</strong></td>
+                            <td><strong>Prazo Treinamento (dias):</strong></td>
                             <td>
-                                <?php if (!empty($this->data['training']['validade'])): ?>
-                                    <?php 
-                                    $validade = new DateTime($this->data['training']['validade']);
-                                    $hoje = new DateTime();
-                                    $classe = $validade < $hoje ? 'bg-danger' : 'bg-success';
-                                    ?>
-                                    <span class="badge <?php echo $classe; ?>">
-                                        <?php echo $validade->format('d/m/Y'); ?>
+                                <?php if (isset($this->data['training']['prazo_treinamento'])): ?>
+                                    <span class="badge bg-info">
+                                        <?php echo (int)$this->data['training']['prazo_treinamento']; ?> dias
                                     </span>
                                 <?php else: ?>
-                                    <span class="text-muted">Não informada</span>
+                                    <span class="text-muted">Não informado</span>
                                 <?php endif; ?>
                             </td>
                         </tr>

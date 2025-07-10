@@ -43,8 +43,8 @@ if (!empty($this->data['training']['instructor_user_id'])) {
                     <input type="text" name="versao" class="form-control" id="versao" value="<?php echo $this->data['training']['versao'] ?? ''; ?>">
                 </div>
                 <div class="col-md-3">
-                    <label for="validade" class="form-label">Validade</label>
-                    <input type="date" name="validade" class="form-control" id="validade" value="<?php echo $this->data['training']['validade'] ?? ''; ?>">
+                    <label for="prazo_treinamento" class="form-label">Prazo Treinamento (dias)</label>
+                    <input type="number" name="prazo_treinamento" class="form-control" id="prazo_treinamento" min="0" value="<?php echo $this->data['training']['prazo_treinamento'] ?? '0'; ?>" required>
                 </div>
                 <div class="col-md-3">
                     <label for="tipo" class="form-label">Categoria</label>

@@ -65,12 +65,12 @@ class TrainingsRepository extends DbConnection
     public function createTraining(array $data): bool|int
     {
         try {
-            $sql = 'INSERT INTO adms_trainings (nome, codigo, versao, validade, tipo, instrutor, carga_horaria, ativo, created_at, instructor_user_id, instructor_email, instructor_name, reciclagem, reciclagem_periodo) VALUES (:nome, :codigo, :versao, :validade, :tipo, :instrutor, :carga_horaria, :ativo, NOW(), :instructor_user_id, :instructor_email, :instructor_name, :reciclagem, :reciclagem_periodo)';
+            $sql = 'INSERT INTO adms_trainings (nome, codigo, versao, prazo_treinamento, tipo, instrutor, carga_horaria, ativo, created_at, instructor_user_id, instructor_email, instructor_name, reciclagem, reciclagem_periodo) VALUES (:nome, :codigo, :versao, :prazo_treinamento, :tipo, :instrutor, :carga_horaria, :ativo, NOW(), :instructor_user_id, :instructor_email, :instructor_name, :reciclagem, :reciclagem_periodo)';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':nome', $data['nome'], PDO::PARAM_STR);
             $stmt->bindValue(':codigo', $data['codigo'], PDO::PARAM_STR);
             $stmt->bindValue(':versao', $data['versao'], PDO::PARAM_STR);
-            $stmt->bindValue(':validade', $data['validade'], PDO::PARAM_STR);
+            $stmt->bindValue(':prazo_treinamento', (int)($data['prazo_treinamento'] ?? 0), PDO::PARAM_INT);
             $stmt->bindValue(':tipo', $data['tipo'], PDO::PARAM_STR);
             $stmt->bindValue(':instrutor', $data['instrutor'], PDO::PARAM_STR);
             $stmt->bindValue(':carga_horaria', $data['carga_horaria'] !== '' ? $data['carga_horaria'] : null, PDO::PARAM_STR);
@@ -90,7 +90,7 @@ class TrainingsRepository extends DbConnection
                     'nome' => $data['nome'],
                     'codigo' => $data['codigo'],
                     'versao' => $data['versao'],
-                    'validade' => $data['validade'],
+                    'prazo_treinamento' => $data['prazo_treinamento'] ?? 0,
                     'tipo' => $data['tipo'],
                     'instrutor' => $data['instrutor'],
                     'carga_horaria' => $data['carga_horaria'],
@@ -127,12 +127,12 @@ class TrainingsRepository extends DbConnection
             // Captura os dados antigos antes da alteração
             $dadosAntes = $this->getTraining($id);
             
-            $sql = 'UPDATE adms_trainings SET nome = :nome, codigo = :codigo, versao = :versao, validade = :validade, tipo = :tipo, instrutor = :instrutor, carga_horaria = :carga_horaria, ativo = :ativo, instructor_user_id = :instructor_user_id, instructor_email = :instructor_email, instructor_name = :instructor_name, reciclagem = :reciclagem, reciclagem_periodo = :reciclagem_periodo, updated_at = NOW() WHERE id = :id';
+            $sql = 'UPDATE adms_trainings SET nome = :nome, codigo = :codigo, versao = :versao, prazo_treinamento = :prazo_treinamento, tipo = :tipo, instrutor = :instrutor, carga_horaria = :carga_horaria, ativo = :ativo, instructor_user_id = :instructor_user_id, instructor_email = :instructor_email, instructor_name = :instructor_name, reciclagem = :reciclagem, reciclagem_periodo = :reciclagem_periodo, updated_at = NOW() WHERE id = :id';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':nome', $data['nome'], PDO::PARAM_STR);
             $stmt->bindValue(':codigo', $data['codigo'], PDO::PARAM_STR);
             $stmt->bindValue(':versao', $data['versao'], PDO::PARAM_STR);
-            $stmt->bindValue(':validade', $data['validade'], PDO::PARAM_STR);
+            $stmt->bindValue(':prazo_treinamento', (int)($data['prazo_treinamento'] ?? 0), PDO::PARAM_INT);
             $stmt->bindValue(':tipo', $data['tipo'], PDO::PARAM_STR);
             $stmt->bindValue(':instrutor', $data['instrutor'], PDO::PARAM_STR);
             $stmt->bindValue(':carga_horaria', $data['carga_horaria'] !== '' ? $data['carga_horaria'] : null, PDO::PARAM_STR);
@@ -152,7 +152,7 @@ class TrainingsRepository extends DbConnection
                     'nome' => $data['nome'],
                     'codigo' => $data['codigo'],
                     'versao' => $data['versao'],
-                    'validade' => $data['validade'],
+                    'prazo_treinamento' => $data['prazo_treinamento'] ?? 0,
                     'tipo' => $data['tipo'],
                     'instrutor' => $data['instrutor'],
                     'carga_horaria' => $data['carga_horaria'],

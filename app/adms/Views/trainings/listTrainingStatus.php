@@ -212,6 +212,7 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                             <th>Status</th>
                             <th>Nota</th>
                             <th>Aproveitamento</th>
+                            <th>Prazo 1º Treinamento</th>
                             <th style="width:100px;" class="text-center">Ações</th>
                         </tr>
                     </thead>
@@ -284,6 +285,7 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                                         'vencido' => 'bg-danger',
                                         'proximo_vencimento' => 'bg-warning',
                                         'agendado' => 'bg-info text-dark',
+                                        'dentro_do_prazo' => 'bg-primary text-white',
                                         default => 'bg-secondary'
                                     };
                                     $statusText = match($status) {
@@ -292,6 +294,7 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                                         'vencido' => 'Vencido',
                                         'proximo_vencimento' => 'Próximo Vencimento',
                                         'agendado' => 'Agendado',
+                                        'dentro_do_prazo' => 'Dentro do Prazo',
                                         default => ucfirst($status)
                                     };
                                     ?>
@@ -299,6 +302,13 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                                 </td>
                                 <td><?= htmlspecialchars($row['nota'] ?? '-') ?></td>
                                 <td class="<?= $performance['class'] ?>"><?= $performance['label'] ?></td>
+                                <td>
+                                    <?php if (!empty($row['data_limite_primeiro_treinamento'])): ?>
+                                        <?= (new DateTime($row['data_limite_primeiro_treinamento']))->format('d/m/Y') ?>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td class="text-center">
                                     <a href="<?= $_ENV['URL_ADM'] ?>schedule-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-info mb-1" title="Agendar"><i class="fas fa-calendar-plus"></i></a>
                                     <a href="<?= $_ENV['URL_ADM'] ?>apply-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-success mb-1" title="Aplicar"><i class="fas fa-check"></i></a>

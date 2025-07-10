@@ -290,3 +290,5 @@
 2025-07-10 07:17:43 - [login] SALVOU SESSION NO BANCO: qg803gjebss7q2luieoqf6ocdu - $_SESSION: {"user_id":14,"user_name":"teste1","user_email":"teste1@teste.com","user_username":"teste1","user_image":null,"user_department":"Comercial","user_position":"Analista","session_id":"qg803gjebss7q2luieoqf6ocdu"}
 2025-07-10 07:17:52 - [login] INICIO - session_id: ih5crkkscgh2leceddffe2bavh - {"csrf_tokens":[]}
 2025-07-10 07:17:52 - [login] SALVOU SESSION NO BANCO: jdp6ngj80h4cjko56o7jspm29r - $_SESSION: {"user_id":1,"user_name":"Manager","user_email":"manager@tiaraju.com.br","user_username":"manager","user_image":null,"user_department":"Tecnologia da Informa\u00e7\u00e3o","user_position":"Lider","session_id":"jdp6ngj80h4cjko56o7jspm29r"}
+2025-07-10 10:34:03 - [login] INICIO - session_id: gg548fuiqv14gq52nq6475qgp4 - {"csrf_tokens":[]}
+2025-07-10 10:34:04 - [login] SALVOU SESSION NO BANCO: a50h3h51edf1o673k5p17fn4e6 - $_SESSION: {"user_id":1,"user_name":"Manager","user_email":"manager@tiaraju.com.br","user_username":"manager","user_image":null,"user_department":"Tecnologia da Informa\u00e7\u00e3o","user_position":"Lider","session_id":"a50h3h51edf1o673k5p17fn4e6"}

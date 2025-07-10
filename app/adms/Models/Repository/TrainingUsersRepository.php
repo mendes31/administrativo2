@@ -33,14 +33,24 @@ class TrainingUsersRepository extends DbConnection
             // Captura os dados antigos antes da alteração
             $dadosAntes = $this->getByUserAndTraining($userId, $trainingId);
             
-            $sql = 'INSERT INTO adms_training_users (adms_user_id, adms_training_id, status, tipo_vinculo, created_at, updated_at)
-                    VALUES (:user_id, :training_id, :status, :tipo_vinculo, NOW(), NOW())
-                    ON DUPLICATE KEY UPDATE status = :status, tipo_vinculo = :tipo_vinculo, updated_at = NOW()';
+            // Buscar prazo_treinamento do treinamento
+            $sqlPrazo = "SELECT prazo_treinamento FROM adms_trainings WHERE id = :training_id";
+            $stmtPrazo = $this->getConnection()->prepare($sqlPrazo);
+            $stmtPrazo->bindValue(':training_id', $trainingId, PDO::PARAM_INT);
+            $stmtPrazo->execute();
+            $prazo = (int)($stmtPrazo->fetchColumn() ?? 0);
+            // Calcular data limite
+            $dataLimite = (new \DateTime())->modify("+{$prazo} days")->format('Y-m-d');
+
+            $sql = 'INSERT INTO adms_training_users (adms_user_id, adms_training_id, status, tipo_vinculo, created_at, updated_at, data_limite_primeiro_treinamento)
+                    VALUES (:user_id, :training_id, :status, :tipo_vinculo, NOW(), NOW(), :data_limite)
+                    ON DUPLICATE KEY UPDATE status = :status, tipo_vinculo = :tipo_vinculo, updated_at = NOW(), data_limite_primeiro_treinamento = :data_limite';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
             $stmt->bindValue(':training_id', $trainingId, PDO::PARAM_INT);
             $stmt->bindValue(':status', $status, PDO::PARAM_STR);
             $stmt->bindValue(':tipo_vinculo', $tipoVinculo, PDO::PARAM_STR);
+            $stmt->bindValue(':data_limite', $dataLimite, PDO::PARAM_STR);
             $stmt->execute();
             
             // Log de alteração (insert ou update)
@@ -124,18 +134,18 @@ class TrainingUsersRepository extends DbConnection
                     t.id as training_id, 
                     t.codigo, 
                     t.nome as training_name, 
-                    t.validade, 
                     t.reciclagem, 
                     t.reciclagem_periodo,
                     tu.id as training_user_id,
                     tu.status,
-                    tu.created_at as vinculo_created_at
+                    tu.created_at as vinculo_created_at,
+                    tu.data_limite_primeiro_treinamento
                 FROM adms_training_users tu
                 INNER JOIN adms_users u ON u.id = tu.adms_user_id
                 INNER JOIN adms_departments d ON u.user_department_id = d.id
                 INNER JOIN adms_positions p ON u.user_position_id = p.id
                 INNER JOIN adms_trainings t ON t.id = tu.adms_training_id
-                WHERE 1=1';
+                WHERE 1=1 and tu.status != "concluido"';
         
         $params = [];
         if (!empty($filters['colaborador'])) {
@@ -339,14 +349,23 @@ class TrainingUsersRepository extends DbConnection
      */
     private function calculateStatus(array $trainingUser): string
     {
+        $dataLimite = $trainingUser['data_limite_primeiro_treinamento'] ?? null;
         $dataRealizacao = $trainingUser['data_realizacao'] ?? null;
         $dataAgendada = $trainingUser['data_agendada'] ?? null;
         $validade = $trainingUser['validade'] ?? null;
         $reciclagem = $trainingUser['reciclagem'] ?? null;
         $reciclagemPeriodo = $trainingUser['reciclagem_periodo'] ?? null;
         
-        // Se não tem aplicação, está pendente
-        if (!$dataRealizacao && !$dataAgendada) {
+        // 1. Se não realizou o primeiro treinamento
+        if (!$dataRealizacao) {
+            if ($dataLimite) {
+                $hoje = date('Y-m-d');
+                if ($hoje > $dataLimite) {
+                    return 'vencido';
+                } else {
+                    return 'dentro_do_prazo';
+                }
+            }
             return 'pendente';
         }
         
@@ -711,7 +730,6 @@ class TrainingUsersRepository extends DbConnection
                     t.codigo,
                     t.reciclagem,
                     t.reciclagem_periodo,
-                    t.validade,
                     tu.status,
                     tu.created_at as vinculo_created_at
                 FROM adms_training_users tu
@@ -841,10 +859,17 @@ class TrainingUsersRepository extends DbConnection
         $usersRepo = new \App\adms\Models\Repository\UsersRepository();
         foreach ($userIds as $userId) {
             $user = $usersRepo->getUser($userId);
-            if (!in_array($user['user_position_id'], $cargosObrigatorios)) {
+            // Verifica se já existe vínculo obrigatório por cargo
+            $sqlCheck = "SELECT 1 FROM adms_training_users WHERE adms_user_id = :user_id AND adms_training_id = :training_id AND tipo_vinculo = 'cargo'";
+            $stmtCheck = $this->getConnection()->prepare($sqlCheck);
+            $stmtCheck->bindValue(':user_id', $userId, \PDO::PARAM_INT);
+            $stmtCheck->bindValue(':training_id', $trainingId, \PDO::PARAM_INT);
+            $stmtCheck->execute();
+            $existeCargo = $stmtCheck->fetchColumn();
+            if (!in_array($user['user_position_id'], $cargosObrigatorios) && !$existeCargo) {
                 $this->insertOrUpdate((int)$userId, (int)$trainingId, 'pendente', 'individual');
             }
-            // Se estiver em cargo obrigatório, não cria vínculo manual (deixa só o automático/cargo)
+            // Se estiver em cargo obrigatório ou já houver vínculo obrigatório, não cria vínculo manual
         }
     }
 
@@ -918,7 +943,7 @@ class TrainingUsersRepository extends DbConnection
         $cargos = $stmtCargo->fetchAll(\PDO::FETCH_ASSOC);
 
         // Buscar dados do treinamento
-        $sqlTreinamento = "SELECT id, nome, codigo, reciclagem, reciclagem_periodo, validade FROM adms_trainings WHERE id = :training_id";
+        $sqlTreinamento = "SELECT id, nome, codigo, reciclagem, reciclagem_periodo FROM adms_trainings WHERE id = :training_id";
         $stmtTreinamento = $this->getConnection()->prepare($sqlTreinamento);
         $stmtTreinamento->bindValue(':training_id', $trainingId, \PDO::PARAM_INT);
         $stmtTreinamento->execute();
@@ -938,7 +963,6 @@ class TrainingUsersRepository extends DbConnection
                 'codigo' => $treinamento['codigo'],
                 'reciclagem' => $treinamento['reciclagem'],
                 'reciclagem_periodo' => $treinamento['reciclagem_periodo'] ?? '',
-                'validade' => $treinamento['validade'],
                 // Compatibilidade com a view:
                 'id' => $item['id'],
                 'name' => $item['name'],
