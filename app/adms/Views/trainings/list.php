@@ -91,7 +91,7 @@ use App\adms\Helpers\FormatHelper;
                             <th style="width:100px;">Reciclar</th>
                             <th style="width:100px;">Tipo</th>
                             <th style="width:120px;">Instrutor</th>
-                            <th style="width:100px;" class="text-center">Carga Horária</th>
+                            <th style="width:100px;" class="text-center">Carga Horária (hh:mm)</th>
                             <th style="width:120px;" class="text-center">Cargos Vinculados</th>
                             <th style="width:80px;" class="text-center">Status</th>
                             <th style="width:200px;" class="text-center">Ações</th>
@@ -152,7 +152,7 @@ use App\adms\Helpers\FormatHelper;
                                     <td class="text-center">
                                         <?php if (!empty($training['carga_horaria'])): ?>
                                             <span class="badge bg-warning text-dark">
-                                                <?php echo htmlspecialchars($training['carga_horaria']); ?>h
+                                                <?php echo htmlspecialchars(substr($training['carga_horaria'], 0, 5)); ?>
                                             </span>
                                         <?php else: ?>
                                             <span class="text-muted">-</span>

@@ -83,11 +83,11 @@ use App\adms\Helpers\FormatHelper;
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>Carga Horária:</strong></td>
+                            <td><strong>Carga Horária (hh:mm):</strong></td>
                             <td>
                                 <?php if (!empty($this->data['training']['carga_horaria'])): ?>
                                     <span class="badge bg-warning text-dark">
-                                        <?php echo htmlspecialchars($this->data['training']['carga_horaria']); ?> horas
+                                        <?php echo htmlspecialchars(substr($this->data['training']['carga_horaria'], 0, 5)); ?>
                                     </span>
                                 <?php else: ?>
                                     <span class="text-muted">Não informada</span>

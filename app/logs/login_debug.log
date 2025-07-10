@@ -756,3 +756,13 @@
 2025-07-09 16:55:01 - Login: username=camila.lago id=7
 2025-07-09 16:55:01 - Após autenticação: {"id":7,"name":"Camila Carvalho Lago","email":"camila.lago@tiaraju.com.br","username":"camila.lago","image":null,"password":"$2y$10$dZhiSrucBEDRQBm5hbFUZOJbVcU9Cv\/uWEl3S227al0kP1YvqRhMa","user_department_id":10,"user_position_id":2,"created_at":"2025-06-30 16:31:17","updated_at":"2025-07-07 09:11:59","bloqueado":"N\u00e3o","bloqueado_temporario":"N\u00e3o","data_bloqueio_temporario":null,"tentativas_login":0,"status":"Ativo","modificar_senha_proximo_logon":"N\u00e3o","dep_name":"Garantia da Qualidade","pos_name":"Analista"}
 2025-07-09 16:55:01 - Redirecionando para dashboard
+2025-07-10 07:17:42 - Início do método login
+2025-07-10 07:17:42 - Após validação: []
+2025-07-10 07:17:42 - Login: username=teste1 id=14
+2025-07-10 07:17:42 - Após autenticação: {"id":14,"name":"teste1","email":"teste1@teste.com","username":"teste1","image":null,"password":"$2y$10$9khkTW4YALB5oMknlLPSj.9c4rgrs7glcAUB4mxKPOX3uDhGzIxfW","user_department_id":2,"user_position_id":2,"created_at":"2025-07-03 08:12:25","updated_at":"2025-07-07 11:01:40","bloqueado":"N\u00e3o","bloqueado_temporario":"Sim","data_bloqueio_temporario":null,"tentativas_login":0,"status":"Ativo","modificar_senha_proximo_logon":"N\u00e3o","dep_name":"Comercial","pos_name":"Analista"}
+2025-07-10 07:17:42 - Redirecionando para dashboard
+2025-07-10 07:17:52 - Início do método login
+2025-07-10 07:17:52 - Após validação: []
+2025-07-10 07:17:52 - Login: username=manager id=1
+2025-07-10 07:17:52 - Após autenticação: {"id":1,"name":"Manager","email":"manager@tiaraju.com.br","username":"manager","image":null,"password":"$2y$10$1OTbxLoMuCRVazy5efQI6e4J5EOqaRvc5bEsOVNj5ah0XmIUg1gly","user_department_id":18,"user_position_id":9,"created_at":"2025-04-07 10:13:06","updated_at":"2025-07-03 09:42:13","bloqueado":"N\u00e3o","bloqueado_temporario":"N\u00e3o","data_bloqueio_temporario":null,"tentativas_login":0,"status":"Ativo","modificar_senha_proximo_logon":"N\u00e3o","dep_name":"Tecnologia da Informa\u00e7\u00e3o","pos_name":"Lider"}
+2025-07-10 07:17:52 - Redirecionando para dashboard

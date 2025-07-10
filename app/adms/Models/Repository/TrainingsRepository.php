@@ -73,7 +73,7 @@ class TrainingsRepository extends DbConnection
             $stmt->bindValue(':validade', $data['validade'], PDO::PARAM_STR);
             $stmt->bindValue(':tipo', $data['tipo'], PDO::PARAM_STR);
             $stmt->bindValue(':instrutor', $data['instrutor'], PDO::PARAM_STR);
-            $stmt->bindValue(':carga_horaria', $data['carga_horaria'], PDO::PARAM_INT);
+            $stmt->bindValue(':carga_horaria', $data['carga_horaria'] !== '' ? $data['carga_horaria'] : null, PDO::PARAM_STR);
             $stmt->bindValue(':ativo', $data['ativo'] ?? 1, PDO::PARAM_BOOL);
             $stmt->bindValue(':instructor_user_id', $data['instructor_user_id'] ?? null, PDO::PARAM_INT);
             $stmt->bindValue(':instructor_email', $data['instructor_email'] ?? null, PDO::PARAM_STR);
@@ -135,7 +135,7 @@ class TrainingsRepository extends DbConnection
             $stmt->bindValue(':validade', $data['validade'], PDO::PARAM_STR);
             $stmt->bindValue(':tipo', $data['tipo'], PDO::PARAM_STR);
             $stmt->bindValue(':instrutor', $data['instrutor'], PDO::PARAM_STR);
-            $stmt->bindValue(':carga_horaria', $data['carga_horaria'], PDO::PARAM_INT);
+            $stmt->bindValue(':carga_horaria', $data['carga_horaria'] !== '' ? $data['carga_horaria'] : null, PDO::PARAM_STR);
             $stmt->bindValue(':ativo', $data['ativo'] ?? 1, PDO::PARAM_BOOL);
             $stmt->bindValue(':instructor_user_id', $data['instructor_user_id'] ?? null, PDO::PARAM_INT);
             $stmt->bindValue(':instructor_email', $data['instructor_email'] ?? null, PDO::PARAM_STR);

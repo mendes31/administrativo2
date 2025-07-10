@@ -73,8 +73,8 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_create_training');
                     <input type="email" name="instructor_email" class="form-control" id="instructor_email" value="<?php echo $this->data['form']['instructor_email'] ?? ''; ?>">
                 </div>
                 <div class="col-md-3">
-                    <label for="carga_horaria" class="form-label">Carga Horária</label>
-                    <input type="number" name="carga_horaria" class="form-control" id="carga_horaria" value="<?php echo $this->data['form']['carga_horaria'] ?? ''; ?>">
+                    <label for="carga_horaria" class="form-label">Carga Horária (hh:mm)</label>
+                    <input type="time" name="carga_horaria" class="form-control" id="carga_horaria" step="60" value="<?php echo $this->data['form']['carga_horaria'] ?? ''; ?>">
                 </div>
                 <div class="col-md-3">
                     <label for="ativo" class="form-label">Status</label>
