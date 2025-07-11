@@ -196,6 +196,53 @@ td.text-center {
   text-align: center;
 }
 
+@media (max-width: 576px) {
+  .btn-filtros-mobile {
+    width: 48%;
+    min-width: 0;
+    font-size: 0.95rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  .filtros-btns-row {
+    display: flex;
+    flex-direction: row;
+    gap: 4%;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Utilitários para Treinamentos e tabelas */
+.btn-min-width-90 { min-width: 90px; }
+.btn-min-width-70 { min-width: 70px; }
+.w-100pct { width: 100%; }
+.text-left { text-align: left; }
+.th-id { width: 60px; }
+.th-codigo { width: 100px; }
+.th-versao { width: 80px; }
+.th-reciclar { width: 100px; }
+.th-tipo { width: 100px; }
+.th-instrutor { width: 120px; }
+.th-carga-horaria { width: 100px; }
+.th-cargos-vinculados { width: 120px; }
+.th-status { width: 80px; }
+.th-acoes { width: 200px; }
+.table-fixed { table-layout: fixed; width: 100%; }
+.display-none { display: none !important; }
+.min-width-900 { min-width: 900px; }
+.sticky-thead { position:sticky;top:0;z-index:1;background:#f8f9fa; }
+.font-grey { color:#888; }
+.font-095 { font-size:0.95em; }
+.height-20 { height: 20px; }
+.max-width-200 { max-width: 200px; }
+.max-height-70vh { max-height: 70vh; }
+.min-height-48 { min-height:48px; }
+
+body, html, .container-fluid, .card {
+  overflow-x: hidden !important;
+  max-width: 100vw;
+}
+
 
 
 

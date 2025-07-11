@@ -1,4 +1,18 @@
 <?php
+/**
+ * Roteador administrativo (LoadPageAdm)
+ *
+ * - Este roteador só utiliza os parâmetros 'url' ou 'controller' para decidir qual controller carregar.
+ * - Todos os outros parâmetros da URL (ex: page, per_page, nome, status, publica, etc.) são repassados intactos para os controllers via $_GET.
+ * - Controllers de listagem devem SEMPRE ler filtros e paginação diretamente de $_GET.
+ * - O roteador NUNCA deve filtrar, modificar ou remover parâmetros extras da URL.
+ * - Isso garante robustez e flexibilidade para qualquer tela de listagem, mesmo com múltiplos filtros e paginação.
+ *
+ * Exemplo de URL suportada:
+ *   /administrativo2/?url=list-pages&page=2&per_page=10&nome=teste&status=Ativo
+ *
+ * Se 'url' e 'controller' estiverem ausentes ou inválidos, o usuário é redirecionado para o dashboard.
+ */
 
 namespace Routes;
 
@@ -129,6 +143,28 @@ class LoadPageAdm
         // Converter controller de slug para PascalCase
         $this->urlController = SlugController::slugController($this->urlController);
 
+        // Padronizar: priorizar 'url' para listagens, senão usar 'controller'
+        $routeParam = '';
+        if (!empty($_GET['url']) && preg_match('/^[a-zA-Z0-9_\-]+$/', $_GET['url'])) {
+            $routeParam = $_GET['url'];
+        } elseif (!empty($_GET['controller']) && preg_match('/^[a-zA-Z0-9_\-]+$/', $_GET['controller'])) {
+            $routeParam = $_GET['controller'];
+        }
+        $routeParam = trim($routeParam);
+        if (empty($routeParam)) {
+            // Log detalhado do erro de parâmetro
+            file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+                date('Y-m-d H:i:s') . ' - [LoadPageAdm] NENHUM PARÂMETRO DE ROTA VÁLIDO (url/controller) - url: ' . ($_GET['url'] ?? 'null') . ' | controller: ' . ($_GET['controller'] ?? 'null') .
+                ' | URL: ' . ($_SERVER['REQUEST_URI'] ?? 'null') .
+                ' | _SESSION: ' . json_encode($_SESSION) . "\n",
+                FILE_APPEND
+            );
+            $_SESSION['error'] = 'Nenhum parâmetro de rota válido informado. Você foi redirecionado para o início.';
+            header('Location: ' . $_ENV['URL_ADM'] . 'dashboard');
+            exit;
+        }
+        $this->urlController = SlugController::slugController($routeParam);
+
         // Verificar se existe a pagina
         if (!$this->checkPageExists()) {
 
@@ -140,17 +176,83 @@ class LoadPageAdm
             // Criar a mensagem de erro
             $_SESSION['error'] = "Necessário estar logado para acessar pagina restrita.";
 
+            // Log detalhado do motivo do redirecionamento para login
+            file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+                date('Y-m-d H:i:s') . ' - [LoadPageAdm] REDIRECIONA LOGIN - controller: ' . ($this->urlController ?? 'null') .
+                ' | parametro: ' . ($this->urlParameter ?? 'null') .
+                ' | session_id: ' . (session_id() ?: 'null') .
+                ' | _SESSION: ' . json_encode($_SESSION) .
+                ' | URL: ' . ($_SERVER['REQUEST_URI'] ?? 'null') .
+                "\n",
+                FILE_APPEND
+            );
+
             // Redirecionar o usuário para a pagina de login
             header("Location: {$_ENV['URL_ADM']}login");
         }
 
         // Verificar se a classe/controller existe
         if (!$this->checkControllersExists()) {
-
-            // Chamar o método para salvar log
+            // Fallback seguro para nomes de ação
+            $actionNames = ['delete', 'update', 'create', 'view'];
+            $routeParamLower = strtolower($routeParam);
+            if (in_array($routeParamLower, $actionNames)) {
+                // Verifica se existe controller correspondente
+                $controllerExists = false;
+                foreach ($this->listPackages as $package) {
+                    foreach ($this->listDirectory as $directory) {
+                        $classTest = "\\App\\$package\\Controllers\\$directory\\" . SlugController::slugController($routeParam);
+                        if (class_exists($classTest)) {
+                            $controllerExists = true;
+                            break 2;
+                        }
+                    }
+                }
+                if (!$controllerExists) {
+                    // Log do fallback
+                    file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+                        date('Y-m-d H:i:s') . ' - [LoadPageAdm] Fallback para listagem padrão - parâmetro de ação inválido: ' . $routeParam .
+                        ' | URL: ' . ($_SERVER['REQUEST_URI'] ?? 'null') .
+                        ' | _SESSION: ' . json_encode($_SESSION) . "\n",
+                        FILE_APPEND
+                    );
+                    $_SESSION['error'] = 'Ação inválida na URL. Você foi redirecionado para a listagem padrão.';
+                    header('Location: ' . $_ENV['URL_ADM'] . 'list-pages');
+                    exit;
+                }
+            }
+            // Se não for nome de ação, segue fluxo normal de erro
             GenerateLog::generateLog("error", "Controller não encontrada.", ['pagina' => $this->urlController, 'parametro' => $this->urlParameter]);
-
             die("Erro 003: Por favor tente novamente. Caso o problema persista, entre em contato com o adminstrador {$_ENV['EMAIL_ADM']}");
+        }
+
+        // Após checar se a controller existe, adicionar fallback seguro para nomes de ação
+        $actionNames = ['delete', 'update', 'create', 'view'];
+        $routeParamLower = strtolower($routeParam);
+        if (in_array($routeParamLower, $actionNames)) {
+            // Verifica se existe controller correspondente
+            $controllerExists = false;
+            foreach ($this->listPackages as $package) {
+                foreach ($this->listDirectory as $directory) {
+                    $classTest = "\\App\\$package\\Controllers\\$directory\\" . SlugController::slugController($routeParam);
+                    if (class_exists($classTest)) {
+                        $controllerExists = true;
+                        break 2;
+                    }
+                }
+            }
+            if (!$controllerExists) {
+                // Log do fallback
+                file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+                    date('Y-m-d H:i:s') . ' - [LoadPageAdm] Fallback para listagem padrão - parâmetro de ação inválido: ' . $routeParam .
+                    ' | URL: ' . ($_SERVER['REQUEST_URI'] ?? 'null') .
+                    ' | _SESSION: ' . json_encode($_SESSION) . "\n",
+                    FILE_APPEND
+                );
+                $_SESSION['error'] = 'Ação inválida na URL. Você foi redirecionado para a listagem padrão.';
+                header('Location: ' . $_ENV['URL_ADM'] . 'list-pages');
+                exit;
+            }
         }
     }
 

@@ -196,11 +196,11 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                     <a href="<?= $_ENV['URL_ADM'] ?>list-training-status" class="btn btn-secondary w-100">Limpar</a>
                 </div>
             </form>
-            <div class="table-responsive table-scroll">
+            <div class="table-responsive table-scroll d-none d-md-block">
                 <table class="table table-striped table-hover table-sticky-header" style="table-layout: fixed; width: 100%;">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th class="text-center">ID</th>
                             <th>Código</th>
                             <th>Treinamento</th>
                             <th>Colaborador</th>
@@ -213,7 +213,7 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                             <th>Nota</th>
                             <th>Aproveitamento</th>
                             <th>Prazo 1º Treinamento</th>
-                            <th style="width:100px;" class="text-center">Ações</th>
+                            <th class="text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -318,6 +318,59 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+            </div>
+            <!-- CARDS MOBILE -->
+            <div class="d-block d-md-none">
+                <?php foreach ($matrix as $i => $row): ?>
+                    <?php 
+                    $status = $row['status_dinamico'] ?? $row['status'] ?? 'pendente';
+                    $performance = getPerformanceStatus($row['nota'] ?? null);
+                    // Filtro por performance
+                    $filterMatch = false;
+                    if ($performanceFilter === '' ||
+                        ($performanceFilter === 'aprovado' && $performance['label'] === 'Aprovado') ||
+                        ($performanceFilter === 'exame' && $performance['label'] === 'Exame') ||
+                        ($performanceFilter === 'reprovado' && $performance['label'] === 'Reprovado') ||
+                        ($performanceFilter === 'vazio' && $performance['label'] === '')) {
+                        $filterMatch = true;
+                    }
+                    if (!$filterMatch) continue;
+                    // Filtro por código (parcial)
+                    $matchCodigo = true;
+                    if ($codigoFiltro !== '') {
+                        $matchCodigo = (stripos($row['codigo'], $codigoFiltro) !== false);
+                    }
+                    if (!$matchCodigo) continue;
+                    ?>
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title mb-1"><b><?= htmlspecialchars($row['training_name']) ?></b></h5>
+                                    <div class="mb-1"><span class="badge <?= $statusClass ?>"><?= $statusText ?></span></div>
+                                    <div class="mb-1"><b>Colaborador:</b> <?= htmlspecialchars($row['user_name']) ?></div>
+                                    <div class="mb-1"><b>Data Realização:</b> <?php if (!empty($row['data_realizacao'])): ?><?= (new DateTime($row['data_realizacao']))->format('d/m/Y') ?><?php else: ?><span class="text-muted">-</span><?php endif; ?></div>
+                                </div>
+                                <button class="btn btn-outline-primary btn-sm ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#cardDetails<?= $i ?>" aria-expanded="false" aria-controls="cardDetails<?= $i ?>">Ver mais</button>
+                            </div>
+                            <div class="collapse mt-2" id="cardDetails<?= $i ?>">
+                                <div><b>Código:</b> <?= htmlspecialchars($row['codigo']) ?></div>
+                                <div><b>Departamento:</b> <?= htmlspecialchars($row['department']) ?></div>
+                                <div><b>Cargo:</b> <?= htmlspecialchars($row['position']) ?></div>
+                                <div><b>Data Agendada:</b> <?php if (!empty($row['data_agendada'])): ?><?= (new DateTime($row['data_agendada']))->format('d/m/Y') ?><?php else: ?><span class="text-muted">-</span><?php endif; ?></div>
+                                <div><b>Vencimento:</b> <?php if (!empty($row['reciclagem']) && !empty($row['reciclagem_periodo']) && !empty($row['data_realizacao'])): ?><?php $dataVencimento = new DateTime($row['data_realizacao']); $dataVencimento->add(new DateInterval('P' . $row['reciclagem_periodo'] . 'M')); echo $dataVencimento->format('d/m/Y'); ?><?php else: ?><span class="text-muted">N/A</span><?php endif; ?></div>
+                                <div><b>Nota:</b> <?= htmlspecialchars($row['nota'] ?? '-') ?></div>
+                                <div><b>Aproveitamento:</b> <span class="<?= $performance['class'] ?>"><?= $performance['label'] ?></span></div>
+                                <div><b>Prazo 1º Treinamento:</b> <?php if (!empty($row['data_limite_primeiro_treinamento'])): ?><?= (new DateTime($row['data_limite_primeiro_treinamento']))->format('d/m/Y') ?><?php else: ?><span class="text-muted">-</span><?php endif; ?></div>
+                                <div class="mt-2">
+                                    <a href="<?= $_ENV['URL_ADM'] ?>schedule-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-info mb-1" title="Agendar"><i class="fas fa-calendar-plus"></i></a>
+                                    <a href="<?= $_ENV['URL_ADM'] ?>apply-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-success mb-1" title="Aplicar"><i class="fas fa-check"></i></a>
+                                    <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $row['user_id'] ?>-<?= $row['training_id'] ?>" class="btn btn-sm btn-secondary mb-1" title="Histórico"><i class="fas fa-history"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>

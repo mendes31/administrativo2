@@ -79,7 +79,8 @@ class PaginationService
             'per_page' => $limitResult,
             'first_item' => $firstItem,
             'last_item' => $lastItem,
-            'html' => $html
+            'html' => $html,
+            'url_controller' => $urlController // Sempre incluir o parâmetro principal de rota
         ];
     }
 }

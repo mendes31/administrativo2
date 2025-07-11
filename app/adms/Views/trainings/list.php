@@ -13,33 +13,28 @@ use App\adms\Helpers\FormatHelper;
     </div>
     
     <div class="card mb-4 border-light shadow">
-        <div class="card-header hstack gap-2">
+        <div class="card-header hstack gap-2 flex-wrap">
             <span><i class="fas fa-graduation-cap me-2"></i>Listar Treinamentos</span>
-            <span class="ms-auto d-sm-flex flex-row">
-                <a href="<?php echo $_ENV['URL_ADM']; ?>create-training" class="btn btn-success btn-sm me-1 mb-1">
-                    <i class="fa-solid fa-plus"></i> Cadastrar
-                </a>
-                <a href="<?php echo $_ENV['URL_ADM']; ?>training-kpi-dashboard" class="btn btn-primary btn-sm me-1 mb-1">
-                    <i class="fas fa-chart-line"></i> KPIs
-                </a>
-                <a href="<?php echo $_ENV['URL_ADM']; ?>training-matrix-manager" class="btn btn-warning btn-sm me-1 mb-1">
-                    <i class="fas fa-table"></i> Matriz
-                </a>
-                <a href="<?php echo $_ENV['URL_ADM']; ?>list-training-status" class="btn btn-info btn-sm me-1 mb-1">
-                    <i class="fas fa-chart-bar"></i> Status
-                </a>
+            <span class="ms-auto d-sm-flex flex-row flex-wrap gap-1">
+                <a href="<?php echo $_ENV['URL_ADM']; ?>create-training" class="btn btn-success btn-sm mb-1 btn-min-width-90"><i class="fa-solid fa-plus"></i> Cadastrar</a>
+                <a href="<?php echo $_ENV['URL_ADM']; ?>training-kpi-dashboard" class="btn btn-primary btn-sm mb-1 btn-min-width-70"><i class="fas fa-chart-line"></i> KPIs</a>
+                <a href="<?php echo $_ENV['URL_ADM']; ?>training-matrix-manager" class="btn btn-warning btn-sm mb-1 btn-min-width-70"><i class="fas fa-table"></i> Matriz</a>
+                <a href="<?php echo $_ENV['URL_ADM']; ?>list-training-status" class="btn btn-info btn-sm mb-1 btn-min-width-70"><i class="fas fa-chart-bar"></i> Status</a>
             </span>
         </div>
         <div class="card-body">
             <?php include './app/adms/Views/partials/alerts.php'; ?>
             <form method="GET" class="row g-2 mb-3 align-items-end">
-                <div class="col-md-1">
-                    <input type="text" name="codigo" class="form-control" placeholder="Digite parte do código" value="<?= htmlspecialchars($_GET['codigo'] ?? '') ?>">
+                <div class="col-md-3">
+                    <label for="nome" class="form-label mb-1">Nome</label>
+                    <input type="text" name="nome" id="nome" class="form-control" value="<?= htmlspecialchars($_GET['nome'] ?? '') ?>">
+                </div>
+                <div class="col-md-3">
+                    <label for="codigo" class="form-label mb-1">Código</label>
+                    <input type="text" name="codigo" id="codigo" class="form-control" value="<?= htmlspecialchars($_GET['codigo'] ?? '') ?>">
                 </div>
                 <div class="col-md-2">
-                    <input type="text" name="nome" class="form-control" placeholder="Digite parte do nome do treinamento" value="<?= htmlspecialchars($_GET['nome'] ?? '') ?>">
-                </div>
-                <div class="col-md-2">
+                    <label for="instrutor" class="form-label mb-1">Instrutor</label>
                     <input type="text" name="instrutor" class="form-control" placeholder="Digite parte do nome do instrutor" value="<?= htmlspecialchars($_GET['instrutor'] ?? '') ?>">
                 </div>
                 <div class="col-md-1">
@@ -63,38 +58,38 @@ use App\adms\Helpers\FormatHelper;
                         <option value="0" <?= (($_GET['ativo'] ?? '') === '0') ? 'selected' : '' ?>>Inativo</option>
                     </select>
                 </div>
-                <div class="col-md-3 d-flex align-items-end">
-                    <label for="per_page" class="form-label mb-1 me-2">Mostrar</label>
-                    <select name="per_page" id="per_page" class="form-select form-select-sm w-auto mx-1" onchange="this.form.submit()">
-                        <?php foreach ([10, 20, 50, 100] as $opt): ?>
-                            <option value="<?= $opt ?>" <?= ($_GET['per_page'] ?? 10) == $opt ? 'selected' : '' ?>><?= $opt ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <span class="form-label mb-1 ms-1">registros</span>
-                    <button type="submit" class="btn btn-primary btn-sm ms-3"><i class="fa fa-search"></i> Filtrar</button>
-                    <a href="<?php echo $_ENV['URL_ADM']; ?>list-trainings" class="btn btn-secondary btn-sm ms-2"><i class="fa fa-times"></i> Limpar Filtros</a>
+                <div class="col-auto mb-2">
+                    <label for="per_page" class="form-label mb-1">Mostrar</label>
+                    <div class="d-flex align-items-center">
+                        <select name="per_page" id="per_page" class="form-select form-select-sm" style="min-width: 80px;" onchange="this.form.submit()">
+                            <?php foreach ([10, 20, 50, 100] as $opt): ?>
+                                <option value="<?= $opt ?>" <?= ($_GET['per_page'] ?? 10) == $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="form-label mb-1 ms-1">registros</span>
+                    </div>
+                </div>
+                <div class="col-md-2 filtros-btns-row w-100 mt-2">
+                    <button type="submit" class="btn btn-primary btn-sm btn-filtros-mobile"><i class="fa fa-search"></i> Filtrar</button>
+                    <a href="<?php echo $_ENV['URL_ADM']; ?>list-trainings" class="btn btn-secondary btn-sm btn-filtros-mobile"><i class="fa fa-times"></i> Limpar Filtros</a>
                 </div>
             </form>
-            <!-- <?php if (!empty($this->data['pagination'])): ?>
-                <nav>
-                    <?= $this->data['pagination']; ?>
-                </nav>
-            <?php endif; ?> -->
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover" style="table-layout: fixed; width: 100%;">
+            <!-- Tabela -->
+            <div class="table-responsive d-none d-md-block">
+                <table class="table table-bordered table-striped table-hover table-fixed">
                     <thead class="table-dark">
                         <tr>
-                            <th style="width:60px;" class="text-center">ID</th>
-                            <th style="width:100px;">Código</th>
+                            <th class="text-center">ID</th>
+                            <th>Código</th>
                             <th class="col-nome">Nome</th>
-                            <th style="width:80px;">Versão</th>
-                            <th style="width:100px;">Reciclar</th>
-                            <th style="width:100px;">Tipo</th>
-                            <th style="width:120px;">Instrutor</th>
-                            <th style="width:100px;" class="text-center">Carga Horária (hh:mm)</th>
-                            <th style="width:120px;" class="text-center">Cargos Vinculados</th>
-                            <th style="width:80px;" class="text-center">Status</th>
-                            <th style="width:200px;" class="text-center">Ações</th>
+                            <th class="text-center">Versão</th>
+                            <th class="text-center">Reciclar</th>
+                            <th>Tipo</th>
+                            <th>Instrutor</th>
+                            <th class="text-center">Carga Horária (hh:mm)</th>
+                            <th class="text-center">Cargos Vinculados</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -105,44 +100,44 @@ use App\adms\Helpers\FormatHelper;
                                         <span class="badge bg-secondary"><?php echo htmlspecialchars($training['id']); ?></span>
                                     </td>
                                     <td>
-                                        <strong><?php echo htmlspecialchars($training['codigo']); ?></strong>
+                                        <strong><?php echo is_array($training['codigo']) ? '' : htmlspecialchars($training['codigo']); ?></strong>
                                     </td>
                                     <td class="col-nome">
                                         <div>
-                                            <strong><?php echo htmlspecialchars($training['nome']); ?></strong>
+                                            <strong><?php echo is_array($training['nome']) ? '' : htmlspecialchars($training['nome']); ?></strong>
                                             <?php if (!empty($training['versao'])): ?>
-                                                <br><small class="text-muted">v<?php echo htmlspecialchars($training['versao']); ?></small>
+                                                <br><small class="text-muted">v<?php echo is_array($training['versao']) ? '' : htmlspecialchars($training['versao']); ?></small>
                                             <?php endif; ?>
                                         </div>
                                     </td>
                                     <td class="text-center">
                                         <?php if (!empty($training['versao'])): ?>
-                                            <span class="badge bg-info"><?php echo htmlspecialchars($training['versao']); ?></span>
+                                            <span class="badge bg-info"><?php echo is_array($training['versao']) ? '' : htmlspecialchars($training['versao']); ?></span>
                                         <?php else: ?>
                                             <span class="text-muted">-</span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-center">
                                         <?php if (!empty($training['reciclagem']) && !empty($training['reciclagem_periodo'])): ?>
-                                            <?php echo FormatHelper::formatReciclagemPeriodoTable((int)$training['reciclagem_periodo']); ?>
+                                            <?php echo is_array($training['reciclagem_periodo']) ? '' : FormatHelper::formatReciclagemPeriodoTable((int)$training['reciclagem_periodo']); ?>
                                         <?php else: ?>
                                             N/A
                                         <?php endif; ?>
                                     </td>
                                     <td>
                                         <?php if (!empty($training['tipo'])): ?>
-                                            <span class="badge bg-primary"><?php echo htmlspecialchars($training['tipo']); ?></span>
+                                            <span class="badge bg-primary"><?php echo is_array($training['tipo']) ? '' : htmlspecialchars($training['tipo']); ?></span>
                                         <?php else: ?>
                                             <span class="text-muted">-</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
                                         <?php
-                                        if (!empty($training['instructor_name'])) {
+                                        if (!empty($training['instructor_name']) && !is_array($training['instructor_name'])) {
                                             echo '<i class="fas fa-user-tie me-1"></i>' . htmlspecialchars($training['instructor_name']);
-                                        } elseif (!empty($training['user_name'])) {
+                                        } elseif (!empty($training['user_name']) && !is_array($training['user_name'])) {
                                             echo '<i class="fas fa-user-tie me-1"></i>' . htmlspecialchars($training['user_name']);
-                                        } elseif (!empty($training['instrutor'])) {
+                                        } elseif (!empty($training['instrutor']) && !is_array($training['instrutor'])) {
                                             echo htmlspecialchars($training['instrutor']);
                                         } else {
                                             echo '<span class="text-muted">-</span>';
@@ -150,7 +145,7 @@ use App\adms\Helpers\FormatHelper;
                                         ?>
                                     </td>
                                     <td class="text-center">
-                                        <?php if (!empty($training['carga_horaria'])): ?>
+                                        <?php if (!empty($training['carga_horaria']) && !is_array($training['carga_horaria'])): ?>
                                             <span class="badge bg-warning text-dark">
                                                 <?php echo htmlspecialchars(substr($training['carga_horaria'], 0, 5)); ?>
                                             </span>
@@ -189,63 +184,123 @@ use App\adms\Helpers\FormatHelper;
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
-                                            <a href="<?php echo $_ENV['URL_ADM']; ?>view-training/<?php echo $training['id']; ?>" 
-                                               class="btn btn-primary btn-sm" 
-                                               title="Visualizar">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="<?php echo $_ENV['URL_ADM']; ?>update-training/<?php echo $training['id']; ?>" 
-                                               class="btn btn-warning btn-sm" 
-                                               title="Editar">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a href="<?php echo $_ENV['URL_ADM']; ?>training-positions/<?php echo $training['id']; ?>" 
-                                               class="btn btn-info btn-sm" 
-                                               title="Vincular Cargos">
-                                                <i class="fas fa-link"></i>
-                                            </a>
-                                            <a href="<?php echo $_ENV['URL_ADM']; ?>link-training-users/<?php echo $training['id']; ?>"
-                                               class="btn btn-secondary btn-sm"
-                                               title="Vincular Colaborador(es)">
-                                                <i class="fas fa-user-plus"></i>
-                                            </a>
-                                            <a href="<?php echo $_ENV['URL_ADM']; ?>delete-training/<?php echo $training['id']; ?>" 
-                                               class="btn btn-danger btn-sm" 
-                                               onclick="return confirm('Tem certeza que deseja excluir este treinamento?');"
-                                               title="Excluir">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <a href="<?php echo $_ENV['URL_ADM']; ?>view-training/<?php echo $training['id']; ?>" class="btn btn-primary btn-sm" title="Visualizar"><i class="fas fa-eye"></i></a>
+                                            <a href="<?php echo $_ENV['URL_ADM']; ?>update-training/<?php echo $training['id']; ?>" class="btn btn-warning btn-sm" title="Editar"><i class="fas fa-edit"></i></a>
+                                            <a href="<?php echo $_ENV['URL_ADM']; ?>training-positions/<?php echo $training['id']; ?>" class="btn btn-info btn-sm" title="Vincular Cargos"><i class="fas fa-link"></i></a>
+                                            <a href="<?php echo $_ENV['URL_ADM']; ?>link-training-users/<?php echo $training['id']; ?>" class="btn btn-secondary btn-sm" title="Vincular Colaboradores"><i class="fas fa-users"></i></a>
+                                            <a href="<?php echo $_ENV['URL_ADM']; ?>delete-training/<?php echo $training['id']; ?>" class="btn btn-danger btn-sm" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir este treinamento?');"><i class="fas fa-trash"></i></a>
                                         </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <tr>
-                                <td colspan="11" class="text-center text-muted">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                    Nenhum treinamento encontrado.
-                                </td>
-                            </tr>
+                            <tr><td colspan="11" class="text-center">Nenhum treinamento encontrado.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
-            <?php if (!empty($this->data['pagination']['html'])): ?>
-                <div class="d-flex justify-content-between align-items-center mt-2">
+            <!-- Paginação e informações abaixo da tabela/cards -->
+            <div class="w-100 mt-2">
+                <!-- Desktop: frase à esquerda, paginação à direita -->
+                <div class="d-none d-md-flex justify-content-between align-items-center w-100">
                     <div class="text-secondary small">
-                        <?php if (!empty($this->data['pagination']['total'])): ?>
-                            Mostrando <?= $this->data['pagination']['first_item'] ?> até <?= $this->data['pagination']['last_item'] ?> de <?= $this->data['pagination']['total'] ?> registro(s)
+                        <?php
+                        $firstItem = $this->data['pagination']['first_item'] ?? '';
+                        $lastItem = $this->data['pagination']['last_item'] ?? '';
+                        $total = $this->data['pagination']['total'] ?? '';
+                        if (is_array($firstItem)) $firstItem = '';
+                        if (is_array($lastItem)) $lastItem = '';
+                        if (is_array($total)) $total = '';
+                        ?>
+                        <?php if (!empty($total)): ?>
+                            Mostrando <?= $firstItem ?> até <?= $lastItem ?> de <?= $total ?> registro(s)
                         <?php else: ?>
-                            Exibindo <?= count($this->data['trainings'] ?? []) ?> registro(s) nesta página.
+                            Exibindo <?= is_array($this->data['trainings']) ? count($this->data['trainings']) : 0; ?> registro(s) nesta página.
                         <?php endif; ?>
                     </div>
                     <div>
-                        <?= $this->data['pagination']['html'] ?? '' ?>
+                        <?php
+                        $paginationHtml = $this->data['pagination']['html'] ?? '';
+                        if (is_array($paginationHtml)) $paginationHtml = '';
+                        echo $paginationHtml;
+                        ?>
                     </div>
                 </div>
-            <?php endif; ?>
-            <div class="mt-2 text-end text-muted small d-none">
-                Exibindo <?= count($this->data['trainings'] ?? []) ?> registro(s) nesta página.
+                <!-- Remover o bloco mobile duplicado abaixo -->
+                <!-- <div class="d-flex d-md-none flex-column align-items-center w-100"> ... </div> -->
+            </div>
+            <!-- CARDS MOBILE -->
+            <div class="d-block d-md-none">
+                <?php if (!empty($this->data['trainings'])): ?>
+                    <?php foreach ($this->data['trainings'] as $i => $training): ?>
+                        <div class="card mb-3 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title mb-1"><b><?= is_array($training['nome']) ? '' : htmlspecialchars($training['nome']) ?></b></h5>
+                                        <div class="mb-1"><b>Código:</b> <?= is_array($training['codigo']) ? '' : htmlspecialchars($training['codigo']) ?></div>
+                                        <div class="mb-1"><b>Status:</b> <?php if ($training['ativo']): ?><span class="badge bg-success">Ativo</span><?php else: ?><span class="badge bg-danger">Inativo</span><?php endif; ?></div>
+                                    </div>
+                                    <button class="btn btn-outline-primary btn-sm ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#cardTrainingDetails<?= $i ?>" aria-expanded="false" aria-controls="cardTrainingDetails<?= $i ?>">Ver mais</button>
+                                </div>
+                                <div class="collapse mt-2" id="cardTrainingDetails<?= $i ?>">
+                                    <div><b>ID:</b> <?= htmlspecialchars($training['id']) ?></div>
+                                    <div><b>Versão:</b> <?= is_array($training['versao']) ? '' : htmlspecialchars($training['versao'] ?? '-') ?></div>
+                                    <div><b>Reciclagem:</b> <?php if (!empty($training['reciclagem']) && !empty($training['reciclagem_periodo'])): ?><?= is_array($training['reciclagem_periodo']) ? '' : FormatHelper::formatReciclagemPeriodoTable((int)$training['reciclagem_periodo']); ?><?php else: ?>N/A<?php endif; ?></div>
+                                    <div><b>Tipo:</b> <?= is_array($training['tipo']) ? '' : htmlspecialchars($training['tipo'] ?? '-') ?></div>
+                                    <div><b>Instrutor:</b> <?php
+                                        if (!empty($training['instructor_name']) && !is_array($training['instructor_name'])) {
+                                            echo '<i class="fas fa-user-tie me-1"></i>' . htmlspecialchars($training['instructor_name']);
+                                        } elseif (!empty($training['user_name']) && !is_array($training['user_name'])) {
+                                            echo '<i class="fas fa-user-tie me-1"></i>' . htmlspecialchars($training['user_name']);
+                                        } elseif (!empty($training['instrutor']) && !is_array($training['instrutor'])) {
+                                            echo htmlspecialchars($training['instrutor']);
+                                        } else {
+                                            echo '<span class="text-muted">-</span>';
+                                        }
+                                    ?></div>
+                                    <div><b>Carga Horária:</b> <?php if (!empty($training['carga_horaria']) && !is_array($training['carga_horaria'])): ?><?= htmlspecialchars(substr($training['carga_horaria'], 0, 5)); ?><?php else: ?><span class="text-muted">-</span><?php endif; ?></div>
+                                    <div><b>Cargos Vinculados:</b> <?= (int)($training['cargos_vinculados'] ?? 0) ?></div>
+                                    <div><b>Colaboradores Vinculados:</b> <?= (int)($training['colaboradores_vinculados'] ?? 0) ?></div>
+                                    <div class="mt-2">
+                                        <a href="<?php echo $_ENV['URL_ADM']; ?>view-training/<?php echo $training['id']; ?>" class="btn btn-primary btn-sm me-1 mb-1" title="Visualizar"><i class="fas fa-eye"></i> </a>
+                                        <a href="<?php echo $_ENV['URL_ADM']; ?>update-training/<?php echo $training['id']; ?>" class="btn btn-warning btn-sm me-1 mb-1" title="Editar"><i class="fas fa-edit"></i> </a>
+                                        <a href="<?php echo $_ENV['URL_ADM']; ?>training-positions/<?php echo $training['id']; ?>" class="btn btn-info btn-sm me-1 mb-1" title="Vincular Cargos"><i class="fas fa-link"></i></a>
+                                        <a href="<?php echo $_ENV['URL_ADM']; ?>link-training-users/<?php echo $training['id']; ?>" class="btn btn-secondary btn-sm me-1 mb-1" title="Vincular Colaboradores"><i class="fas fa-users"></i></a>
+                                        <a href="<?php echo $_ENV['URL_ADM']; ?>delete-training/<?php echo $training['id']; ?>" class="btn btn-danger btn-sm me-1 mb-1" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir este treinamento?');"><i class="fas fa-trash"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="alert alert-danger" role="alert">Nenhum treinamento encontrado.</div>
+                <?php endif; ?>
+                <!-- Paginação e informações abaixo dos cards no mobile -->
+                <div class="d-flex d-md-none flex-column align-items-center w-100 mt-2">
+                    <div class="text-secondary small w-100 text-center mb-1">
+                        <?php
+                        $firstItem = $this->data['pagination']['first_item'] ?? '';
+                        $lastItem = $this->data['pagination']['last_item'] ?? '';
+                        $total = $this->data['pagination']['total'] ?? '';
+                        if (is_array($firstItem)) $firstItem = '';
+                        if (is_array($lastItem)) $lastItem = '';
+                        if (is_array($total)) $total = '';
+                        ?>
+                        <?php if (!empty($total)): ?>
+                            Mostrando <?= $firstItem ?> até <?= $lastItem ?> de <?= $total ?> registro(s)
+                        <?php else: ?>
+                            Exibindo <?= is_array($this->data['trainings']) ? count($this->data['trainings']) : 0; ?> registro(s) nesta página.
+                        <?php endif; ?>
+                    </div>
+                    <div class="w-100 d-flex justify-content-center">
+                        <?php
+                        $paginationHtml = $this->data['pagination']['html'] ?? '';
+                        if (is_array($paginationHtml)) $paginationHtml = '';
+                        echo $paginationHtml;
+                        ?>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

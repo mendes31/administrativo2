@@ -30,28 +30,37 @@ class PagesRepository extends DbConnection
      * @param int $limitResult Número máximo de resultados por página.
      * @return array Lista de páginas recuperadas do banco de dados.
      */
-    public function getAllPages(int $page = 1, int $limitResult = 10): array
+    public function getAllPages(int $page = 1, int $limitResult = 10, array $filters = []): array
     {
-        // Calcular o registro inicial, função max para garantir valor mínimo 0
         $offset = max(0, ($page - 1) * $limitResult);
-
-        // QUERY para recuperar os registros do banco de dados
-        $sql = 'SELECT id, name, page_status, public_page 
-                FROM adms_pages                
-                ORDER BY name ASC
-                LIMIT :limit OFFSET :offset';
-
-        // Preparar a QUERY
+        $where = [];
+        $params = [];
+        if (!empty($filters['nome'])) {
+            $where[] = 'name LIKE :nome';
+            $params[':nome'] = '%' . $filters['nome'] . '%';
+        }
+        if (!empty($filters['controller'])) {
+            $where[] = 'controller_url LIKE :controller';
+            $params[':controller'] = '%' . $filters['controller'] . '%';
+        }
+        if ($filters['status'] !== '' && $filters['status'] !== null) {
+            $where[] = 'page_status = :status';
+            $params[':status'] = (int)$filters['status'];
+        }
+        if ($filters['publica'] !== '' && $filters['publica'] !== null) {
+            $where[] = 'public_page = :publica';
+            $params[':publica'] = (int)$filters['publica'];
+        }
+        $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
+        $sql = 'SELECT id, name, controller_url, page_status, public_page FROM adms_pages '
+            . $whereSql . ' ORDER BY name ASC LIMIT :limit OFFSET :offset';
         $stmt = $this->getConnection()->prepare($sql);
-
-        // Substituir os parâmetros da QUERY pelos valores
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
         $stmt->bindValue(':limit', $limitResult, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-
-        // Executar a QUERY
         $stmt->execute();
-
-        // Ler os registros e retornar
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -62,15 +71,33 @@ class PagesRepository extends DbConnection
      *
      * @return int Quantidade total de páginas encontradas no banco de dados.
      */
-    public function getAmountPages(): int
+    public function getAmountPages(array $filters = []): int
     {
-        // QUERY para recuperar a quantidade de registros
-        $sql = 'SELECT COUNT(id) as amount_records
-                FROM adms_pages';
-
+        $where = [];
+        $params = [];
+        if (!empty($filters['nome'])) {
+            $where[] = 'name LIKE :nome';
+            $params[':nome'] = '%' . $filters['nome'] . '%';
+        }
+        if (!empty($filters['controller'])) {
+            $where[] = 'controller_url LIKE :controller';
+            $params[':controller'] = '%' . $filters['controller'] . '%';
+        }
+        if ($filters['status'] !== '' && $filters['status'] !== null) {
+            $where[] = 'page_status = :status';
+            $params[':status'] = (int)$filters['status'];
+        }
+        if ($filters['publica'] !== '' && $filters['publica'] !== null) {
+            $where[] = 'public_page = :publica';
+            $params[':publica'] = (int)$filters['publica'];
+        }
+        $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
+        $sql = 'SELECT COUNT(id) as amount_records FROM adms_pages ' . $whereSql;
         $stmt = $this->getConnection()->prepare($sql);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
         $stmt->execute();
-
         return (int) ($stmt->fetch(PDO::FETCH_ASSOC)['amount_records'] ?? 0);
     }
 

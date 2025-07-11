@@ -6,6 +6,7 @@ use App\adms\Controllers\Services\PageLayoutService;
 use App\adms\Controllers\Services\PaginationService;
 use App\adms\Models\Repository\PagesRepository;
 use App\adms\Views\Services\LoadViewService;
+use App\adms\Helpers\FiltersHelper;
 
 /**
  * Controller para listar páginas
@@ -31,23 +32,40 @@ class ListPages
      * Este método recupera as páginas a partir do repositório de páginas com base na página atual e no limite
      * de registros por página. Gera os dados de paginação e carrega a visualização para exibir a lista de páginas.
      * 
+     * Padrão recomendado: use FiltersHelper::getFilters para ler filtros e paginação de $_GET.
+     *
      * @param string|int $page Página atual para a exibição dos resultados. O padrão é 1.
      * 
      * @return void
      */
     public function index(string|int $page = 1): void
     {
+        // Padrão robusto para filtros e paginação
+        $params = FiltersHelper::getFilters(['nome', 'controller', 'status', 'publica']);
+        $perPage = $params['per_page'];
+        $currentPage = $params['page'];
+        $filters = $params['filters'];
+
         // Instanciar o Repository para recuperar os registros do banco de dados
         $listPages = new PagesRepository();
 
-        // Recuperar as páginas para a página atual
-        $this->data['pages'] = $listPages->getAllPages((int) $page, (int) $this->limitResult);
+        // Calcular total de registros filtrados
+        $totalRegistros = (int) $listPages->getAmountPages($filters);
+        $totalPaginas = max(1, ceil($totalRegistros / max(1, $perPage)));
+        // Se a página atual for maior que o total de páginas, voltar para a página 1
+        if ($currentPage > $totalPaginas) {
+            header('Location: ' . $_ENV['URL_ADM'] . 'list-pages?page=1');
+            exit;
+        }
+
+        // Recuperar as páginas para a página atual com filtros
+        $this->data['pages'] = $listPages->getAllPages($currentPage, (int) $perPage, $filters);
 
         // Gerar dados de paginação
         $this->data['pagination'] = PaginationService::generatePagination(
-            (int) $listPages->getAmountPages(), 
-            (int) $this->limitResult, 
-            (int) $page, 
+            $totalRegistros,
+            (int) $perPage,
+            (int) $currentPage,
             'list-pages'
         );
 

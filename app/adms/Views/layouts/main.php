@@ -4,7 +4,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 
 // Teste de execução do layout
-echo "<!-- LAYOUT MAIN EXECUTADO -->";
+// echo "<!-- LAYOUT MAIN EXECUTADO -->";
 
 // Log alternativo com caminho absoluto
 file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
@@ -14,6 +14,25 @@ file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
     ' | $_SESSION: ' . json_encode($_SESSION) . "\n",
     FILE_APPEND
 );
+
+// Log de início do layout para capturar erros fatais
+file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+    date('Y-m-d H:i:s') . ' - [LAYOUT] INICIO RENDERIZACAO - session_id: ' . (session_id() ?: 'null') .
+    ' | _SESSION: ' . json_encode($_SESSION) .
+    ' | URL: ' . ($_SERVER['REQUEST_URI'] ?? 'null') .
+    ' | GET: ' . json_encode($_GET) .
+    ' | POST: ' . json_encode($_POST) . "\n",
+    FILE_APPEND
+);
+
+// Verificar se há erros fatais
+$error = error_get_last();
+if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+    file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+        date('Y-m-d H:i:s') . ' - [LAYOUT] ERRO FATAL DETECTADO - ' . json_encode($error) . "\n",
+        FILE_APPEND
+    );
+}
 
 if (!isset($_ENV['DB_HOST'])) {
     require_once __DIR__ . '/../../Helpers/EnvLoader.php';
@@ -47,8 +66,31 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['session_id'])) {
         $motivos[] = 'Sessão inativa';
     }
     
+    // Log antes da checagem de queda de sessão
+    file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+        date('Y-m-d H:i:s') . ' - [main] PRE-CHECAGEM QUEDA - user_id: ' . ($_SESSION['user_id'] ?? 'null') .
+        ' | session_id(): ' . session_id() .
+        ' | Motivos: ' . (isset($motivos) ? implode(', ', $motivos) : 'ainda não definido') .
+        ' | Status da sessão: ' . ($sess['status'] ?? 'null') .
+        ' | URL: ' . ($_SERVER['REQUEST_URI'] ?? 'null') .
+        ' | GET: ' . json_encode($_GET) . "\n",
+        FILE_APPEND
+    );
+    
     if (!empty($motivos) || ($sess && $sess['status'] === 'invalidada')) {
         $msg = !empty($motivos) ? implode(' e ', $motivos) . '! Contate o Administrador do sistema.' : 'Sessão invalidada. Faça login novamente.';
+        
+        // Log detalhado do motivo da queda da sessão
+        file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+            date('Y-m-d H:i:s') . ' - [main] QUEDA DE SESSÃO - user_id: ' . $_SESSION['user_id'] . 
+            ' | session_id(): ' . session_id() . 
+            ' | Motivos: ' . implode(', ', $motivos) . 
+            ' | Status da sessão: ' . ($sess['status'] ?? 'null') . 
+            ' | URL: ' . ($_SERVER['REQUEST_URI'] ?? 'null') . 
+            ' | GET: ' . json_encode($_GET) . "\n",
+            FILE_APPEND
+        );
+        
         // Limpar apenas a sessão do usuário impactado
         $_SESSION = [];
         if (ini_get('session.use_cookies')) {
@@ -71,6 +113,16 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['session_id'])) {
         $agora = time();
         $ultimaAtividade = strtotime($sess['updated_at'] ?? $sess['created_at']);
         if ($agora - $ultimaAtividade > $limite) {
+            // Log de expiração por tempo
+            file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+                date('Y-m-d H:i:s') . ' - [main] EXPIRAÇÃO POR TEMPO - user_id: ' . $_SESSION['user_id'] . 
+                ' | session_id(): ' . session_id() . 
+                ' | Tempo limite: ' . $limite . 's' .
+                ' | Tempo decorrido: ' . ($agora - $ultimaAtividade) . 's' .
+                ' | URL: ' . ($_SERVER['REQUEST_URI'] ?? 'null') . "\n",
+                FILE_APPEND
+            );
+            
             $sessionRepo->invalidateSessionByUserIdAndSessionId($_SESSION['user_id'], $_SESSION['session_id']);
             $_SESSION = [];
             if (ini_get('session.use_cookies')) {
@@ -211,7 +263,10 @@ file_put_contents('caminho_do_log', 'session_id: ' . session_id() . ' - ' . json
                 const cloned = response.clone();
                 try {
                     const data = await cloned.json();
+                    // Log de todas as respostas fetch para debug
+                    console.log('FETCH RESPONSE:', data);
                     if (data && data.logout) {
+                        console.log('LOGOUT DETECTADO VIA FETCH:', data);
                         alert(data.message || "Sua sessão foi encerrada. Faça login novamente.");
                         window.location.href = "/administrativo2/login";
                         return Promise.reject("Sessão encerrada");
@@ -226,7 +281,10 @@ file_put_contents('caminho_do_log', 'session_id: ' . session_id() . ' - ' . json
         $(document).ajaxSuccess(function(event, xhr, settings) {
             try {
                 const data = JSON.parse(xhr.responseText);
+                // Log de todas as respostas AJAX para debug
+                console.log('AJAX RESPONSE:', data);
                 if (data && data.logout) {
+                    console.log('LOGOUT DETECTADO VIA AJAX:', data);
                     alert(data.message || "Sua sessão foi encerrada. Faça login novamente.");
                     window.location.href = "/administrativo2/login";
                 }
