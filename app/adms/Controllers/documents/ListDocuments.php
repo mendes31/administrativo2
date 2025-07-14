@@ -23,7 +23,7 @@ class ListDocuments
     private array|string|null $data = null;
 
     /** @var int $limitResult Limite de registros por página */
-    private int $limitResult = 1000; // Ajuste conforme necessário
+    private int $limitResult = 10; // Padrão 10 por página
 
     /**
      * Recuperar e listar documentos com paginação.
@@ -37,19 +37,30 @@ class ListDocuments
      */
     public function index(string|int $page = 1): void
     {
+        // Capturar o parâmetro page da URL, se existir
+        if (isset($_GET['page']) && is_numeric($_GET['page'])) {
+            $page = (int)$_GET['page'];
+        }
+        // Tratar per_page
+        if (isset($_GET['per_page']) && in_array((int)$_GET['per_page'], [10, 20, 50, 100])) {
+            $this->limitResult = (int)$_GET['per_page'];
+        }
+        // Capturar filtros
+        $filterCodDoc = isset($_GET['cod_doc']) ? trim($_GET['cod_doc']) : '';
+        $filterName = isset($_GET['name']) ? trim($_GET['name']) : '';
+        $filterVersion = isset($_GET['version']) ? trim($_GET['version']) : '';
+        $filterStatus = isset($_GET['status']) ? trim($_GET['status']) : '';
         // Instanciar o Repository para recuperar os registros do banco de dados
         $listDocuments = new DocumentsRepository();
-
-        // Recuperar os documentos para a página atual
-        $this->data['documents'] = $listDocuments->getAllDocuments((int) $page, (int) $this->limitResult);
-
-        // Gerar dados de paginação
-        $this->data['pagination'] = PaginationService::generatePagination(
-            (int) $listDocuments->getAmountDocuments(), 
-            (int) $this->limitResult, 
-            (int) $page, 
-            'list-documents'
-        );
+        $totalDocuments = $listDocuments->getAmountDocuments($filterCodDoc, $filterName, $filterVersion, $filterStatus);
+        $this->data['documents'] = $listDocuments->getAllDocuments((int) $page, (int) $this->limitResult, $filterCodDoc, $filterName, $filterVersion, $filterStatus);
+        $pagination = PaginationService::generatePagination((int) $totalDocuments, (int) $this->limitResult, (int) $page, 'list-documents', ['per_page' => $this->limitResult, 'cod_doc' => $filterCodDoc, 'name' => $filterName, 'version' => $filterVersion, 'status' => $filterStatus]);
+        $this->data['pagination'] = $pagination;
+        $this->data['per_page'] = $this->limitResult;
+        $this->data['filter_cod_doc'] = $filterCodDoc;
+        $this->data['filter_name'] = $filterName;
+        $this->data['filter_version'] = $filterVersion;
+        $this->data['filter_status'] = $filterStatus;
 
         // Definir o título da página
         // Ativar o item de menu
@@ -61,11 +72,6 @@ class ListDocuments
         ];
         $pageLayoutService = new PageLayoutService();
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
-
-        // Apresentar ou ocultar item de menu
-        // $menu = ['Dashboard', 'ListUsers', 'ListDepartments', 'ListPositions', 'ListAccessLevels', 'ListPackages', 'ListGroupsPages', 'ListPages'];
-        // $menuPermission = new MenuPermissionUserRepository();
-        // $this->data['menuPermission'] = $menuPermission->menuPermission($menu);
 
         // Carregar a VIEW com os dados
         $loadView = new LoadViewService("adms/Views/documents/list", $this->data);

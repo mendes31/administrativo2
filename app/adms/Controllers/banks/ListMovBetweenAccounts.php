@@ -33,22 +33,53 @@ class ListMovBetweenAccounts
      */
     public function index(string|int $page = 1): void
     {
+        // Receber filtros do GET
+        $filterFrom = $_GET['from_bank_name'] ?? '';
+        $filterTo = $_GET['to_bank_name'] ?? '';
+        $filterDescription = $_GET['description'] ?? '';
+        $filterUser = $_GET['user_name'] ?? '';
+        $filterDate = $_GET['created_at'] ?? '';
+        $perPage = isset($_GET['per_page']) && is_numeric($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
+        $this->limitResult = $perPage;
+
         // Repositório para buscar transferências
         $listMovBetweenAccounts = new MovBetweenAccountsRepository();
 
-        // Recuperar os Bancos para a página atual
-        $this->data['movBetweenAccounts'] = $listMovBetweenAccounts->getAllMovBetweenAccounts((int) $page, (int) $this->limitResult);
-        
-                // Gerar dados de paginação
-                $this->data['pagination'] = PaginationService::generatePagination(
-                    (int) $listMovBetweenAccounts->getAmountMovBetweenAccounts(), 
-                    (int) $this->limitResult, 
-                    (int) $page, 
-                    'list-mov-between-accounts'
-                );
-        // Definir o título da página
-        // Ativar o item de menu
-        // Apresentar ou ocultar botão 
+        // Recuperar transferências para a página atual com filtros
+        $this->data['movBetweenAccounts'] = $listMovBetweenAccounts->getAllMovBetweenAccounts(
+            (int) $page,
+            (int) $this->limitResult,
+            $filterFrom,
+            $filterTo,
+            $filterDescription,
+            $filterUser,
+            $filterDate
+        );
+
+        // Gerar dados de paginação com filtros
+        $this->data['pagination'] = PaginationService::generatePagination(
+            (int) $listMovBetweenAccounts->getAmountMovBetweenAccounts(
+                $filterFrom,
+                $filterTo,
+                $filterDescription,
+                $filterUser,
+                $filterDate
+            ),
+            (int) $this->limitResult,
+            (int) $page,
+            'list-mov-between-accounts'
+        );
+
+        // Manter filtros preenchidos na view
+        $this->data['filters'] = [
+            'from_bank_name' => $filterFrom,
+            'to_bank_name' => $filterTo,
+            'description' => $filterDescription,
+            'user_name' => $filterUser,
+            'created_at' => $filterDate,
+            'per_page' => $perPage,
+        ];
+
         $pageElements = [
             'title_head' => 'Listar Transferências entre Contas',
             'menu' => 'list-mov-between-accounts',

@@ -72,7 +72,7 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_cost_center');
                         <a href="?limpar_filtros=1" class="btn btn-secondary mt-4 ms-2">Limpar Filtros</a>
                     </div>
                 </form>
-                <table class="table table-striped table-hover">
+                <table class="table table-striped table-hover d-none d-md-table">
                     <thead>
                         <tr>
                             <th scope="col">ID</th>
@@ -82,60 +82,73 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_cost_center');
                     </thead>
 
                     <tbody>
-
                         <?php
-                        // Percorre o array de Centros de Custo
                         foreach ($this->data['costCenters'] as $costCenter) {
-
-                            // Extrai variáveis do array de Centros de Custo
                             extract($costCenter); ?>
                             <tr>
                                 <td><?php echo $id; ?></td>
                                 <td><?php echo $name; ?></td>
                                 <td class="text-center">
-
                                     <?php
                                     if (in_array('ViewCostCenter', $this->data['buttonPermission'])) {
                                         echo "<a href='{$_ENV['URL_ADM']}view-cost-center/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a>";
                                     }
-
                                     if (in_array('UpdateCostCenter', $this->data['buttonPermission'])) {
                                         echo "<a href='{$_ENV['URL_ADM']}update-cost-center/$id' class='btn btn-warning btn-sm me-1 mb-1'><i class='fa-solid fa-pen-to-square'></i> Editar</a>";
                                     }
-
-                                    if (in_array('DeleteCostCenter', $this->data['buttonPermission'])) {
-                                    ?>
-
+                                    if (in_array('DeleteCostCenter', $this->data['buttonPermission'])) { ?>
                                         <form id="formDelete<?php echo $id; ?>" action="<?php echo $_ENV['URL_ADM']; ?>delete-cost-center" method="POST" class="d-inline">
-
                                             <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-
                                             <input type="hidden" name="id" id="id" value="<?php echo $id ?? ''; ?>">
-
                                             <input type="hidden" name="name" id="name" value="<?php echo $name ?? ''; ?>">
-
                                             <button type="submit" class="btn btn-danger btn-sm me-1 mb-1" onclick="confirmDeletion(event, <?php echo $id; ?>)"><i class="fa-regular fa-trash-can"></i> Apagar</button>
-
                                         </form>
                                     <?php } ?>
-
                                 </td>
                             </tr>
-
                         <?php } ?>
-
                     </tbody>
                 </table>
-                <div class="d-flex justify-content-between align-items-center mt-2">
-                    <div class="text-secondary small">
-                        <?php if (!empty($this->data['pagination']['total'])): ?>
-                            Mostrando <?= $this->data['pagination']['first_item'] ?> até <?= $this->data['pagination']['last_item'] ?> de <?= $this->data['pagination']['total'] ?> registro(s)
-                        <?php else: ?>
-                            Exibindo <?= count($this->data['costCenters']); ?> registro(s) nesta página.
-                        <?php endif; ?>
+                <!-- Cards mobile -->
+                <div class="d-md-none">
+                    <?php foreach ($this->data['costCenters'] as $costCenter) { extract($costCenter); ?>
+                    <div class="card mb-2 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong><?= $name ?></strong>
+                                <span class="text-muted small">ID: <?= $id ?></span>
+                            </div>
+                            <div class="mt-2">
+                                <?php if (in_array('ViewCostCenter', $this->data['buttonPermission'])) {
+                                    echo "<a href='{$_ENV['URL_ADM']}view-cost-center/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a>";
+                                }
+                                if (in_array('UpdateCostCenter', $this->data['buttonPermission'])) {
+                                    echo "<a href='{$_ENV['URL_ADM']}update-cost-center/$id' class='btn btn-warning btn-sm me-1 mb-1'><i class='fa-solid fa-pen-to-square'></i> Editar</a>";
+                                }
+                                if (in_array('DeleteCostCenter', $this->data['buttonPermission'])) { ?>
+                                    <form id="formDeleteMobile<?= $id; ?>" action="<?= $_ENV['URL_ADM']; ?>delete-cost-center" method="POST" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="<?= $csrf_token; ?>">
+                                        <input type="hidden" name="id" id="id" value="<?= $id ?? ''; ?>">
+                                        <input type="hidden" name="name" id="name" value="<?= $name ?? ''; ?>">
+                                        <button type="submit" class="btn btn-danger btn-sm me-1 mb-1" onclick="confirmDeletion(event, <?= $id; ?>)"><i class="fa-regular fa-trash-can"></i> Apagar</button>
+                                    </form>
+                                <?php } ?>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <?= $this->data['pagination']['html'] ?? '' ?>
+                    <?php } ?>
+                    <!-- Paginação e informações abaixo dos cards no mobile -->
+                    <div class="d-flex d-md-none flex-column align-items-center w-100 mt-2">
+                        <div class="text-secondary small w-100 text-center mb-1">
+                            <?php if (!empty($this->data['pagination']['total'])): ?>
+                                Mostrando <?= $this->data['pagination']['first_item'] ?> até <?= $this->data['pagination']['last_item'] ?> de <?= $this->data['pagination']['total'] ?> registro(s)
+                            <?php else: ?>
+                                Exibindo <?= count($this->data['costCenters']); ?> registro(s) nesta página.
+                            <?php endif; ?>
+                        </div>
+                        <div class="w-100 d-flex justify-content-center">
+                            <?= $this->data['pagination']['html'] ?? '' ?>
+                        </div>
                     </div>
                 </div>
             <?php

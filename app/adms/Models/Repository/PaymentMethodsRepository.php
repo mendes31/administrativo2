@@ -22,55 +22,57 @@ class PaymentMethodsRepository extends DbConnection
 {
 
     /**
-     * Recuperar todos os formas de pagamento com paginação.
-     *
-     * Este método retorna uma lista de formas de pagamento da tabela `adms_payment_method`, com suporte à paginação.
+     * Recuperar todos os formas de pagamento com paginação e filtro por nome.
      *
      * @param int $page Número da página para recuperação de formas de pagamento (começa do 1).
      * @param int $limitResult Número máximo de resultados por página.
+     * @param string $filterName Filtro de busca pelo nome (parcial ou inteiro).
      * @return array Lista de formas de pagamento recuperados do banco de dados.
      */
-    public function getAllPaymentMethods(int $page = 1, int $limitResult = 10): array
+    public function getAllPaymentMethods(int $page = 1, int $limitResult = 10, string $filterName = ''): array
     {
-        // Calcular o registro inicial, função max para garantir valor mínimo 0
         $offset = max(0, ($page - 1) * $limitResult);
 
-        // QUERY para recuperar os registros do banco de dados
         $sql = 'SELECT id, name
-                FROM adms_payment_method               
-                ORDER BY id ASC
+                FROM adms_payment_method';
+        $params = [];
+        if (!empty($filterName)) {
+            $sql .= ' WHERE name LIKE :name';
+            $params[':name'] = '%' . $filterName . '%';
+        }
+        $sql .= ' ORDER BY id ASC
                 LIMIT :limit OFFSET :offset';
 
-        // Preparar a QUERY
         $stmt = $this->getConnection()->prepare($sql);
-
-        // Substituir os parâmetros da QUERY pelos valores
+        if (!empty($filterName)) {
+            $stmt->bindValue(':name', $params[':name'], PDO::PARAM_STR);
+        }
         $stmt->bindValue(':limit', $limitResult, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-
-        // Executar a QUERY
         $stmt->execute();
-
-        // Ler os registros e retornar
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Recuperar a quantidade total de formas de pagamento para paginação.
+     * Recuperar a quantidade total de formas de pagamento para paginação e filtro por nome.
      *
-     * Este método retorna a quantidade total de formas de pagamento na tabela `adms_payment_method`, útil para a paginação.
-     *
+     * @param string $filterName Filtro de busca pelo nome (parcial ou inteiro).
      * @return int Quantidade total de formas de pagamento encontrados no banco de dados.
      */
-    public function getAmountPaymentMethods(): int
+    public function getAmountPaymentMethods(string $filterName = ''): int
     {
-        // QUERY para recuperar a quantidade de registros
         $sql = 'SELECT COUNT(id) as amount_records
                 FROM adms_payment_method';
-
+        $params = [];
+        if (!empty($filterName)) {
+            $sql .= ' WHERE name LIKE :name';
+            $params[':name'] = '%' . $filterName . '%';
+        }
         $stmt = $this->getConnection()->prepare($sql);
+        if (!empty($filterName)) {
+            $stmt->bindValue(':name', $params[':name'], PDO::PARAM_STR);
+        }
         $stmt->execute();
-
         return (int) ($stmt->fetch(PDO::FETCH_ASSOC)['amount_records'] ?? 0);
     }
 

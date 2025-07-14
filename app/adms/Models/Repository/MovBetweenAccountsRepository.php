@@ -24,51 +24,113 @@ class MovBetweenAccountsRepository extends DbConnection
     }
 
     /**
-     * Recupera todas as transferências entre contas com paginação.
+     * Recupera todas as transferências entre contas com paginação e filtros.
      *
      * @param int $page Página atual
      * @param int $limit Limite de registros por página
+     * @param string $filterFrom Conta origem (parcial)
+     * @param string $filterTo Conta destino (parcial)
+     * @param string $filterDescription Descrição (parcial)
+     * @param string $filterUser Usuário (parcial)
+     * @param string $filterDate Data (parcial, formato dd/mm/yyyy ou yyyy-mm-dd)
      * @return array Lista de transferências
      */
-    public function getAllMovBetweenAccounts(int $page, int $limit): array
+    public function getAllMovBetweenAccounts(int $page, int $limit, string $filterFrom = '', string $filterTo = '', string $filterDescription = '', string $filterUser = '', string $filterDate = ''): array
     {
-        $page = max(1, (int)$page); // Garante que nunca será menor que 1
+        $page = max(1, (int)$page);
         $offset = ($page - 1) * $limit;
-        
-        $sql = 'SELECT  
-                	bt.id,                
-                    ab1.bank_name as from_bank_name, 
-                    ab2.bank_name as to_bank_name,
-                    bt.amount as amount,
-                    bt.description as description,
-                    au.name as user_name,
-                    bt.created_at
+        $where = [];
+        $params = [];
+        if (!empty($filterFrom)) {
+            $where[] = 'ab1.bank_name LIKE :from_bank_name';
+            $params[':from_bank_name'] = '%' . $filterFrom . '%';
+        }
+        if (!empty($filterTo)) {
+            $where[] = 'ab2.bank_name LIKE :to_bank_name';
+            $params[':to_bank_name'] = '%' . $filterTo . '%';
+        }
+        if (!empty($filterDescription)) {
+            $where[] = 'bt.description LIKE :description';
+            $params[':description'] = '%' . $filterDescription . '%';
+        }
+        if (!empty($filterUser)) {
+            $where[] = 'au.name LIKE :user_name';
+            $params[':user_name'] = '%' . $filterUser . '%';
+        }
+        if (!empty($filterDate)) {
+            // Permite busca por data no formato brasileiro ou americano
+            $where[] = '(DATE_FORMAT(bt.created_at, "%d/%m/%Y") LIKE :created_at OR DATE(bt.created_at) LIKE :created_at2)';
+            $params[':created_at'] = '%' . $filterDate . '%';
+            $params[':created_at2'] = '%' . $filterDate . '%';
+        }
+        $sql = 'SELECT  bt.id, ab1.bank_name as from_bank_name, ab2.bank_name as to_bank_name, bt.amount as amount, bt.description as description, au.name as user_name, bt.created_at
                 FROM adms_bank_transfers bt
                 LEFT JOIN adms_bank_accounts ab1 ON ab1.id = bt.origin_id
                 LEFT JOIN adms_bank_accounts ab2 ON ab2.id = bt.destination_id
-                LEFT JOIN adms_users au ON au.id = bt.user_id
-                ORDER BY bt.created_at DESC
+                LEFT JOIN adms_users au ON au.id = bt.user_id';
+        if ($where) {
+            $sql .= ' WHERE ' . implode(' AND ', $where);
+        }
+        $sql .= ' ORDER BY bt.created_at DESC
                 LIMIT :limit OFFSET :offset';
-
         $stmt = $this->getConnection()->prepare($sql);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, PDO::PARAM_STR);
+        }
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
-
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Retorna a quantidade total de transferências entre contas.
+     * Retorna a quantidade total de transferências entre contas com filtros.
      *
+     * @param string $filterFrom Conta origem (parcial)
+     * @param string $filterTo Conta destino (parcial)
+     * @param string $filterDescription Descrição (parcial)
+     * @param string $filterUser Usuário (parcial)
+     * @param string $filterDate Data (parcial, formato dd/mm/yyyy ou yyyy-mm-dd)
      * @return int Quantidade total de transferências
      */
-    public function getAmountMovBetweenAccounts(): int
+    public function getAmountMovBetweenAccounts(string $filterFrom = '', string $filterTo = '', string $filterDescription = '', string $filterUser = '', string $filterDate = ''): int
     {
-        $sql = 'SELECT COUNT(*) as total FROM adms_bank_transfers';
+        $where = [];
+        $params = [];
+        if (!empty($filterFrom)) {
+            $where[] = 'ab1.bank_name LIKE :from_bank_name';
+            $params[':from_bank_name'] = '%' . $filterFrom . '%';
+        }
+        if (!empty($filterTo)) {
+            $where[] = 'ab2.bank_name LIKE :to_bank_name';
+            $params[':to_bank_name'] = '%' . $filterTo . '%';
+        }
+        if (!empty($filterDescription)) {
+            $where[] = 'bt.description LIKE :description';
+            $params[':description'] = '%' . $filterDescription . '%';
+        }
+        if (!empty($filterUser)) {
+            $where[] = 'au.name LIKE :user_name';
+            $params[':user_name'] = '%' . $filterUser . '%';
+        }
+        if (!empty($filterDate)) {
+            $where[] = '(DATE_FORMAT(bt.created_at, "%d/%m/%Y") LIKE :created_at OR DATE(bt.created_at) LIKE :created_at2)';
+            $params[':created_at'] = '%' . $filterDate . '%';
+            $params[':created_at2'] = '%' . $filterDate . '%';
+        }
+        $sql = 'SELECT COUNT(*) as total
+                FROM adms_bank_transfers bt
+                LEFT JOIN adms_bank_accounts ab1 ON ab1.id = bt.origin_id
+                LEFT JOIN adms_bank_accounts ab2 ON ab2.id = bt.destination_id
+                LEFT JOIN adms_users au ON au.id = bt.user_id';
+        if ($where) {
+            $sql .= ' WHERE ' . implode(' AND ', $where);
+        }
         $stmt = $this->getConnection()->prepare($sql);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, PDO::PARAM_STR);
+        }
         $stmt->execute();
-        
         return (int) $stmt->fetch(PDO::FETCH_ASSOC)['total'];
     }
 

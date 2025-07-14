@@ -33,7 +33,6 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_frequency');
                     echo "<a href='{$_ENV['URL_ADM']}create-frequency' class='btn btn-success btn-sm'><i class='fa-regular fa-square-plus'></i> Cadastrar</a> ";
                 }
                 ?>
-                
             </span>
         </div>
 
@@ -41,72 +40,148 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_frequency');
 
             <?php // Inclui o arquivo que exibe mensagens de sucesso e erro
             include './app/adms/Views/partials/alerts.php';
+            ?>
 
+            <form method="get" class="row g-2 mb-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="name" class="form-label mb-1">Nome</label>
+                    <input type="text" name="name" id="name" value="<?= htmlspecialchars($_GET['name'] ?? '') ?>" class="form-control form-control-sm" placeholder="Buscar por nome...">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <label for="per_page" class="form-label mb-1 me-2">Mostrar</label>
+                    <select name="per_page" id="per_page" class="form-select form-select-sm w-auto mx-1" onchange="this.form.submit()">
+                        <?php foreach ([10, 20, 50, 100] as $opt): ?>
+                            <option value="<?= $opt ?>" <?= ($_GET['per_page'] ?? 10) == $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span class="form-label mb-1 ms-1">registros</span>
+                </div>
+                <div class="col-md-2 d-flex gap-2 align-items-end">
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-search"></i> Filtrar</button>
+                    <a href="list-frequencies" class="btn btn-secondary btn-sm"><i class="fa fa-times"></i> Limpar filtro</a>
+                </div>
+            </form>
+
+            <?php
             // Verifica se há frequencias no array
             if ($this->data['frequencies'] ?? false) {
             ?>
 
-                <table class="table table-striped table-hover" id="tabela">
-                    <thead>
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Nome</th>
-                            <th scope="col">Dias</th>
-                            <th scope="col" class="text-center">Ações</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        <?php
-                        // Percorre o array de Frequências
-                        foreach ($this->data['frequencies'] as $costCenter) {
-
-                            // Extrai variáveis do array de Frequências
-                            extract($costCenter); ?>
+                <!-- Tabela Desktop -->
+                <div class="table-responsive d-none d-md-block">
+                    <table class="table table-striped table-hover" id="tabela">
+                        <thead>
                             <tr>
-                            <td><?php echo $id; ?></td>
-                                <td><?php echo $name; ?></td>
-                                <td><?php echo $days; ?></td>
-                                <td class="text-center">
+                                <th scope="col">ID</th>
+                                <th scope="col">Nome</th>
+                                <th scope="col">Dias</th>
+                                <th scope="col" class="text-center">Ações</th>
+                            </tr>
+                        </thead>
 
+                        <tbody>
+
+                            <?php
+                            // Percorre o array de Frequências
+                            foreach ($this->data['frequencies'] as $frequency) {
+                                extract($frequency); ?>
+                                <tr>
+                                    <td><?php echo $id; ?></td>
+                                    <td><?php echo $name; ?></td>
+                                    <td><?php echo $days; ?></td>
+                                    <td class="text-center">
+
+                                        <?php
+                                        if (in_array('ViewFrequency', $this->data['buttonPermission'])) {
+                                            echo "<a href='{$_ENV['URL_ADM']}view-frequency/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a>";
+                                        }
+
+                                        if (in_array('UpdateFrequency', $this->data['buttonPermission'])) {
+                                            echo "<a href='{$_ENV['URL_ADM']}update-frequency/$id' class='btn btn-warning btn-sm me-1 mb-1'><i class='fa-solid fa-pen-to-square'></i> Editar</a>";
+                                        }
+
+                                        if (in_array('DeleteFrequency', $this->data['buttonPermission'])) {
+                                        ?>
+                                            <form id="formDelete<?php echo $id; ?>" action="<?php echo $_ENV['URL_ADM']; ?>delete-frequency" method="POST" class="d-inline">
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                <input type="hidden" name="id" id="id" value="<?php echo $id ?? ''; ?>">
+                                                <input type="hidden" name="name" id="name" value="<?php echo $name ?? ''; ?>">
+                                                <button type="submit" class="btn btn-danger btn-sm me-1 mb-1" onclick="confirmDeletion(event, <?php echo $id; ?>)"><i class="fa-regular fa-trash-can"></i> Apagar</button>
+                                            </form>
+                                        <?php } ?>
+
+                                    </td>
+                                </tr>
+
+                            <?php } ?>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- CARDS MOBILE -->
+                <div class="d-block d-md-none">
+                    <?php foreach ($this->data['frequencies'] as $i => $frequency) { extract($frequency); ?>
+                        <div class="card mb-3 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title mb-1"><b><?= $name ?></b></h5>
+                                        <div class="mb-1"><b>ID:</b> <?= $id ?></div>
+                                        <div class="mb-1"><b>Dias:</b> <?= $days ?></div>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
                                     <?php
                                     if (in_array('ViewFrequency', $this->data['buttonPermission'])) {
                                         echo "<a href='{$_ENV['URL_ADM']}view-frequency/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a>";
                                     }
-
                                     if (in_array('UpdateFrequency', $this->data['buttonPermission'])) {
                                         echo "<a href='{$_ENV['URL_ADM']}update-frequency/$id' class='btn btn-warning btn-sm me-1 mb-1'><i class='fa-solid fa-pen-to-square'></i> Editar</a>";
                                     }
-
                                     if (in_array('DeleteFrequency', $this->data['buttonPermission'])) {
                                     ?>
-
-                                        <form id="formDelete<?php echo $id; ?>" action="<?php echo $_ENV['URL_ADM']; ?>delete-frequency" method="POST" class="d-inline">
-
-                                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-
-                                            <input type="hidden" name="id" id="id" value="<?php echo $id ?? ''; ?>">
-
-                                            <input type="hidden" name="name" id="name" value="<?php echo $name ?? ''; ?>">
-
-                                            <button type="submit" class="btn btn-danger btn-sm me-1 mb-1" onclick="confirmDeletion(event, <?php echo $id; ?>)"><i class="fa-regular fa-trash-can"></i> Apagar</button>
-
+                                        <form id="formDeleteMobile<?= $id; ?>" action="<?= $_ENV['URL_ADM']; ?>delete-frequency" method="POST" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="<?= $csrf_token; ?>">
+                                            <input type="hidden" name="id" id="id" value="<?= $id ?? ''; ?>">
+                                            <input type="hidden" name="name" id="name" value="<?= $name ?? ''; ?>">
+                                            <button type="submit" class="btn btn-danger btn-sm me-1 mb-1" onclick="confirmDeletion(event, <?= $id; ?>)"><i class="fa-regular fa-trash-can"></i> Apagar</button>
                                         </form>
                                     <?php } ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php } ?>
+                    <!-- Paginação e informações abaixo dos cards no mobile -->
+                    <div class="d-flex d-md-none flex-column align-items-center w-100 mt-2">
+                        <div class="text-secondary small w-100 text-center mb-1">
+                            <?php if (!empty($this->data['pagination']['total'])): ?>
+                                Mostrando <?= $this->data['pagination']['first_item'] ?> até <?= $this->data['pagination']['last_item'] ?> de <?= $this->data['pagination']['total'] ?> registro(s)
+                            <?php else: ?>
+                                Exibindo <?= count($this->data['frequencies']); ?> registro(s) nesta página.
+                            <?php endif; ?>
+                        </div>
+                        <div class="w-100 d-flex justify-content-center">
+                            <?= $this->data['pagination']['html'] ?? '' ?>
+                        </div>
+                    </div>
+                </div>
 
-                                </td>
-                            </tr>
-
-                        <?php } ?>
-
-                    </tbody>
-                </table>
-
+                <!-- Paginação Desktop -->
+                <div class="d-none d-md-flex justify-content-between align-items-center mt-2">
+                    <div class="text-secondary small">
+                        <?php if (!empty($this->data['pagination']['total'])): ?>
+                            Mostrando <?= $this->data['pagination']['first_item'] ?> até <?= $this->data['pagination']['last_item'] ?> de <?= $this->data['pagination']['total'] ?> registro(s)
+                        <?php else: ?>
+                            Exibindo <?= count($this->data['frequencies']); ?> registro(s) nesta página.
+                        <?php endif; ?>
+                    </div>
+                    <div>
+                        <?= $this->data['pagination']['html'] ?? '' ?>
+                    </div>
+                </div>
 
             <?php
-                // Inclui o arquivo de paginação
-                include_once './app/adms/Views/partials/pagination.php';
             } else { // Exibe mensagem se nenhuma frequancia for encontrado
                 echo "<div class='alert alert-danger' role='alert'>Nenhuma Frenquancia encontrado!</div>";
             } ?>
@@ -117,30 +192,5 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_frequency');
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function() {
-        $('#tabela').DataTable({
-            "language": {
-                "decimal": ",",
-                "thousands": ".",
-                "sProcessing": "Processando...",
-                "sLengthMenu": "Mostrar _MENU_ registros",
-                "sZeroRecords": "Nenhum registro encontrado",
-                "sEmptyTable": "Nenhum dado disponível na tabela",
-                "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
-                "sInfoEmpty": "Mostrando 0 até 0 de 0 registros",
-                "sInfoFiltered": "(filtrado de _MAX_ registros no total)",
-                "sSearch": "Buscar:",
-                "oPaginate": {
-                    "sFirst": "Primeiro",
-                    "sPrevious": "Anterior",
-                    "sNext": "Próximo",
-                    "sLast": "Último"
-                },
-                "oAria": {
-                    "sSortAscending": ": Ordenar colunas de forma ascendente",
-                    "sSortDescending": ": Ordenar colunas de forma descendente"
-                }
-            }
-        });
-    });
+    // DataTables removido para padronização do sistema
 </script>

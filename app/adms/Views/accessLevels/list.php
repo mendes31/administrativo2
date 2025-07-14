@@ -71,28 +71,80 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_access_level');
             if ($this->data['accessLevels'] ?? false) {
             ?>
 
-                <table class="table table-striped table-hover" id="tabela">
-                    <thead>
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Nome</th>
-                            <th scope="col" class="text-center">Ações</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        <?php
-                        // Percorre o array de níveis de acesso
-                        foreach ($this->data['accessLevels'] as $accessLevel) {
-
-                            // Extrai variáveis do array de níveis de acesso
-                            extract($accessLevel); ?>
+                <!-- Tabela Desktop -->
+                <div class="table-responsive d-none d-md-block">
+                    <table class="table table-striped table-hover" id="tabela">
+                        <thead>
                             <tr>
-                                <td><?php echo $id; ?></td>
-                                <td><?php echo $name; ?></td>
-                                <td class="text-center">
+                                <th scope="col">ID</th>
+                                <th scope="col">Nome</th>
+                                <th scope="col" class="text-center">Ações</th>
+                            </tr>
+                        </thead>
 
+                        <tbody>
+
+                            <?php
+                            // Percorre o array de níveis de acesso
+                            foreach ($this->data['accessLevels'] as $accessLevel) {
+
+                                // Extrai variáveis do array de níveis de acesso
+                                extract($accessLevel); ?>
+                                <tr>
+                                    <td><?php echo $id; ?></td>
+                                    <td><?php echo $name; ?></td>
+                                    <td class="text-center">
+
+                                        <?php
+                                        if (in_array('ListAccessLevelsPermissions', $this->data['buttonPermission'])) {
+                                            echo "<a href='{$_ENV['URL_ADM']}list-access-levels-permissions/$id' class='btn btn-info btn-sm me-1 mb-1'><i class='fa-solid fa-lock-open'></i> Permissões</a>";
+                                        }
+
+                                        if (in_array('ViewAccessLevel', $this->data['buttonPermission'])) {
+                                            echo "<a href='{$_ENV['URL_ADM']}view-access-level/$id' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a>";
+                                        }
+
+                                        if (in_array('UpdateAccessLevel', $this->data['buttonPermission'])) {
+                                            echo "<a href='{$_ENV['URL_ADM']}update-access-level/$id' class='btn btn-warning btn-sm me-1 mb-1'><i class='fa-solid fa-pen-to-square'></i> Editar</a>";
+                                        }
+
+                                        if (in_array('DeleteAccessLevel', $this->data['buttonPermission'])) {
+                                        ?>
+
+                                            <form id="formDelete<?php echo $id; ?>" action="<?php echo $_ENV['URL_ADM']; ?>delete-access-level" method="POST" class="d-inline">
+
+                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+
+                                                <input type="hidden" name="id" id="id" value="<?php echo $id ?? ''; ?>">
+
+                                                <input type="hidden" name="name" id="name" value="<?php echo $name ?? ''; ?>">
+
+                                                <button type="submit" class="btn btn-danger btn-sm me-1 mb-1" onclick="confirmDeletion(event, <?php echo $id; ?>)"><i class="fa-regular fa-trash-can"></i> Apagar</button>
+
+                                            </form>
+                                        <?php } ?>
+
+                                    </td>
+                                </tr>
+
+                            <?php } ?>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- CARDS MOBILE -->
+                <div class="d-block d-md-none">
+                    <?php foreach ($this->data['accessLevels'] as $i => $accessLevel) { extract($accessLevel); ?>
+                        <div class="card mb-3 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title mb-1"><b><?= $name ?></b></h5>
+                                        <div class="mb-1"><b>ID:</b> <?= $id ?></div>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
                                     <?php
                                     if (in_array('ListAccessLevelsPermissions', $this->data['buttonPermission'])) {
                                         echo "<a href='{$_ENV['URL_ADM']}list-access-levels-permissions/$id' class='btn btn-info btn-sm me-1 mb-1'><i class='fa-solid fa-lock-open'></i> Permissões</a>";
@@ -108,45 +160,50 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_access_level');
 
                                     if (in_array('DeleteAccessLevel', $this->data['buttonPermission'])) {
                                     ?>
-
-                                        <form id="formDelete<?php echo $id; ?>" action="<?php echo $_ENV['URL_ADM']; ?>delete-access-level" method="POST" class="d-inline">
-
-                                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-
-                                            <input type="hidden" name="id" id="id" value="<?php echo $id ?? ''; ?>">
-
-                                            <input type="hidden" name="name" id="name" value="<?php echo $name ?? ''; ?>">
-
-                                            <button type="submit" class="btn btn-danger btn-sm me-1 mb-1" onclick="confirmDeletion(event, <?php echo $id; ?>)"><i class="fa-regular fa-trash-can"></i> Apagar</button>
-
+                                        <form id="formDeleteMobile<?= $id; ?>" action="<?= $_ENV['URL_ADM']; ?>delete-access-level" method="POST" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="<?= $csrf_token; ?>">
+                                            <input type="hidden" name="id" id="id" value="<?= $id ?? ''; ?>">
+                                            <input type="hidden" name="name" id="name" value="<?= $name ?? ''; ?>">
+                                            <button type="submit" class="btn btn-danger btn-sm me-1 mb-1" onclick="confirmDeletion(event, <?= $id; ?>)"><i class="fa-regular fa-trash-can"></i> Apagar</button>
                                         </form>
                                     <?php } ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php } ?>
+                    <!-- Paginação e informações abaixo dos cards no mobile -->
+                    <div class="d-flex d-md-none flex-column align-items-center w-100 mt-2">
+                        <div class="text-secondary small w-100 text-center mb-1">
+                            <?php if (!empty($this->data['pagination']['total'])): ?>
+                                Mostrando <?= $this->data['pagination']['first_item'] ?> até <?= $this->data['pagination']['last_item'] ?> de <?= $this->data['pagination']['total'] ?> registro(s)
+                            <?php else: ?>
+                                Exibindo <?= count($this->data['accessLevels']); ?> registro(s) nesta página.
+                            <?php endif; ?>
+                        </div>
+                        <div class="w-100 d-flex justify-content-center">
+                            <?= $this->data['pagination']['html'] ?? '' ?>
+                        </div>
+                    </div>
+                </div>
 
-                                </td>
-                            </tr>
-
-                        <?php } ?>
-
-                    </tbody>
-                </table>
+                <!-- Paginação Desktop -->
+                <div class="d-none d-md-flex justify-content-between align-items-center mt-2">
+                    <div class="text-secondary small">
+                        <?php if (!empty($this->data['pagination']['total'])): ?>
+                            Mostrando <?= $this->data['pagination']['first_item'] ?> até <?= $this->data['pagination']['last_item'] ?> de <?= $this->data['pagination']['total'] ?> registro(s)
+                        <?php else: ?>
+                            Exibindo <?= count($this->data['accessLevels']); ?> registro(s) nesta página.
+                        <?php endif; ?>
+                    </div>
+                    <div>
+                        <?= $this->data['pagination']['html'] ?? '' ?>
+                    </div>
+                </div>
 
             <?php
             } else { // Exibe mensagem se nenhum nível de acesso for encontrado
                 echo "<div class='alert alert-danger' role='alert'>Nenhum nível de acesso encontrado!</div>";
             } ?>
-
-            <div class="d-flex justify-content-between align-items-center mt-2">
-                <div class="text-secondary small">
-                    <?php if (!empty($this->data['pagination']['total'])): ?>
-                        Mostrando <?= $this->data['pagination']['first_item'] ?> até <?= $this->data['pagination']['last_item'] ?> de <?= $this->data['pagination']['total'] ?> registro(s)
-                    <?php else: ?>
-                        Exibindo <?= count($this->data['accessLevels']); ?> registro(s) nesta página.
-                    <?php endif; ?>
-                </div>
-                <div>
-                    <?= $this->data['pagination']['html'] ?? '' ?>
-                </div>
-            </div>
 
         </div>
 

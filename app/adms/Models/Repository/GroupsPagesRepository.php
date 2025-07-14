@@ -22,55 +22,55 @@ class GroupsPagesRepository extends DbConnection
 {
 
     /**
-     * Recuperar todos os grupos com paginação.
-     *
-     * Este método retorna uma lista de grupos da tabela `adms_groups_pages`, com suporte à paginação.
+     * Recuperar todos os grupos com paginação e filtro por nome.
      *
      * @param int $page Número da página para recuperação de grupos (começa do 1).
      * @param int $limitResult Número máximo de resultados por página.
+     * @param string $filterName Filtro de busca pelo nome (parcial ou inteiro).
      * @return array Lista de grupos recuperados do banco de dados.
      */
-    public function getAllGroupsPages(int $page = 1, int $limitResult = 10): array
+    public function getAllGroupsPages(int $page = 1, int $limitResult = 10, string $filterName = ''): array
     {
-        // Calcular o registro inicial, função max para garantir valor mínimo 0
         $offset = max(0, ($page - 1) * $limitResult);
-
-        // QUERY para recuperar os registros do banco de dados
         $sql = 'SELECT id, name 
-                FROM adms_groups_pages                
-                ORDER BY name ASC
+                FROM adms_groups_pages';
+        $params = [];
+        if (!empty($filterName)) {
+            $sql .= ' WHERE name LIKE :name';
+            $params[':name'] = '%' . $filterName . '%';
+        }
+        $sql .= ' ORDER BY name ASC
                 LIMIT :limit OFFSET :offset';
-
-        // Preparar a QUERY
         $stmt = $this->getConnection()->prepare($sql);
-
-        // Substituir os parâmetros da QUERY pelos valores
+        if (!empty($filterName)) {
+            $stmt->bindValue(':name', $params[':name'], PDO::PARAM_STR);
+        }
         $stmt->bindValue(':limit', $limitResult, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-
-        // Executar a QUERY
         $stmt->execute();
-
-        // Ler os registros e retornar
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Recuperar a quantidade total de grupos para paginação.
+     * Recuperar a quantidade total de grupos para paginação e filtro por nome.
      *
-     * Este método retorna a quantidade total de grupos na tabela `adms_groups_pages`, útil para a paginação.
-     *
+     * @param string $filterName Filtro de busca pelo nome (parcial ou inteiro).
      * @return int Quantidade total de grupos encontrados no banco de dados.
      */
-    public function getAmountGroupsPages(): int
+    public function getAmountGroupsPages(string $filterName = ''): int
     {
-        // QUERY para recuperar a quantidade de registros
         $sql = 'SELECT COUNT(id) as amount_records
                 FROM adms_groups_pages';
-
+        $params = [];
+        if (!empty($filterName)) {
+            $sql .= ' WHERE name LIKE :name';
+            $params[':name'] = '%' . $filterName . '%';
+        }
         $stmt = $this->getConnection()->prepare($sql);
+        if (!empty($filterName)) {
+            $stmt->bindValue(':name', $params[':name'], PDO::PARAM_STR);
+        }
         $stmt->execute();
-
         return (int) ($stmt->fetch(PDO::FETCH_ASSOC)['amount_records'] ?? 0);
     }
 

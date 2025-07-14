@@ -80,10 +80,8 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
             <h5 class="mb-0"><i class="fas fa-table me-2"></i>Treinamentos Obrigatórios por Colaborador</h5>
         </div>
         <div class="card-body">
-            <div class="d-flex justify-content-end align-items-center mb-2 flex-wrap gap-2">
-                <!-- seletor removido daqui -->
-            </div>
-            <div class="table-responsive">
+            <!-- Tabela Desktop -->
+            <div class="table-responsive d-none d-md-block">
                 <table class="table table-striped table-hover" id="matrixByUserTable" style="table-layout: fixed; width: 100%;">
                     <thead>
                         <tr>
@@ -139,22 +137,55 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                     </tbody>
                 </table>
             </div>
-            <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
-                <div class="text-muted small">
-                    <?php
-                    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-                    $perPage = $this->data['per_page'] ?? 10;
-                    $total = $this->data['pagination']['total'] ?? count($this->data['matrixByUser']);
-                    $from = ($total > 0) ? (($page - 1) * $perPage + 1) : 0;
-                    $to = min($from + count($this->data['matrixByUser']) - 1, $total);
-                    ?>
-                    Mostrando <?= $from ?> até <?= $to ?> de <?= $total ?> registro(s)
-                </div>
-                <?php if (!empty($this->data['pagination']['html'])): ?>
-                    <div>
-                        <?= $this->data['pagination']['html'] ?>
-                    </div>
+
+            <!-- CARDS MOBILE -->
+            <div class="d-block d-md-none">
+                <?php if (!empty($this->data['matrixByUser'])): ?>
+                    <?php foreach ($this->data['matrixByUser'] as $i => $item): ?>
+                        <div class="card mb-3 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title mb-1"><b><?= htmlspecialchars($item['user_name'] ?? $item['name'] ?? '') ?></b></h5>
+                                        <div class="mb-1"><b>ID:</b> <?= htmlspecialchars($item['id'] ?? $item['user_id'] ?? '-') ?></div>
+                                        <div class="mb-1"><b>Treinamento:</b> <?= htmlspecialchars($item['training_name'] ?? $item['treinamento_nome'] ?? '') ?></div>
+                                        <div class="mb-1"><b>Status:</b> <?= ($item['validade'] ?? false) ? '<span class=\'badge bg-success\'>Válido</span>' : '<span class=\'badge bg-secondary\'>-</span>' ?></div>
+                                    </div>
+                                    <button class="btn btn-outline-primary btn-sm ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#cardMatrixDetails<?= $i ?>" aria-expanded="false" aria-controls="cardMatrixDetails<?= $i ?>">Ver mais</button>
+                                </div>
+                                <div class="collapse mt-2" id="cardMatrixDetails<?= $i ?>">
+                                    <div><b>Departamento:</b> <?= htmlspecialchars($item['department'] ?? $item['department_nome'] ?? '') ?></div>
+                                    <div><b>Cargo:</b> <?= htmlspecialchars($item['position'] ?? $item['cargo_nome'] ?? '') ?></div>
+                                    <div><b>Código:</b> <?= htmlspecialchars($item['codigo'] ?? '') ?></div>
+                                    <div><b>Reciclagem:</b> <?php if (($item['reciclagem'] ?? false) && ($item['reciclagem_periodo'] ?? false)): ?><?= $item['reciclagem_periodo'] ?> meses<?php else: ?><span class="text-muted">Não exige</span><?php endif; ?></div>
+                                    <div><b>Validade:</b> <?= htmlspecialchars($item['validade'] ?? '-') ?></div>
+                                    <div class="mt-2">
+                                        <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $item['user_id'] ?? $item['id'] ?>-<?= $item['training_id'] ?>" class="btn btn-info btn-sm me-1 mb-1" title="Ver histórico de reciclagem"><i class="fas fa-history"></i> Histórico</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="alert alert-danger" role="alert">Nenhum vínculo obrigatório encontrado.</div>
                 <?php endif; ?>
+
+                <!-- Paginação e informações abaixo dos cards no mobile -->
+                <div class="d-flex d-md-none flex-column align-items-center w-100 mt-2">
+                    <div class="text-secondary small w-100 text-center mb-1">
+                        <?php
+                        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                        $perPage = $this->data['per_page'] ?? 10;
+                        $total = $this->data['pagination']['total'] ?? count($this->data['matrixByUser']);
+                        $from = ($total > 0) ? (($page - 1) * $perPage + 1) : 0;
+                        $to = min($from + count($this->data['matrixByUser']) - 1, $total);
+                        ?>
+                        Mostrando <?= $from ?> até <?= $to ?> de <?= $total ?> registro(s)
+                    </div>
+                    <div class="w-100 d-flex justify-content-center">
+                        <?= $this->data['pagination']['html'] ?? '' ?>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

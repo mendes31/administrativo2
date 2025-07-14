@@ -22,57 +22,93 @@ class DocumentsRepository extends DbConnection
 {   
 
     /**
-     * Recuperar todos os documentos com paginação.
-     *
-     * Este método retorna uma lista de documentos da tabela `adms_documents`, com suporte à paginação.
+     * Recuperar todos os documentos com paginação e filtros.
      *
      * @param int $page Número da página para recuperação de documentos (começa do 1).
      * @param int $limitResult Número máximo de resultados por página.
+     * @param string $filterCodDoc Filtro de busca pelo código (parcial ou inteiro).
+     * @param string $filterName Filtro de busca pelo nome (parcial ou inteiro).
+     * @param string $filterVersion Filtro de busca pela versão (parcial ou inteiro).
+     * @param string $filterStatus Filtro de busca pelo status ('1', '0' ou '').
      * @return array Lista de documentos recuperados do banco de dados.
      */
-    public function getAllDocuments(int $page = 1, int $limitResult = 10): array
+    public function getAllDocuments(int $page = 1, int $limitResult = 10, string $filterCodDoc = '', string $filterName = '', string $filterVersion = '', string $filterStatus = ''): array
     {
-        // Calcular o registro inicial, função max para garantir valor mínimo 0
         $offset = max(0, ($page - 1) * $limitResult);
-
-        // QUERY para recuperar os registros do banco de dados
         $sql = 'SELECT id, cod_doc, name_doc, version, active 
-                FROM adms_documents                
-                ORDER BY name_doc ASC
+                FROM adms_documents';
+        $where = [];
+        $params = [];
+        if (!empty($filterCodDoc)) {
+            $where[] = 'cod_doc LIKE :cod_doc';
+            $params[':cod_doc'] = '%' . $filterCodDoc . '%';
+        }
+        if (!empty($filterName)) {
+            $where[] = 'name_doc LIKE :name_doc';
+            $params[':name_doc'] = '%' . $filterName . '%';
+        }
+        if (!empty($filterVersion)) {
+            $where[] = 'version LIKE :version';
+            $params[':version'] = '%' . $filterVersion . '%';
+        }
+        if ($filterStatus !== '' && ($filterStatus === '0' || $filterStatus === '1')) {
+            $where[] = 'active = :active';
+            $params[':active'] = (int)$filterStatus;
+        }
+        if ($where) {
+            $sql .= ' WHERE ' . implode(' AND ', $where);
+        }
+        $sql .= ' ORDER BY name_doc ASC
                 LIMIT :limit OFFSET :offset';
-
-        // Preparar a QUERY
         $stmt = $this->getConnection()->prepare($sql);
-
-        // Substituir os parâmetros da QUERY pelos valores
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
         $stmt->bindValue(':limit', $limitResult, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-
-        // Executar a QUERY
         $stmt->execute();
-
-        // Ler os registros e retornar
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Recuperar a quantidade total de documentos para paginação.
+     * Recuperar a quantidade total de documentos para paginação e filtros.
      *
-     * Este método retorna a quantidade total de documentos na tabela `adms_documents`, útil para a paginação.
-     *
-     * @return int Quantidade total de páginas encontradas no banco de dados.
+     * @param string $filterCodDoc Filtro de busca pelo código (parcial ou inteiro).
+     * @param string $filterName Filtro de busca pelo nome (parcial ou inteiro).
+     * @param string $filterVersion Filtro de busca pela versão (parcial ou inteiro).
+     * @param string $filterStatus Filtro de busca pelo status ('1', '0' ou '').
+     * @return int Quantidade total de documentos encontrados no banco de dados.
      */
-    public function getAmountDocuments(): int
+    public function getAmountDocuments(string $filterCodDoc = '', string $filterName = '', string $filterVersion = '', string $filterStatus = ''): int
     {
-        // QUERY para recuperar a quantidade de registros
         $sql = 'SELECT COUNT(id) as amount_records
-                FROM adms_documents
-                WHERE active = :active';
-
+                FROM adms_documents';
+        $where = [];
+        $params = [];
+        if (!empty($filterCodDoc)) {
+            $where[] = 'cod_doc LIKE :cod_doc';
+            $params[':cod_doc'] = '%' . $filterCodDoc . '%';
+        }
+        if (!empty($filterName)) {
+            $where[] = 'name_doc LIKE :name_doc';
+            $params[':name_doc'] = '%' . $filterName . '%';
+        }
+        if (!empty($filterVersion)) {
+            $where[] = 'version LIKE :version';
+            $params[':version'] = '%' . $filterVersion . '%';
+        }
+        if ($filterStatus !== '' && ($filterStatus === '0' || $filterStatus === '1')) {
+            $where[] = 'active = :active';
+            $params[':active'] = (int)$filterStatus;
+        }
+        if ($where) {
+            $sql .= ' WHERE ' . implode(' AND ', $where);
+        }
         $stmt = $this->getConnection()->prepare($sql);
-        $stmt->bindValue(':active', 1, PDO::PARAM_INT);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
         $stmt->execute();
-
         return (int) ($stmt->fetch(PDO::FETCH_ASSOC)['amount_records'] ?? 0);
     }
 

@@ -109,6 +109,8 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_pay');
             if ($this->data['payments'] ?? false) {
             ?>
 
+                <!-- Tabela desktop -->
+                <div class="table-responsive d-none d-md-block">
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
@@ -127,18 +129,10 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_pay');
                             <th scope="col" class="text-center">Ações</th>
                         </tr>
                     </thead>
-
                     <tbody>
-
                         <?php
-
-                        // Percorre o array de cargo
                         foreach ($this->data['payments'] as $pay) {
-
-                            // Extrai variáveis do array de cargos
                             extract($pay);
-
-                            // Calcular a soma dos valores pagos e descontos
                             $totalPago = 0;
                             $totalDesconto = 0;
                             if (!empty($movements)) {
@@ -155,113 +149,161 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_pay');
                             if ($saldoPagar < 0) {
                                 $saldoPagar = 0;
                             }
-
-                        ?>
-
-
-                            <?php
-                            $classe_pago = ''; // Inicializa a variável para evitar o erro
-
+                            $classe_pago = '';
                             if ($paid == 1) {
-                                $classe_pago = 'text-success'; // Define a cor verde
-                                $ocultar = 'ocultar'; // clase para ocultar funcionalidades - botões
+                                $classe_pago = 'text-success';
+                                $ocultar = 'ocultar';
                             } else {
-                                $classe_pago = 'text-danger'; // Define a cor vermelha
+                                $classe_pago = 'text-danger';
                                 $ocultar = '';
                             }
-                            ?>
-
-                            <tr id="linha-<?php echo $id_pay; ?>" data-busy="<?php echo $busy; ?>">
-                                <td><i class="fa fa-square <?php echo $classe_pago; ?> mr-1"></i>&nbsp;<?php echo $num_doc; ?></td>
-                                <td><?php
-                                    if (!empty($installment_number) && !empty($total_installments)) {
-                                        echo $installment_number . '/' . $total_installments;
-                                    } else {
-                                        echo $installment_number ?? '';
+                        ?>
+                        <tr id="linha-<?php echo $id_pay; ?>" data-busy="<?php echo $busy; ?>">
+                            <td><i class="fa fa-square <?php echo $classe_pago; ?> mr-1"></i>&nbsp;<?php echo $num_doc; ?></td>
+                            <td><?php
+                                if (!empty($installment_number) && !empty($total_installments)) {
+                                    echo $installment_number . '/' . $total_installments;
+                                } else {
+                                    echo $installment_number ?? '';
+                                }
+                                ?></td>
+                            <td class="text-nowrap" style="min-width:110px;"><?php echo !empty($issue_date) ? date("d-m-Y", strtotime($issue_date)) : ''; ?></td>
+                            <td><?php echo $num_nota ?? ''; ?></td>
+                            <td><?php echo $card_code_fornecedor ?? ''; ?></td>
+                            <td><?php echo $card_name; ?></td>
+                            <td class="d-none d-md-table-cell text-nowrap" style="min-width:110px;">
+                                <?php echo 'R$ ' . number_format($original_value, 2, ',', '.'); ?>
+                            </td>
+                            <td class="d-none d-md-table-cell text-success text-nowrap" style="min-width:110px;"><?php echo 'R$ ' . number_format($totalPago, 2, ',', '.'); ?></td>
+                            <td class="d-none d-md-table-cell text-danger text-nowrap" style="min-width:110px;"><?php echo 'R$ ' . number_format($saldoPagar, 2, ',', '.'); ?></td>
+                            <td class="d-none d-md-table-cell text-nowrap" style="min-width:110px;"><?php echo date("d-m-Y", strtotime($due_date)); ?></td>
+                            <td class="d-none d-md-table-cell text-nowrap" style="min-width:110px;"><?php echo !empty($expected_date) ? date("d-m-Y", strtotime($expected_date)) : 'N/A'; ?></td>
+                            <td class="d-none d-md-table-cell text" data-status>
+                                <?php if ($busy == 1): ?>
+                                    <span class="text-danger" title="Registro ocupado por:<?= $name_user_temp ?? 'usuário desconhecido' ?>">
+                                        <i class="fa-solid fa-lock"></i> Ocupado
+                                    </span>
+                                <?php else: ?>
+                                    <span class="text-success" title="Registro livre">
+                                        <i class="fa-solid fa-unlock"></i> Livre
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-center">
+                                <div class="tabela-acoes">
+                                    <?php
+                                    $base = $_ENV['URL_ADM'];
+                                    if (in_array('ViewPay', $this->data['buttonPermission'])) {
+                                        echo "<a href='{$base}view-pay/$id_pay' class='btn btn-primary btn-sm me-1 mb-1 acao' data-id='$id_pay' data-busy='$busy' data-user-temp='$name_user_temp' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-custom-class='tooltip-visualizar' title='Visualizar'><i class='fa-regular fa-eye'></i></a>";
                                     }
-                                    ?></td>
-                                <td class="text-nowrap" style="min-width:110px;"><?php echo !empty($issue_date) ? date("d-m-Y", strtotime($issue_date)) : ''; ?></td>
-                                <td><?php echo $num_nota ?? ''; ?></td>
-                                <td><?php echo $card_code_fornecedor ?? ''; ?></td>
-                                <td><?php echo $card_name; ?></td>
-                                <td class="d-none d-md-table-cell text-nowrap" style="min-width:110px;">
-                                    <?php echo 'R$ ' . number_format($original_value, 2, ',', '.'); ?>
-                                </td>
-                                <td class="d-none d-md-table-cell text-success text-nowrap" style="min-width:110px;"><?php echo 'R$ ' . number_format($totalPago, 2, ',', '.'); ?></td>
-                                <td class="d-none d-md-table-cell text-danger text-nowrap" style="min-width:110px;"><?php echo 'R$ ' . number_format($saldoPagar, 2, ',', '.'); ?></td>
-                                <td class="d-none d-md-table-cell text-nowrap" style="min-width:110px;"><?php echo date("d-m-Y", strtotime($due_date)); ?></td>
-                                <td class="d-none d-md-table-cell text-nowrap" style="min-width:110px;"><?php echo !empty($expected_date) ? date("d-m-Y", strtotime($expected_date)) : 'N/A'; ?></td>
-                                <td class="d-none d-md-table-cell text" data-status>
-                                    <?php if ($busy == 1): ?>
-                                        <span class="text-danger" title="Registro ocupado por:<?= $name_user_temp ?? 'usuário desconhecido' ?>">
-                                            <i class="fa-solid fa-lock"></i> Ocupado
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="text-success" title="Registro livre">
-                                            <i class="fa-solid fa-unlock"></i> Livre
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-
-                                <td class="text-center">
-                                    <div class="tabela-acoes">
-                                        <?php
-                                        $base = $_ENV['URL_ADM'];
-
-                                        // Botão Visualizar
-                                        if (in_array('ViewPay', $this->data['buttonPermission'])) {
-                                            echo "<a href='{$base}view-pay/$id_pay' class='btn btn-primary btn-sm me-1 mb-1 acao' data-id='$id_pay' data-busy='$busy' data-user-temp='$name_user_temp' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-custom-class='tooltip-visualizar' title='Visualizar'><i class='fa-regular fa-eye'></i></a>";
+                                    if ($paid != 1) {
+                                        if (in_array('UpdatePay', $this->data['buttonPermission']) && !($totalPago > 0 && $paid != 1)) {
+                                            echo "<a href='{$base}update-pay/$id_pay' class='btn btn-warning btn-sm me-1 mb-1 acao' data-id='$id_pay' data-busy='$busy' data-user-temp='$name_user_temp' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-custom-class='tooltip-editar' title='Editar'><i class='fa-solid fa-pen-to-square'></i></a>";
                                         }
-
-                                        // Se paid = 1, não exibe mais nenhuma ação
-                                        if ($paid != 1) {
-                                            // Botão Editar
-                                            if (in_array('UpdatePay', $this->data['buttonPermission']) && !($totalPago > 0 && $paid != 1)) {
-                                                echo "<a href='{$base}update-pay/$id_pay' class='btn btn-warning btn-sm me-1 mb-1 acao' data-id='$id_pay' data-busy='$busy' data-user-temp='$name_user_temp' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-custom-class='tooltip-editar' title='Editar'><i class='fa-solid fa-pen-to-square'></i></a>";
-                                            }
-
-                                            // Botão Parcelar
-                                            if (in_array('Installments', $this->data['buttonPermission']) && !($totalPago > 0 && $paid != 1)) {
-                                                echo "<a href='{$base}installments/$id_pay' class='btn btn-sm me-1 mb-1 btn-parcelar acao $ocultar' data-id='$id_pay' data-busy='$busy' data-user-temp='$name_user_temp' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-custom-class='tooltip-parcelar' title='Parcelar'><i class='fa-solid fa-coins'></i></a>";
-                                            }
-
-                                            // Botão Pagar
-                                            if (in_array('Payment', $this->data['buttonPermission'])) {
-                                                echo "<a href='{$base}payment/$id_pay' class='btn btn-success btn-sm me-1 mb-1 acao $ocultar' data-id='$id_pay' data-busy='$busy' data-user-temp='$name_user_temp' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-custom-class='tooltip-pagar' title='Pagar'><i class='fa-solid fa-money-bill-wave'></i></a>";
-                                            }
-
-                                            // Botão Excluir (formulário com POST)
-                                            if (in_array('DeletePay', $this->data['buttonPermission']) && !($totalPago > 0 && $paid != 1)) {
-                                        ?>
-                                                <form id="formDelete<?= $id_pay ?>" action="<?= $base ?>delete-pay" method="POST" class="d-inline">
-                                                    <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
-                                                    <input type="hidden" name="id" value="<?= $id_pay ?? '' ?>">
-                                                    <input type="hidden" name="num_doc" value="<?= $num_doc ?? '' ?>">
-                                                    <input type="hidden" name="partner_id" value="<?= $partner_id ?? '' ?>">
-                                                    <button type="submit"
-                                                        class="btn btn-danger btn-sm me-1 mb-1 btn-verificar-busy <?= $ocultar ?>"
-                                                        onclick="confirmDeletion(event, <?= $id_pay ?>)"
-                                                        data-busy="<?= $busy ?>"
-                                                        data-user-temp="<?= $name_user_temp ?>"
-                                                        data-bs-toggle="tooltip"
-                                                        data-bs-placement="top"
-                                                        data-bs-custom-class="tooltip-deletar"
-                                                        title="Excluir">
-                                                        <i class="fa-regular fa-trash-can"></i>
-                                                    </button>
-                                                </form>
-                                        <?php
-                                            }
+                                        if (in_array('Installments', $this->data['buttonPermission']) && !($totalPago > 0 && $paid != 1)) {
+                                            echo "<a href='{$base}installments/$id_pay' class='btn btn-sm me-1 mb-1 btn-parcelar acao $ocultar' data-id='$id_pay' data-busy='$busy' data-user-temp='$name_user_temp' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-custom-class='tooltip-parcelar' title='Parcelar'><i class='fa-solid fa-coins'></i></a>";
                                         }
-                                        ?>
-                                    </div>
-                                </td>
-                            </tr>
-
+                                        if (in_array('Payment', $this->data['buttonPermission'])) {
+                                            echo "<a href='{$base}payment/$id_pay' class='btn btn-success btn-sm me-1 mb-1 acao $ocultar' data-id='$id_pay' data-busy='$busy' data-user-temp='$name_user_temp' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-custom-class='tooltip-pagar' title='Pagar'><i class='fa-solid fa-money-bill-wave'></i></a>";
+                                        }
+                                        if (in_array('DeletePay', $this->data['buttonPermission']) && !($totalPago > 0 && $paid != 1)) { ?>
+                                            <form id="formDelete<?= $id_pay ?>" action="<?= $base ?>delete-pay" method="POST" class="d-inline">
+                                                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+                                                <input type="hidden" name="id" value="<?= $id_pay ?? '' ?>">
+                                                <input type="hidden" name="num_doc" value="<?= $num_doc ?? '' ?>">
+                                                <input type="hidden" name="partner_id" value="<?= $partner_id ?? '' ?>">
+                                                <button type="submit"
+                                                    class="btn btn-danger btn-sm me-1 mb-1 btn-verificar-busy <?= $ocultar ?>"
+                                                    onclick="confirmDeletion(event, <?= $id_pay ?>)"
+                                                    data-busy="<?= $busy ?>"
+                                                    data-user-temp="<?= $name_user_temp ?>"
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    data-bs-custom-class="tooltip-deletar"
+                                                    title="Excluir">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                    <?php }
+                                    }
+                                    ?>
+                                </div>
+                            </td>
+                        </tr>
                         <?php } ?>
-
                     </tbody>
                 </table>
+                </div>
+
+                <!-- Cards mobile -->
+                <div class="d-md-none">
+                    <?php foreach ($this->data['payments'] as $pay) {
+                        extract($pay);
+                        $totalPago = 0;
+                        $totalDesconto = 0;
+                        if (!empty($movements)) {
+                            foreach ($movements as $mov) {
+                                $totalPago += $mov['movement_value'];
+                                $totalDesconto += $mov['discount_value'] ?? 0;
+                            }
+                        }
+                        if ($totalDesconto > 0) {
+                            $saldoPagar = $original_value - ($totalPago + $totalDesconto);
+                        } else {
+                            $saldoPagar = $original_value - $totalPago;
+                        }
+                        if ($saldoPagar < 0) {
+                            $saldoPagar = 0;
+                        }
+                        $classe_pago = ($paid == 1) ? 'text-success' : 'text-danger';
+                        $ocultar = ($paid == 1) ? 'ocultar' : '';
+                    ?>
+                    <div class="card mb-2 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>Nº Pedido: <?= $num_doc ?></strong>
+                                <span class="text-muted small">Venc: <?= date('d-m-Y', strtotime($due_date)) ?></span>
+                            </div>
+                            <div><b>Parcela:</b> <?= !empty($installment_number) && !empty($total_installments) ? ($installment_number . '/' . $total_installments) : ($installment_number ?? '') ?></div>
+                            <div><b>Emissão:</b> <?= !empty($issue_date) ? date('d-m-Y', strtotime($issue_date)) : '' ?></div>
+                            <div><b>Nº Nota:</b> <?= $num_nota ?? '' ?></div>
+                            <div><b>Cód. Fornecedor:</b> <?= $card_code_fornecedor ?? '' ?></div>
+                            <div><b>Fornecedor:</b> <?= $card_name ?></div>
+                            <div><b>Valor:</b> R$ <?= number_format($original_value, 2, ',', '.') ?></div>
+                            <div><b>Pago:</b> R$ <?= number_format($totalPago, 2, ',', '.') ?></div>
+                            <div><b>Pagar:</b> R$ <?= number_format($saldoPagar, 2, ',', '.') ?></div>
+                            <div><b>Status:</b> <span class="<?= $classe_pago ?>"><?= $paid == 1 ? 'Pago' : 'Pendente' ?></span></div>
+                            <div class="mt-2">
+                                <?php $base = $_ENV['URL_ADM'];
+                                if (in_array('ViewPay', $this->data['buttonPermission'])) {
+                                    echo "<a href='{$base}view-pay/$id_pay' class='btn btn-primary btn-sm me-1 mb-1'><i class='fa-regular fa-eye'></i> Visualizar</a>";
+                                }
+                                if ($paid != 1) {
+                                    if (in_array('UpdatePay', $this->data['buttonPermission']) && !($totalPago > 0 && $paid != 1)) {
+                                        echo "<a href='{$base}update-pay/$id_pay' class='btn btn-warning btn-sm me-1 mb-1'><i class='fa-solid fa-pen-to-square'></i> Editar</a>";
+                                    }
+                                    if (in_array('Installments', $this->data['buttonPermission']) && !($totalPago > 0 && $paid != 1)) {
+                                        echo "<a href='{$base}installments/$id_pay' class='btn btn-sm me-1 mb-1 btn-parcelar $ocultar'><i class='fa-solid fa-coins'></i> Parcelar</a>";
+                                    }
+                                    if (in_array('Payment', $this->data['buttonPermission'])) {
+                                        echo "<a href='{$base}payment/$id_pay' class='btn btn-success btn-sm me-1 mb-1 $ocultar'><i class='fa-solid fa-money-bill-wave'></i> Pagar</a>";
+                                    }
+                                    if (in_array('DeletePay', $this->data['buttonPermission']) && !($totalPago > 0 && $paid != 1)) { ?>
+                                        <form id="formDelete<?= $id_pay ?>" action="<?= $base ?>delete-pay" method="POST" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+                                            <input type="hidden" name="id" value="<?= $id_pay ?? '' ?>">
+                                            <input type="hidden" name="num_doc" value="<?= $num_doc ?? '' ?>">
+                                            <input type="hidden" name="partner_id" value="<?= $partner_id ?? '' ?>">
+                                            <button type="submit" class="btn btn-danger btn-sm me-1 mb-1 btn-verificar-busy $ocultar" onclick="confirmDeletion(event, <?= $id_pay ?>)"><i class="fa-regular fa-trash-can"></i> Apagar</button>
+                                        </form>
+                                <?php }
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php } ?>
+                </div>
 
                 <div class="text-end text-secondary small mb-2">
                     Exibindo <?php echo count($this->data['payments']); ?> registro(s) nesta página.
