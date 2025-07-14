@@ -16,6 +16,14 @@ class ApplyTraining
 
     public function index($param = null): void
     {
+        // Se houver dados do formulário em sessão, repopular
+        if (!empty($_SESSION['form_apply_training'])) {
+            foreach ($_SESSION['form_apply_training'] as $key => $value) {
+                $this->data[$key] = $value;
+            }
+            unset($_SESSION['form_apply_training']);
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->apply();
             return;
@@ -107,11 +115,26 @@ class ApplyTraining
 
     public function apply(): void
     {
+        // Antes de cada redirecionamento de erro, salvar os dados do formulário em sessão
+        function saveFormSession() {
+            $_SESSION['form_apply_training'] = [
+                'form_data_realizacao' => $_POST['data_realizacao'] ?? '',
+                'form_data_agendada' => $_POST['data_agendada'] ?? '',
+                'form_nota' => $_POST['nota'] ?? '',
+                'form_observacoes' => $_POST['observacoes'] ?? '',
+                'form_instrutor_nome' => $_POST['instrutor_nome'] ?? '',
+                'form_instrutor_email' => $_POST['instrutor_email'] ?? '',
+                'form_instructor_type' => $_POST['instructor_type'] ?? '',
+                'form_instructor_user_id' => $_POST['instructor_user_id'] ?? '',
+            ];
+        }
+
         $training_id = (int) ($_POST['training_id'] ?? 0);
         $user_id = (int) ($_POST['user_id'] ?? 0);
         $edit_id = (int) ($_POST['edit_id'] ?? 0);
         
         $data_realizacao = $_POST['data_realizacao'] ?? null;
+        $data_avaliacao = $_POST['data_avaliacao'] ?? null;
         $data_agendada = $_POST['data_agendada'] ?? null;
         $nota = $_POST['nota'] ?? null;
         $observacoes = $_POST['observacoes'] ?? null;
@@ -121,19 +144,51 @@ class ApplyTraining
         $instrutor_email = $_POST['instrutor_email'] ?? null;
         $aplicado_por = $_SESSION['user_id'] ?? null;
 
+        $redirectUrl = $_ENV['URL_ADM'] . "apply-training?training_id={$training_id}&user_id={$user_id}";
+        if (!empty($edit_id)) {
+            $redirectUrl .= "&edit_id={$edit_id}";
+        }
+
         // Validações básicas
         if (!$training_id || !$user_id) {
             $_SESSION['msg'] = "Dados obrigatórios não informados.";
             $_SESSION['msg_type'] = "danger";
-            header("Location: " . $_ENV['URL_ADM'] . "apply-training?training_id={$training_id}&user_id={$user_id}");
+            saveFormSession();
+            header("Location: " . $redirectUrl);
             exit;
+        }
+        // Validação obrigatória da nota
+        if ($nota === null || $nota === '' || !is_numeric($nota) || $nota < 0 || $nota > 10) {
+            $_SESSION['msg'] = "O campo Nota é obrigatório e deve estar entre 0 e 10.";
+            $_SESSION['msg_type'] = "danger";
+            saveFormSession();
+            header("Location: " . $redirectUrl);
+            exit;
+        }
+        // Validação de data de avaliação
+        if ($data_avaliacao) {
+            if ($data_realizacao && $data_avaliacao < $data_realizacao) {
+                $_SESSION['msg'] = "A Data de Avaliação não pode ser anterior à Data de Realização.";
+                $_SESSION['msg_type'] = "danger";
+                saveFormSession();
+                header("Location: " . $redirectUrl);
+                exit;
+            }
+            if ($data_avaliacao > date('Y-m-d')) {
+                $_SESSION['msg'] = "A Data de Avaliação não pode ser futura.";
+                $_SESSION['msg_type'] = "danger";
+                saveFormSession();
+                header("Location: " . $redirectUrl);
+                exit;
+            }
         }
 
         // Deve ter pelo menos uma data
         if (!$data_realizacao && !$data_agendada) {
             $_SESSION['msg'] = "Informe a data de realização ou agendamento.";
             $_SESSION['msg_type'] = "danger";
-            header("Location: " . $_ENV['URL_ADM'] . "apply-training?training_id={$training_id}&user_id={$user_id}");
+            saveFormSession();
+            header("Location: " . $redirectUrl);
             exit;
         }
 
@@ -141,15 +196,44 @@ class ApplyTraining
         if ($data_realizacao && $data_realizacao > date('Y-m-d')) {
             $_SESSION['msg'] = "Data de realização não pode ser futura.";
             $_SESSION['msg_type'] = "danger";
-            header("Location: " . $_ENV['URL_ADM'] . "apply-training?training_id={$training_id}&user_id={$user_id}");
+            saveFormSession();
+            header("Location: " . $redirectUrl);
             exit;
         }
 
         if ($data_agendada && $data_agendada < date('Y-m-d')) {
             $_SESSION['msg'] = "Data de agendamento não pode ser retroativa.";
             $_SESSION['msg_type'] = "danger";
-            header("Location: " . $_ENV['URL_ADM'] . "apply-training?training_id={$training_id}&user_id={$user_id}");
+            saveFormSession();
+            header("Location: " . $redirectUrl);
             exit;
+        }
+
+        // Validação obrigatória do tipo de instrutor
+        if (empty($instructor_type)) {
+            $_SESSION['msg'] = "Selecione o tipo de instrutor.";
+            $_SESSION['msg_type'] = "danger";
+            saveFormSession();
+            header("Location: " . $redirectUrl);
+            exit;
+        }
+        // Validação obrigatória do instrutor conforme o tipo
+        if ($instructor_type === 'internal') {
+            if (empty($instructor_user_id)) {
+                $_SESSION['msg'] = "Selecione o instrutor interno.";
+                $_SESSION['msg_type'] = "danger";
+                saveFormSession();
+                header("Location: " . $redirectUrl);
+                exit;
+            }
+        } elseif ($instructor_type === 'external') {
+            if (empty($instrutor_nome) || empty($instrutor_email)) {
+                $_SESSION['msg'] = "Informe o nome e e-mail do instrutor externo.";
+                $_SESSION['msg_type'] = "danger";
+                saveFormSession();
+                header("Location: " . $redirectUrl);
+                exit;
+            }
         }
 
         // Processar dados do instrutor
@@ -181,6 +265,7 @@ class ApplyTraining
                 'adms_user_id' => $user_id,
                 'adms_training_id' => $training_id,
                 'data_realizacao' => $data_realizacao,
+                'data_avaliacao' => $data_avaliacao,
                 'data_agendada' => $data_agendada,
                 'nota' => $nota,
                 'observacoes' => $observacoes,
@@ -231,7 +316,7 @@ class ApplyTraining
         } catch (\Exception $e) {
             $_SESSION['msg'] = "Erro: " . $e->getMessage();
             $_SESSION['msg_type'] = "danger";
-            header("Location: " . $_ENV['URL_ADM'] . "apply-training?training_id={$training_id}&user_id={$user_id}");
+            header("Location: " . $redirectUrl);
         }
         exit;
     }

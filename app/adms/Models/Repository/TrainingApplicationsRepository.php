@@ -31,15 +31,16 @@ class TrainingApplicationsRepository extends DbConnection
                 return $existing['id']; // Já existe, não insere novamente
             }
             $sql = 'INSERT INTO adms_training_applications (
-                        adms_user_id, adms_training_id, data_realizacao, data_agendada, instrutor_nome, instrutor_email, instructor_user_id, real_instructor_nome, real_instructor_email, aplicado_por, nota, observacoes, status, created_at, updated_at
+                        adms_user_id, adms_training_id, data_realizacao, data_avaliacao, data_agendada, instrutor_nome, instrutor_email, instructor_user_id, real_instructor_nome, real_instructor_email, aplicado_por, nota, observacoes, status, created_at, updated_at
                     ) VALUES (
-                        :adms_user_id, :adms_training_id, :data_realizacao, :data_agendada, :instrutor_nome, :instrutor_email, :instructor_user_id, :real_instructor_nome, :real_instructor_email, :aplicado_por, :nota, :observacoes, :status, :created_at, NOW()
+                        :adms_user_id, :adms_training_id, :data_realizacao, :data_avaliacao, :data_agendada, :instrutor_nome, :instrutor_email, :instructor_user_id, :real_instructor_nome, :real_instructor_email, :aplicado_por, :nota, :observacoes, :status, :created_at, NOW()
                     )';
             file_put_contents(__DIR__ . '/../../../logs/debug_training_applications.log', "\nSQL: ".$sql.PHP_EOL, FILE_APPEND);
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':adms_user_id', $data['adms_user_id'], PDO::PARAM_INT);
             $stmt->bindValue(':adms_training_id', $data['adms_training_id'], PDO::PARAM_INT);
             $stmt->bindValue(':data_realizacao', $data['data_realizacao'] ?? null, PDO::PARAM_STR);
+            $stmt->bindValue(':data_avaliacao', $data['data_avaliacao'] ?? null, PDO::PARAM_STR);
             $stmt->bindValue(':data_agendada', $data['data_agendada'] ?? null, PDO::PARAM_STR);
             $stmt->bindValue(':instrutor_nome', $data['instrutor_nome'] ?? null, PDO::PARAM_STR);
             $stmt->bindValue(':instrutor_email', $data['instrutor_email'] ?? null, PDO::PARAM_STR);
@@ -56,6 +57,7 @@ class TrainingApplicationsRepository extends DbConnection
                 ':adms_user_id' => $data['adms_user_id'],
                 ':adms_training_id' => $data['adms_training_id'],
                 ':data_realizacao' => $data['data_realizacao'] ?? null,
+                ':data_avaliacao' => $data['data_avaliacao'] ?? null,
                 ':data_agendada' => $data['data_agendada'] ?? null,
                 ':instrutor_nome' => $data['instrutor_nome'] ?? null,
                 ':instrutor_email' => $data['instrutor_email'] ?? null,
@@ -79,6 +81,7 @@ class TrainingApplicationsRepository extends DbConnection
                     'adms_user_id' => $data['adms_user_id'],
                     'adms_training_id' => $data['adms_training_id'],
                     'data_realizacao' => $data['data_realizacao'] ?? null,
+                    'data_avaliacao' => $data['data_avaliacao'] ?? null,
                     'data_agendada' => $data['data_agendada'] ?? null,
                     'instrutor_nome' => $data['instrutor_nome'] ?? null,
                     'instrutor_email' => $data['instrutor_email'] ?? null,
@@ -122,6 +125,7 @@ class TrainingApplicationsRepository extends DbConnection
             
             $sql = 'UPDATE adms_training_applications SET
                         data_realizacao = :data_realizacao,
+                        data_avaliacao = :data_avaliacao,
                         data_agendada = :data_agendada,
                         instrutor_nome = :instrutor_nome,
                         instrutor_email = :instrutor_email,
@@ -136,6 +140,7 @@ class TrainingApplicationsRepository extends DbConnection
                     WHERE id = :id';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':data_realizacao', $data['data_realizacao'] ?? null, PDO::PARAM_STR);
+            $stmt->bindValue(':data_avaliacao', $data['data_avaliacao'] ?? null, PDO::PARAM_STR);
             $stmt->bindValue(':data_agendada', $data['data_agendada'] ?? null, PDO::PARAM_STR);
             $stmt->bindValue(':instrutor_nome', $data['instrutor_nome'] ?? null, PDO::PARAM_STR);
             $stmt->bindValue(':instrutor_email', $data['instrutor_email'] ?? null, PDO::PARAM_STR);
@@ -156,6 +161,7 @@ class TrainingApplicationsRepository extends DbConnection
                     'adms_user_id' => $dadosAntes['adms_user_id'],
                     'adms_training_id' => $dadosAntes['adms_training_id'],
                     'data_realizacao' => $data['data_realizacao'] ?? null,
+                    'data_avaliacao' => $data['data_avaliacao'] ?? null,
                     'data_agendada' => $data['data_agendada'] ?? null,
                     'instrutor_nome' => $data['instrutor_nome'] ?? null,
                     'instrutor_email' => $data['instrutor_email'] ?? null,

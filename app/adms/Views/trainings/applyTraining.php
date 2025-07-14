@@ -79,7 +79,7 @@ use App\adms\Helpers\FormatHelper;
                         </div>
 
                         <div class="row mb-3" id="div_realizacao">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="data_realizacao" class="form-label">
                                     <strong>Data de Realização *</strong>
                                 </label>
@@ -91,7 +91,18 @@ use App\adms\Helpers\FormatHelper;
                                        max="<?php echo date('Y-m-d'); ?>">
                                 <div class="form-text">Data em que o treinamento foi realizado</div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <label for="data_avaliacao" class="form-label">
+                                    <strong>Data de Avaliação</strong>
+                                </label>
+                                <input type="date" 
+                                       name="data_avaliacao" 
+                                       class="form-control" 
+                                       id="data_avaliacao" 
+                                       value="<?php echo $this->data['trainingUser']['data_avaliacao'] ?? ''; ?>">
+                                <div class="form-text">Data em que a avaliação do treinamento foi realizada</div>
+                            </div>
+                            <div class="col-md-4">
                                 <label for="nota" class="form-label">
                                     <strong>Nota</strong>
                                 </label>
@@ -103,7 +114,8 @@ use App\adms\Helpers\FormatHelper;
                                        max="10" 
                                        step="0.1"
                                        value="<?php echo $this->data['trainingUser']['nota'] ?? ''; ?>"
-                                       placeholder="0.0 a 10.0">
+                                       placeholder="0.0 a 10.0"
+                                       required>
                                 <div class="form-text">Nota de 0 a 10 (opcional)</div>
                             </div>
                         </div>
@@ -316,6 +328,114 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleInstructorFields();
     if (document.getElementById('instructor_type').value === 'internal') {
         fillInstructorEmail();
+    }
+
+    // Regras para Data de Avaliação
+    const dataRealizacao = document.getElementById('data_realizacao');
+    const dataAvaliacao = document.getElementById('data_avaliacao');
+    const hoje = new Date().toISOString().split('T')[0];
+    function atualizarLimitesDataAvaliacao() {
+        if (dataRealizacao && dataAvaliacao) {
+            dataAvaliacao.min = dataRealizacao.value;
+            dataAvaliacao.max = hoje;
+            if (dataAvaliacao.value && (dataAvaliacao.value < dataAvaliacao.min)) {
+                dataAvaliacao.value = dataAvaliacao.min;
+            }
+            if (dataAvaliacao.value && (dataAvaliacao.value > dataAvaliacao.max)) {
+                dataAvaliacao.value = dataAvaliacao.max;
+            }
+        }
+    }
+    if (dataRealizacao && dataAvaliacao) {
+        dataRealizacao.addEventListener('change', atualizarLimitesDataAvaliacao);
+        atualizarLimitesDataAvaliacao();
+    }
+    // Validação obrigatória da nota e do instrutor
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            let erro = false;
+            // Nota obrigatória
+            const nota = document.getElementById('nota');
+            if (!nota.value) {
+                nota.classList.add('is-invalid');
+                nota.focus();
+                erro = true;
+                if (!document.getElementById('nota-feedback')) {
+                    const feedback = document.createElement('div');
+                    feedback.id = 'nota-feedback';
+                    feedback.className = 'invalid-feedback';
+                    feedback.innerText = 'O campo Nota é obrigatório.';
+                    nota.parentNode.appendChild(feedback);
+                }
+            } else {
+                nota.classList.remove('is-invalid');
+                const feedback = document.getElementById('nota-feedback');
+                if (feedback) feedback.remove();
+            }
+            // Tipo de instrutor obrigatório
+            const instructorType = document.getElementById('instructor_type');
+            if (instructorType) {
+                if (!instructorType.value) {
+                    instructorType.classList.add('is-invalid');
+                    instructorType.focus();
+                    erro = true;
+                    if (!document.getElementById('instructor-type-feedback')) {
+                        const feedback = document.createElement('div');
+                        feedback.id = 'instructor-type-feedback';
+                        feedback.className = 'invalid-feedback';
+                        feedback.innerText = 'Selecione o tipo de instrutor.';
+                        instructorType.parentNode.appendChild(feedback);
+                    }
+                } else {
+                    instructorType.classList.remove('is-invalid');
+                    const feedback = document.getElementById('instructor-type-feedback');
+                    if (feedback) feedback.remove();
+                    // Só valida o instrutor se o tipo estiver selecionado
+                    if (instructorType.value === 'internal') {
+                        const instructorUser = document.getElementById('instructor_user_id');
+                        if (!instructorUser.value) {
+                            instructorUser.classList.add('is-invalid');
+                            instructorUser.focus();
+                            erro = true;
+                            if (!document.getElementById('instructor-feedback')) {
+                                const feedback = document.createElement('div');
+                                feedback.id = 'instructor-feedback';
+                                feedback.className = 'invalid-feedback';
+                                feedback.innerText = 'Selecione o instrutor interno.';
+                                instructorUser.parentNode.appendChild(feedback);
+                            }
+                        } else {
+                            instructorUser.classList.remove('is-invalid');
+                            const feedback = document.getElementById('instructor-feedback');
+                            if (feedback) feedback.remove();
+                        }
+                    } else if (instructorType.value === 'external') {
+                        const nome = document.getElementById('instrutor_nome');
+                        const email = document.getElementById('instrutor_email');
+                        if (!nome.value || !email.value) {
+                            if (!nome.value) nome.classList.add('is-invalid');
+                            if (!email.value) email.classList.add('is-invalid');
+                            if (!nome.value) nome.focus();
+                            erro = true;
+                            if (!document.getElementById('instructor-feedback')) {
+                                const feedback = document.createElement('div');
+                                feedback.id = 'instructor-feedback';
+                                feedback.className = 'invalid-feedback';
+                                feedback.innerText = 'Informe nome e e-mail do instrutor externo.';
+                                email.parentNode.appendChild(feedback);
+                            }
+                        } else {
+                            nome.classList.remove('is-invalid');
+                            email.classList.remove('is-invalid');
+                            const feedback = document.getElementById('instructor-feedback');
+                            if (feedback) feedback.remove();
+                        }
+                    }
+                }
+            }
+            if (erro) e.preventDefault();
+        });
     }
 });
 
