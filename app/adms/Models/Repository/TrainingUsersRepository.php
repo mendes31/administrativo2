@@ -1024,6 +1024,8 @@ class TrainingUsersRepository extends DbConnection
                     t.nome as training_name,
                     t.codigo as training_code,
                     ta.data_realizacao,
+                    ta.data_avaliacao,
+                    t.carga_horaria,
                     ta.instrutor_nome,
                     ta.instructor_user_id,
                     u2.name as instructor_user_name,
@@ -1056,6 +1058,8 @@ class TrainingUsersRepository extends DbConnection
             'training_name' => 't.nome',
             'training_code' => 't.codigo',
             'data_realizacao' => 'ta.data_realizacao',
+            'data_avaliacao' => 'ta.data_avaliacao',
+            'carga_horaria' => 't.carga_horaria',
             'instrutor_nome' => 'ta.instrutor_nome',
             'nota' => 'ta.nota',
             'observacoes' => 'ta.observacoes',
@@ -1107,15 +1111,23 @@ class TrainingUsersRepository extends DbConnection
     }
 
     /**
-     * Retorna resumo de status para a Matriz de Treinamentos Realizados
+     * Retorna resumo de estatísticas para a Matriz de Treinamentos Realizados
      */
     public function getCompletedTrainingsSummary(array $filters = []): array
     {
-        $sql = 'SELECT ta.status, COUNT(*) as total
+        // Query para estatísticas dos treinamentos realizados
+        $sql = 'SELECT 
+                    COUNT(DISTINCT ta.adms_user_id) as total_colaboradores,
+                    COUNT(*) as total_treinamentos,
+                    SUM(CASE WHEN ta.nota >= 7 THEN 1 ELSE 0 END) as total_aprovados,
+                    SUM(CASE WHEN ta.nota < 7 AND ta.nota IS NOT NULL THEN 1 ELSE 0 END) as total_reprovados,
+                    AVG(ta.nota) as media_nota,
+                    SUM(COALESCE(t.carga_horaria, 0)) as total_horas
                 FROM adms_training_applications ta
                 INNER JOIN adms_users u ON u.id = ta.adms_user_id
                 INNER JOIN adms_trainings t ON t.id = ta.adms_training_id
-                WHERE 1=1';
+                WHERE ta.status = "concluido"';
+        
         $params = [];
         if (!empty($filters['colaborador'])) {
             $sql .= ' AND u.id = ?';
@@ -1133,26 +1145,18 @@ class TrainingUsersRepository extends DbConnection
             $sql .= ' AND YEAR(ta.data_realizacao) = ?';
             $params[] = $filters['ano'];
         }
-        $sql .= ' GROUP BY ta.status';
+        
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute($params);
-        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        $summary = [
-            'pendente' => 0,
-            'concluido' => 0,
-            'vencido' => 0,
-            'agendado' => 0,
-            'proximo_vencimento' => 0,
-            'total' => 0
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        return [
+            'total_colaboradores' => (int)($result['total_colaboradores'] ?? 0),
+            'total_treinamentos' => (int)($result['total_treinamentos'] ?? 0),
+            'total_aprovados' => (int)($result['total_aprovados'] ?? 0),
+            'total_reprovados' => (int)($result['total_reprovados'] ?? 0),
+            'media_nota' => round((float)($result['media_nota'] ?? 0), 1),
+            'total_horas' => (int)($result['total_horas'] ?? 0)
         ];
-        foreach ($result as $row) {
-            if ($row['status'] === 'pendente') $summary['pendente'] = (int)$row['total'];
-            if ($row['status'] === 'concluido') $summary['concluido'] = (int)$row['total'];
-            if ($row['status'] === 'vencido') $summary['vencido'] = (int)$row['total'];
-            if ($row['status'] === 'agendado') $summary['agendado'] = (int)$row['total'];
-            if ($row['status'] === 'proximo_vencimento') $summary['proximo_vencimento'] = (int)$row['total'];
-            $summary['total'] += (int)$row['total'];
-        }
-        return $summary;
     }
 } 

@@ -1,16 +1,14 @@
 <?php
 use App\adms\Helpers\FormatHelper;
 
-// Função para determinar o aproveitamento
+// Função para determinar o aproveitamento (apenas Aprovado >= 7 ou Reprovado)
 function getPerformanceStatus($grade) {
     if ($grade === null || $grade === '' || $grade === '-') {
         return ['label' => '', 'class' => ''];
-    } elseif ($grade <= 5) {
-        return ['label' => 'Reprovado', 'class' => 'performance-reprovado'];
-    } elseif ($grade < 7) {
-        return ['label' => 'Exame', 'class' => 'performance-exame'];
-    } else {
+    } elseif ($grade >= 7) {
         return ['label' => 'Aprovado', 'class' => 'performance-aprovado'];
+    } else {
+        return ['label' => 'Reprovado', 'class' => 'performance-reprovado'];
     }
 }
 $performanceFilter = $_GET['performance'] ?? '';
@@ -21,11 +19,7 @@ $performanceFilter = $_GET['performance'] ?? '';
     color: #b20000 !important;
     font-weight: bold !important;
 }
-.performance-exame {
-    background-color: #fff3cd !important;
-    color: #b8860b !important;
-    font-weight: bold !important;
-}
+
 .performance-aprovado {
     background-color: #d4edda !important;
     color: #155724 !important;
@@ -42,11 +36,20 @@ $performanceFilter = $_GET['performance'] ?? '';
     </div>
     <div class="row mb-4 g-3">
         <div class="col-md-2">
-            <div class="card border-warning h-100">
+            <div class="card border-primary h-100">
                 <div class="card-body text-center py-3">
-                    <div class="fs-2 text-warning"><i class="fas fa-clock"></i></div>
-                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['pendente'] ?? 0 ?></div>
-                    <div class="text-muted">Pendentes</div>
+                    <div class="fs-2 text-primary"><i class="fas fa-users"></i></div>
+                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['total_colaboradores'] ?? 0 ?></div>
+                    <div class="text-muted">Total Colaboradores Treinados</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card border-info h-100">
+                <div class="card-body text-center py-3">
+                    <div class="fs-2 text-info"><i class="fas fa-graduation-cap"></i></div>
+                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['total_treinamentos'] ?? 0 ?></div>
+                    <div class="text-muted">Total de Treinamentos</div>
                 </div>
             </div>
         </div>
@@ -54,44 +57,35 @@ $performanceFilter = $_GET['performance'] ?? '';
             <div class="card border-success h-100">
                 <div class="card-body text-center py-3">
                     <div class="fs-2 text-success"><i class="fas fa-check-circle"></i></div>
-                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['concluido'] ?? 0 ?></div>
-                    <div class="text-muted">Concluídos</div>
+                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['total_aprovados'] ?? 0 ?></div>
+                    <div class="text-muted">Total Treinamentos Aprovados</div>
                 </div>
             </div>
         </div>
         <div class="col-md-2">
             <div class="card border-danger h-100">
                 <div class="card-body text-center py-3">
-                    <div class="fs-2 text-danger"><i class="fas fa-exclamation-triangle"></i></div>
-                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['vencido'] ?? 0 ?></div>
-                    <div class="text-muted">Vencidos</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="card border-info h-100">
-                <div class="card-body text-center py-3">
-                    <div class="fs-2 text-info"><i class="fas fa-calendar-alt"></i></div>
-                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['agendado'] ?? 0 ?></div>
-                    <div class="text-muted">Agendados</div>
+                    <div class="fs-2 text-danger"><i class="fas fa-times-circle"></i></div>
+                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['total_reprovados'] ?? 0 ?></div>
+                    <div class="text-muted">Total Treinamentos Reprovados</div>
                 </div>
             </div>
         </div>
         <div class="col-md-2">
             <div class="card border-warning h-100">
                 <div class="card-body text-center py-3">
-                    <div class="fs-2 text-warning"><i class="fas fa-exclamation-circle"></i></div>
-                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['proximo_vencimento'] ?? 0 ?></div>
-                    <div class="text-muted">Próximo Vencimento</div>
+                    <div class="fs-2 text-warning"><i class="fas fa-star"></i></div>
+                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['media_nota'] ?? 0 ?></div>
+                    <div class="text-muted">Média Nota Geral</div>
                 </div>
             </div>
         </div>
         <div class="col-md-2">
-            <div class="card border-primary h-100">
+            <div class="card border-secondary h-100">
                 <div class="card-body text-center py-3">
-                    <div class="fs-2 text-primary"><i class="fas fa-users"></i></div>
-                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['total'] ?? 0 ?></div>
-                    <div class="text-muted">Total</div>
+                    <div class="fs-2 text-secondary"><i class="fas fa-clock"></i></div>
+                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['total_horas'] ?? 0 ?></div>
+                    <div class="text-muted">Total de Horas</div>
                 </div>
             </div>
         </div>
@@ -155,7 +149,6 @@ $performanceFilter = $_GET['performance'] ?? '';
                     <select name="performance" id="performance" class="form-select">
                         <option value="">Todos</option>
                         <option value="aprovado" <?= $performanceFilter === 'aprovado' ? 'selected' : '' ?>>Aprovado</option>
-                        <option value="exame" <?= $performanceFilter === 'exame' ? 'selected' : '' ?>>Exame</option>
                         <option value="reprovado" <?= $performanceFilter === 'reprovado' ? 'selected' : '' ?>>Reprovado</option>
                         <option value="vazio" <?= $performanceFilter === 'vazio' ? 'selected' : '' ?>>Vazio</option>
                     </select>
@@ -200,6 +193,8 @@ $performanceFilter = $_GET['performance'] ?? '';
                     <th><?= sort_link('training_name', 'Treinamento', $sort, $order, $params) ?></th>
                     <th><?= sort_link('training_code', 'Código', $sort, $order, $params) ?></th>
                     <th><?= sort_link('data_realizacao', 'Data Realização', $sort, $order, $params) ?></th>
+                    <th><?= sort_link('data_avaliacao', 'Data Avaliação', $sort, $order, $params) ?></th>
+                    <th><?= sort_link('carga_horaria', 'Horas', $sort, $order, $params) ?></th>
                     <th><?= sort_link('instrutor_nome', 'Instrutor', $sort, $order, $params) ?></th>
                     <th><?= sort_link('nota', 'Nota', $sort, $order, $params) ?></th>
                     <th>Aproveitamento</th>
@@ -214,7 +209,6 @@ $performanceFilter = $_GET['performance'] ?? '';
                         $filterMatch = false;
                         if ($performanceFilter === '' ||
                             ($performanceFilter === 'aprovado' && $performance['label'] === 'Aprovado') ||
-                            ($performanceFilter === 'exame' && $performance['label'] === 'Exame') ||
                             ($performanceFilter === 'reprovado' && $performance['label'] === 'Reprovado') ||
                             ($performanceFilter === 'vazio' && $performance['label'] === '')) {
                             $filterMatch = true;
@@ -228,6 +222,20 @@ $performanceFilter = $_GET['performance'] ?? '';
                             <td>
                                 <?php if (!empty($item['data_realizacao'])): ?>
                                     <?= (new DateTime($item['data_realizacao']))->format('d/m/Y H:i') ?>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if (!empty($item['data_avaliacao'])): ?>
+                                    <?= (new DateTime($item['data_avaliacao']))->format('d/m/Y H:i') ?>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if (!empty($item['carga_horaria'])): ?>
+                                    <?= $item['carga_horaria'] ?>h
                                 <?php else: ?>
                                     -
                                 <?php endif; ?>
@@ -249,10 +257,125 @@ $performanceFilter = $_GET['performance'] ?? '';
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <tr><td colspan="8" class="text-center text-muted">Nenhum treinamento realizado encontrado.</td></tr>
+                    <tr><td colspan="10" class="text-center text-muted">Nenhum treinamento realizado encontrado.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
+    </div>
+
+    <!-- CARDS MOBILE -->
+    <div class="d-block d-md-none">
+        <?php if (!empty($this->data['matrix'])): ?>
+            <?php foreach ($this->data['matrix'] as $item):
+                $performance = getPerformanceStatus($item['nota'] ?? null);
+                // Filtro
+                $filterMatch = false;
+                if ($performanceFilter === '' ||
+                    ($performanceFilter === 'aprovado' && $performance['label'] === 'Aprovado') ||
+                    ($performanceFilter === 'reprovado' && $performance['label'] === 'Reprovado') ||
+                    ($performanceFilter === 'vazio' && $performance['label'] === '')) {
+                    $filterMatch = true;
+                }
+                if (!$filterMatch) continue;
+            ?>
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="card-title mb-1"><strong><?= htmlspecialchars($item['training_name']) ?></strong></h6>
+                                <div class="mb-1">
+                                    <small class="text-muted">Colaborador:</small><br>
+                                    <strong><?= htmlspecialchars($item['user_name']) ?></strong>
+                                </div>
+                                <div class="mb-2">
+                                    <small class="text-muted">Status:</small><br>
+                                    <span class="badge <?= $performance['class'] ?>"><?= $performance['label'] ?></span>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#cardDetails<?= $item['user_id'] . '_' . $item['training_id'] ?>" aria-expanded="false" aria-controls="cardDetails<?= $item['user_id'] . '_' . $item['training_id'] ?>">
+                                Ver mais
+                            </button>
+                        </div>
+                        
+                        <div class="collapse mt-3" id="cardDetails<?= $item['user_id'] . '_' . $item['training_id'] ?>">
+                            <hr class="my-2">
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <small class="text-muted">Código:</small><br>
+                                    <strong><?= htmlspecialchars($item['training_code']) ?></strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Nota:</small><br>
+                                    <strong><?= htmlspecialchars($item['nota'] ?? '-') ?></strong>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <small class="text-muted">Data Realização:</small><br>
+                                    <strong>
+                                        <?php if (!empty($item['data_realizacao'])): ?>
+                                            <?= (new DateTime($item['data_realizacao']))->format('d/m/Y H:i') ?>
+                                        <?php else: ?>
+                                            -
+                                        <?php endif; ?>
+                                    </strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Data Avaliação:</small><br>
+                                    <strong>
+                                        <?php if (!empty($item['data_avaliacao'])): ?>
+                                            <?= (new DateTime($item['data_avaliacao']))->format('d/m/Y H:i') ?>
+                                        <?php else: ?>
+                                            -
+                                        <?php endif; ?>
+                                    </strong>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <small class="text-muted">Horas:</small><br>
+                                    <strong>
+                                        <?php if (!empty($item['carga_horaria'])): ?>
+                                            <?= $item['carga_horaria'] ?>h
+                                        <?php else: ?>
+                                            -
+                                        <?php endif; ?>
+                                    </strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Instrutor:</small><br>
+                                    <strong>
+                                        <?php
+                                        if (!empty($item['instrutor_nome'])) {
+                                            echo htmlspecialchars($item['instrutor_nome']);
+                                        } elseif (!empty($item['instructor_user_name'])) {
+                                            echo htmlspecialchars($item['instructor_user_name']);
+                                        } else {
+                                            echo '-';
+                                        }
+                                        ?>
+                                    </strong>
+                                </div>
+                            </div>
+                            
+                            <?php if (!empty($item['observacoes'])): ?>
+                            <div class="mb-2">
+                                <small class="text-muted">Observações:</small><br>
+                                <span><?= htmlspecialchars($item['observacoes']) ?></span>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-inbox fa-3x mb-3"></i>
+                <p>Nenhum treinamento realizado encontrado.</p>
+            </div>
+        <?php endif; ?>
     </div>
 
     <?php
@@ -267,21 +390,78 @@ $performanceFilter = $_GET['performance'] ?? '';
         return '?' . http_build_query($params);
     }
     ?>
-    <nav aria-label="Navegação de páginas">
-        <ul class="pagination justify-content-end mt-3">
-            <li class="page-item<?= $page <= 1 ? ' disabled' : '' ?>">
-                <a class="page-link" href="<?= pageUrl(1, $params) ?>">&laquo;</a>
-            </li>
-            <li class="page-item<?= $page <= 1 ? ' disabled' : '' ?>">
-                <a class="page-link" href="<?= pageUrl($page-1, $params) ?>">Anterior</a>
-            </li>
-            <li class="page-item active"><span class="page-link">Página <?= $page ?> de <?= $totalPages ?></span></li>
-            <li class="page-item<?= $page >= $totalPages ? ' disabled' : '' ?>">
-                <a class="page-link" href="<?= pageUrl($page+1, $params) ?>">Próxima</a>
-            </li>
-            <li class="page-item<?= $page >= $totalPages ? ' disabled' : '' ?>">
-                <a class="page-link" href="<?= pageUrl($totalPages, $params) ?>">&raquo;</a>
-            </li>
-        </ul>
+    
+    <!-- Paginação Desktop -->
+    <nav aria-label="Navegação de páginas" class="d-none d-md-block">
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div>
+                <small class="text-muted">
+                    Mostrando <?= (($page - 1) * $perPage) + 1 ?> até <?= min($page * $perPage, $total) ?> de <?= $total ?> registro(s)
+                </small>
+            </div>
+            <?php if ($totalPages > 1): ?>
+            <div class="btn-group" role="group">
+                <?php
+                $start = max(1, $page - 1);
+                $end = min($totalPages, $page + 1);
+                
+                // Mostrar primeira página se não estiver no início
+                if ($start > 1): ?>
+                    <a href="<?= pageUrl(1, $params) ?>" class="btn btn-outline-primary btn-sm">1</a>
+                    <?php if ($start > 2): ?>
+                        <span class="btn btn-outline-primary btn-sm disabled">...</span>
+                    <?php endif; ?>
+                <?php endif; ?>
+                
+                <?php for ($i = $start; $i <= $end; $i++): ?>
+                    <a href="<?= pageUrl($i, $params) ?>" class="btn btn-<?= $i == $page ? 'primary' : 'outline-primary' ?> btn-sm"><?= $i ?></a>
+                <?php endfor; ?>
+                
+                <?php if ($end < $totalPages): ?>
+                    <?php if ($end < $totalPages - 1): ?>
+                        <span class="btn btn-outline-primary btn-sm disabled">...</span>
+                    <?php endif; ?>
+                    <a href="<?= pageUrl($totalPages, $params) ?>" class="btn btn-outline-primary btn-sm">Última</a>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+        </div>
+    </nav>
+    
+    <!-- Paginação Mobile -->
+    <nav aria-label="Navegação de páginas" class="d-block d-md-none">
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div>
+                <small class="text-muted">
+                    Mostrando <?= (($page - 1) * $perPage) + 1 ?> até <?= min($page * $perPage, $total) ?> de <?= $total ?> registro(s)
+                </small>
+            </div>
+            <?php if ($totalPages > 1): ?>
+            <div class="btn-group" role="group">
+                <?php
+                $start = max(1, $page - 1);
+                $end = min($totalPages, $page + 1);
+                
+                // Mostrar primeira página se não estiver no início
+                if ($start > 1): ?>
+                    <a href="<?= pageUrl(1, $params) ?>" class="btn btn-outline-primary btn-sm">1</a>
+                    <?php if ($start > 2): ?>
+                        <span class="btn btn-outline-primary btn-sm disabled">...</span>
+                    <?php endif; ?>
+                <?php endif; ?>
+                
+                <?php for ($i = $start; $i <= $end; $i++): ?>
+                    <a href="<?= pageUrl($i, $params) ?>" class="btn btn-<?= $i == $page ? 'primary' : 'outline-primary' ?> btn-sm"><?= $i ?></a>
+                <?php endfor; ?>
+                
+                <?php if ($end < $totalPages): ?>
+                    <?php if ($end < $totalPages - 1): ?>
+                        <span class="btn btn-outline-primary btn-sm disabled">...</span>
+                    <?php endif; ?>
+                    <a href="<?= pageUrl($totalPages, $params) ?>" class="btn btn-outline-primary btn-sm">Última</a>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+        </div>
     </nav>
 </div> 

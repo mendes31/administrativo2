@@ -4,13 +4,20 @@ $performanceFilter = $_GET['performance'] ?? '';
 $codigoFiltro = trim($_GET['codigo'] ?? '');
 ?>
 <style>
-.table-sticky-header thead th {
-    position: sticky;
-    top: 0;
-    background: #fff;
-    z-index: 2;
-    box-shadow: 0 2px 2px -1px rgba(0,0,0,0.04);
+.table-sticky-header thead th,
+.table-sticky-header tbody td {
+    text-align: left !important;
+    vertical-align: middle;
 }
+.table-sticky-header th.id-col { width: 4%; min-width: 40px; }
+.table-sticky-header th.codigo-col { width: 8%; min-width: 90px; }
+.table-sticky-header th.treinamento-col { width: 22%; min-width: 180px; }
+.table-sticky-header th.colaborador-col { width: 16%; min-width: 140px; }
+.table-sticky-header th.departamento-col { width: 14%; min-width: 120px; }
+.table-sticky-header th.cargo-col { width: 10%; min-width: 90px; }
+.table-sticky-header th.status-col { width: 10%; min-width: 90px; }
+.table-sticky-header th.prazo-col { width: 10%; min-width: 110px; }
+.table-sticky-header th.acoes-col { width: 6%; min-width: 60px; text-align: center !important; }
 .sticky-cards {
     position: static;
 }
@@ -86,7 +93,7 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                     </div>
                 </div>
             </div>
-            <div class="col-md-2">
+            <!-- <div class="col-md-2">
                 <div class="card border-info">
                     <div class="card-body text-center">
                         <h3 class="text-info">
@@ -96,7 +103,7 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                         <p class="card-text">Agendados</p>
                     </div>
                 </div>
-            </div>
+            </div> -->
             <div class="col-md-2">
                 <div class="card border-warning">
                     <div class="card-body text-center">
@@ -179,7 +186,7 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                         <option value="vencido" <?= ($this->data['filters']['status'] ?? '') == 'vencido' ? 'selected' : '' ?>>Vencido</option>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <!-- <div class="col-md-2">
                     <label for="performance" class="form-label">Aproveitamento</label>
                     <select name="performance" id="performance" class="form-select">
                         <option value="">Todos</option>
@@ -188,7 +195,7 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                         <option value="reprovado" <?= $performanceFilter === 'reprovado' ? 'selected' : '' ?>>Reprovado</option>
                         <option value="vazio" <?= $performanceFilter === 'vazio' ? 'selected' : '' ?>>Vazio</option>
                     </select>
-                </div>
+                </div> -->
                 <div class="col-md-1 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary w-100">Filtrar</button>
                 </div>
@@ -200,20 +207,20 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                 <table class="table table-striped table-hover table-sticky-header" style="table-layout: fixed; width: 100%;">
                     <thead>
                         <tr>
-                            <th class="text-center">ID</th>
-                            <th>Código</th>
-                            <th>Treinamento</th>
-                            <th>Colaborador</th>
-                            <th>Departamento</th>
-                            <th>Cargo</th>
-                            <th>Data Realização</th>
-                            <th>Data Agendada</th>
-                            <th>Vencimento</th>
-                            <th>Status</th>
-                            <th>Nota</th>
-                            <th>Aproveitamento</th>
-                            <th>Prazo 1º Treinamento</th>
-                            <th class="text-center">Ações</th>
+                            <th class="id-col">ID</th>
+                            <th class="codigo-col">Código</th>
+                            <th class="treinamento-col">Treinamento</th>
+                            <th class="colaborador-col">Colaborador</th>
+                            <th class="departamento-col">Departamento</th>
+                            <th class="cargo-col">Cargo</th>
+                            <!-- <th>Data Realização</th> -->
+                            <!-- <th>Data Agendada</th> -->
+                            <!-- <th>Vencimento</th> -->
+                            <th class="status-col">Status</th>
+                            <!-- <th>Nota</th> -->
+                            <!-- <th>Aproveitamento</th> -->
+                            <th class="prazo-col">Prazo 1º Treinamento</th>
+                            <th class="acoes-col text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -252,21 +259,21 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                                 <td><?= htmlspecialchars($row['user_name']) ?></td>
                                 <td><?= htmlspecialchars($row['department']) ?></td>
                                 <td><?= htmlspecialchars($row['position']) ?></td>
-                                <td>
+                                <!-- <td>
                                     <?php if (!empty($row['data_realizacao'])): ?>
                                         <?= (new DateTime($row['data_realizacao']))->format('d/m/Y') ?>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
                                     <?php endif; ?>
-                                </td>
-                                <td>
+                                </td> -->
+                                <!-- <td>
                                     <?php if (!empty($row['data_agendada'])): ?>
                                         <?= (new DateTime($row['data_agendada']))->format('d/m/Y') ?>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
                                     <?php endif; ?>
-                                </td>
-                                <td>
+                                </td> -->
+                                <!-- <td>
                                     <?php if (!empty($row['reciclagem']) && !empty($row['reciclagem_periodo']) && !empty($row['data_realizacao'])): ?>
                                         <?php 
                                         $dataVencimento = new DateTime($row['data_realizacao']);
@@ -276,7 +283,7 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                                     <?php else: ?>
                                         <span class="text-muted">N/A</span>
                                     <?php endif; ?>
-                                </td>
+                                </td> -->
                                 <td>
                                     <?php
                                     $statusClass = match($status) {
@@ -300,8 +307,8 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                                     ?>
                                     <span class="badge <?= $statusClass ?>"><?= $statusText ?></span>
                                 </td>
-                                <td><?= htmlspecialchars($row['nota'] ?? '-') ?></td>
-                                <td class="<?= $performance['class'] ?>"><?= $performance['label'] ?></td>
+                                <!-- <td><?= htmlspecialchars($row['nota'] ?? '-') ?></td> -->
+                                <!-- <td class="<?= $performance['class'] ?>"><?= $performance['label'] ?></td> -->
                                 <td>
                                     <?php if (!empty($row['data_limite_primeiro_treinamento'])): ?>
                                         <?= (new DateTime($row['data_limite_primeiro_treinamento']))->format('d/m/Y') ?>
@@ -310,9 +317,9 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center">
-                                    <a href="<?= $_ENV['URL_ADM'] ?>schedule-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-info mb-1" title="Agendar"><i class="fas fa-calendar-plus"></i></a>
+                                    <!-- <a href="<?= $_ENV['URL_ADM'] ?>schedule-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-info mb-1" title="Agendar"><i class="fas fa-calendar-plus"></i></a> -->
                                     <a href="<?= $_ENV['URL_ADM'] ?>apply-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-success mb-1" title="Aplicar"><i class="fas fa-check"></i></a>
-                                    <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $row['user_id'] ?>-<?= $row['training_id'] ?>" class="btn btn-sm btn-secondary mb-1" title="Histórico"><i class="fas fa-history"></i></a>
+                                    <!-- <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $row['user_id'] ?>-<?= $row['training_id'] ?>" class="btn btn-sm btn-secondary mb-1" title="Histórico"><i class="fas fa-history"></i></a> -->
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -349,7 +356,7 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                                     <h5 class="card-title mb-1"><b><?= htmlspecialchars($row['training_name']) ?></b></h5>
                                     <div class="mb-1"><span class="badge <?= $statusClass ?>"><?= $statusText ?></span></div>
                                     <div class="mb-1"><b>Colaborador:</b> <?= htmlspecialchars($row['user_name']) ?></div>
-                                    <div class="mb-1"><b>Data Realização:</b> <?php if (!empty($row['data_realizacao'])): ?><?= (new DateTime($row['data_realizacao']))->format('d/m/Y') ?><?php else: ?><span class="text-muted">-</span><?php endif; ?></div>
+                                    <!-- <div class="mb-1"><b>Data Realização:</b> <?php if (!empty($row['data_realizacao'])): ?><?= (new DateTime($row['data_realizacao']))->format('d/m/Y') ?><?php else: ?><span class="text-muted">-</span><?php endif; ?></div> -->
                                 </div>
                                 <button class="btn btn-outline-primary btn-sm ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#cardDetails<?= $i ?>" aria-expanded="false" aria-controls="cardDetails<?= $i ?>">Ver mais</button>
                             </div>
@@ -357,15 +364,15 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                                 <div><b>Código:</b> <?= htmlspecialchars($row['codigo']) ?></div>
                                 <div><b>Departamento:</b> <?= htmlspecialchars($row['department']) ?></div>
                                 <div><b>Cargo:</b> <?= htmlspecialchars($row['position']) ?></div>
-                                <div><b>Data Agendada:</b> <?php if (!empty($row['data_agendada'])): ?><?= (new DateTime($row['data_agendada']))->format('d/m/Y') ?><?php else: ?><span class="text-muted">-</span><?php endif; ?></div>
-                                <div><b>Vencimento:</b> <?php if (!empty($row['reciclagem']) && !empty($row['reciclagem_periodo']) && !empty($row['data_realizacao'])): ?><?php $dataVencimento = new DateTime($row['data_realizacao']); $dataVencimento->add(new DateInterval('P' . $row['reciclagem_periodo'] . 'M')); echo $dataVencimento->format('d/m/Y'); ?><?php else: ?><span class="text-muted">N/A</span><?php endif; ?></div>
-                                <div><b>Nota:</b> <?= htmlspecialchars($row['nota'] ?? '-') ?></div>
-                                <div><b>Aproveitamento:</b> <span class="<?= $performance['class'] ?>"><?= $performance['label'] ?></span></div>
+                                <!-- <div><b>Data Agendada:</b> <?php if (!empty($row['data_agendada'])): ?><?= (new DateTime($row['data_agendada']))->format('d/m/Y') ?><?php else: ?><span class="text-muted">-</span><?php endif; ?></div> -->
+                                <!-- <div><b>Vencimento:</b> <?php if (!empty($row['reciclagem']) && !empty($row['reciclagem_periodo']) && !empty($row['data_realizacao'])): ?><?php $dataVencimento = new DateTime($row['data_realizacao']); $dataVencimento->add(new DateInterval('P' . $row['reciclagem_periodo'] . 'M')); echo $dataVencimento->format('d/m/Y'); ?><?php else: ?><span class="text-muted">N/A</span><?php endif; ?></div> -->
+                                <!-- <div><b>Nota:</b> <?= htmlspecialchars($row['nota'] ?? '-') ?></div> -->
+                                <!-- <div><b>Aproveitamento:</b> <span class="<?= $performance['class'] ?>"><?= $performance['label'] ?></span></div> -->
                                 <div><b>Prazo 1º Treinamento:</b> <?php if (!empty($row['data_limite_primeiro_treinamento'])): ?><?= (new DateTime($row['data_limite_primeiro_treinamento']))->format('d/m/Y') ?><?php else: ?><span class="text-muted">-</span><?php endif; ?></div>
                                 <div class="mt-2">
-                                    <a href="<?= $_ENV['URL_ADM'] ?>schedule-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-info mb-1" title="Agendar"><i class="fas fa-calendar-plus"></i></a>
+                                    <!-- <a href="<?= $_ENV['URL_ADM'] ?>schedule-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-info mb-1" title="Agendar"><i class="fas fa-calendar-plus"></i></a> -->
                                     <a href="<?= $_ENV['URL_ADM'] ?>apply-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-success mb-1" title="Aplicar"><i class="fas fa-check"></i></a>
-                                    <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $row['user_id'] ?>-<?= $row['training_id'] ?>" class="btn btn-sm btn-secondary mb-1" title="Histórico"><i class="fas fa-history"></i></a>
+                                    <!-- <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $row['user_id'] ?>-<?= $row['training_id'] ?>" class="btn btn-sm btn-secondary mb-1" title="Histórico"><i class="fas fa-history"></i></a> -->
                                 </div>
                             </div>
                         </div>

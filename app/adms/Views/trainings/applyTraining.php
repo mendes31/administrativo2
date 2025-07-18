@@ -139,20 +139,20 @@ use App\adms\Helpers\FormatHelper;
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <label for="instructor_type" class="form-label">
-                                    <strong>Tipo de Instrutor</strong>
+                                    <strong>Tipo de Instrutor *</strong>
                                 </label>
-                                <select name="instructor_type" id="instructor_type" class="form-select" onchange="toggleInstructorFields()">
+                                <select name="instructor_type" id="instructor_type" class="form-select" onchange="toggleInstructorFields()" required>
                                     <option value="">Selecione...</option>
                                     <option value="internal" <?php echo (isset($this->data['form_instructor_type']) && $this->data['form_instructor_type'] == 'internal') ? 'selected' : ''; ?>>Colaborador Interno</option>
                                     <option value="external" <?php echo (isset($this->data['form_instructor_type']) && $this->data['form_instructor_type'] == 'external') ? 'selected' : ''; ?>>Instrutor Externo</option>
                                 </select>
-                                <div class="form-text">Selecione o tipo de instrutor</div>
+                                <div class="form-text">Selecione o tipo de instrutor (obrigatório)</div>
                             </div>
                             <div class="col-md-3" id="instructor_user_div" style="display: none;">
                                 <label for="instructor_user_id" class="form-label">
-                                    <strong>Instrutor (Colaborador Interno)</strong>
+                                    <strong>Instrutor (Colaborador Interno) *</strong>
                                 </label>
-                                <select name="instructor_user_id" id="instructor_user_id" class="form-select" onchange="fillInstructorEmail()">
+                                <select name="instructor_user_id" id="instructor_user_id" class="form-select" onchange="fillInstructorEmail()" required>
                                     <option value="">Selecione um usuário...</option>
                                     <?php foreach (($this->data['listUsers'] ?? []) as $user): ?>
                                         <option value="<?php echo $user['id']; ?>" 
@@ -162,31 +162,33 @@ use App\adms\Helpers\FormatHelper;
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                                <div class="form-text">Selecione o colaborador instrutor</div>
+                                <div class="form-text">Selecione o colaborador instrutor (obrigatório)</div>
                             </div>
                             <div class="col-md-3" id="instructor_name_div" style="display: none;">
                                 <label for="instrutor_nome" class="form-label">
-                                    <strong>Nome do Instrutor Externo</strong>
+                                    <strong>Nome do Instrutor Externo *</strong>
                                 </label>
                                 <input type="text" 
                                        name="instrutor_nome" 
                                        class="form-control" 
                                        id="instrutor_nome" 
                                        value="<?php echo htmlspecialchars($this->data['form_instrutor_nome'] ?? ''); ?>"
-                                       placeholder="Nome do instrutor externo">
-                                <div class="form-text">Nome do instrutor externo</div>
+                                       placeholder="Nome do instrutor externo"
+                                       required>
+                                <div class="form-text">Nome do instrutor externo (obrigatório)</div>
                             </div>
                             <div class="col-md-3" id="instructor_email_div" style="display: none;">
                                 <label for="instrutor_email" class="form-label">
-                                    <strong>E-mail do Instrutor</strong>
+                                    <strong>E-mail do Instrutor *</strong>
                                 </label>
                                 <input type="email" 
                                        name="instrutor_email" 
                                        class="form-control" 
                                        id="instrutor_email" 
                                        value="<?php echo htmlspecialchars($this->data['form_instrutor_email'] ?? ''); ?>"
-                                       placeholder="email@exemplo.com">
-                                <div class="form-text">E-mail do instrutor</div>
+                                       placeholder="email@exemplo.com"
+                                       required>
+                                <div class="form-text">E-mail do instrutor (obrigatório)</div>
                             </div>
                         </div>
 
@@ -355,6 +357,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (form) {
         form.addEventListener('submit', function(e) {
             let erro = false;
+            
             // Nota obrigatória
             const nota = document.getElementById('nota');
             if (!nota.value) {
@@ -373,8 +376,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const feedback = document.getElementById('nota-feedback');
                 if (feedback) feedback.remove();
             }
+            
             // Tipo de instrutor obrigatório
             const instructorType = document.getElementById('instructor_type');
+            
             if (instructorType) {
                 if (!instructorType.value) {
                     instructorType.classList.add('is-invalid');
@@ -391,6 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     instructorType.classList.remove('is-invalid');
                     const feedback = document.getElementById('instructor-type-feedback');
                     if (feedback) feedback.remove();
+                    
                     // Só valida o instrutor se o tipo estiver selecionado
                     if (instructorType.value === 'internal') {
                         const instructorUser = document.getElementById('instructor_user_id');
@@ -434,7 +440,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
-            if (erro) e.preventDefault();
+            
+            if (erro) {
+                e.preventDefault();
+            }
         });
     }
 });
@@ -448,12 +457,23 @@ function toggleInstructorFields() {
     var emailInput = document.getElementById('instrutor_email');
     var nameInput = document.getElementById('instrutor_nome');
 
+    // Limpar validações anteriores
+    userSelect.classList.remove('is-invalid');
+    nameInput.classList.remove('is-invalid');
+    emailInput.classList.remove('is-invalid');
+    
+    // Remover feedbacks de erro
+    const feedbacks = document.querySelectorAll('#instructor-feedback, #instructor-type-feedback');
+    feedbacks.forEach(feedback => feedback.remove());
+
     if (typeSelect.value === 'internal') {
         userDiv.style.display = 'block';
         nameDiv.style.display = 'none';
         emailDiv.style.display = 'block';
         emailInput.readOnly = true;
         nameInput.value = '';
+        nameInput.removeAttribute('required');
+        userSelect.setAttribute('required', 'required');
         setTimeout(fillInstructorEmail, 10);
     } else if (typeSelect.value === 'external') {
         userDiv.style.display = 'none';
@@ -461,6 +481,9 @@ function toggleInstructorFields() {
         emailDiv.style.display = 'block';
         emailInput.readOnly = false;
         userSelect.value = '';
+        userSelect.removeAttribute('required');
+        nameInput.setAttribute('required', 'required');
+        emailInput.setAttribute('required', 'required');
     } else {
         userDiv.style.display = 'none';
         nameDiv.style.display = 'none';
@@ -468,6 +491,9 @@ function toggleInstructorFields() {
         userSelect.value = '';
         emailInput.value = '';
         nameInput.value = '';
+        userSelect.removeAttribute('required');
+        nameInput.removeAttribute('required');
+        emailInput.removeAttribute('required');
     }
 }
 

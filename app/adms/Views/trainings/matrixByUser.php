@@ -61,14 +61,24 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                         <button type="submit" class="btn btn-primary"><i class="fas fa-search me-2"></i>Filtrar</button>
                         <a href="<?= $_ENV['URL_ADM'] ?>matrix-by-user" class="btn btn-secondary"><i class="fas fa-times me-2"></i>Limpar</a>
                     </div>
-                    <div>
-                        <label for="per_page" class="mb-0">Mostrar</label>
-                        <select name="per_page" id="per_page" class="form-select form-select-sm d-inline-block w-auto ms-1" onchange="this.form.submit()">
-                            <?php foreach ([10, 20, 50, 100] as $opt): ?>
-                                <option value="<?= $opt ?>" <?= ($this->data['per_page'] ?? 10) == $opt ? 'selected' : '' ?>><?= $opt ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <span class="ms-1">registros</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <div>
+                            <label for="per_page" class="mb-0">Mostrar</label>
+                            <select name="per_page" id="per_page" class="form-select form-select-sm d-inline-block w-auto ms-1" onchange="this.form.submit()">
+                                <?php foreach ([10, 20, 50, 100] as $opt): ?>
+                                    <option value="<?= $opt ?>" <?= ($this->data['per_page'] ?? 10) == $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <span class="ms-1">registros</span>
+                        </div>
+                        <div class="ms-3">
+                            <a href="<?= $_ENV['URL_ADM'] ?>matrix-by-user?<?= http_build_query(array_merge($_GET, ['export' => 'excel'])) ?>" class="btn btn-success btn-sm">
+                                <i class="fas fa-file-excel me-1"></i>Exportar Excel
+                            </a>
+                            <a href="<?= $_ENV['URL_ADM'] ?>matrix-by-user?<?= http_build_query(array_merge($_GET, ['export' => 'pdf'])) ?>" class="btn btn-danger btn-sm">
+                                <i class="fas fa-file-pdf me-1"></i>Exportar PDF
+                            </a>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -91,8 +101,8 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                             <th>Cargo</th>
                             <th>Treinamento Obrigatório</th>
                             <th>Código</th>
-                            <th>Reciclagem</th>
-                            <th>Validade</th>
+                            <!-- <th>Reciclagem</th> -->
+                            <!-- <th>Validade</th> -->
                         </tr>
                     </thead>
                     <tbody>
@@ -115,7 +125,7 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                                         </a>
                                     </td>
                                     <td><?= htmlspecialchars($item['codigo'] ?? '') ?></td>
-                                    <td>
+                                    <!-- <td>
                                         <?php if (($item['reciclagem'] ?? false) && ($item['reciclagem_periodo'] ?? false)): ?>
                                             <?= $item['reciclagem_periodo'] ?> meses
                                         <?php else: ?>
@@ -128,11 +138,11 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                                         <?php else: ?>
                                             <span class="text-muted">-</span>
                                         <?php endif; ?>
-                                    </td>
+                                    </td> -->
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <tr><td colspan="8" class="text-center text-muted">Nenhum vínculo obrigatório encontrado.</td></tr>
+                            <tr><td colspan="6" class="text-center text-muted">Nenhum vínculo obrigatório encontrado.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -157,8 +167,8 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                                     <div><b>Departamento:</b> <?= htmlspecialchars($item['department'] ?? $item['department_nome'] ?? '') ?></div>
                                     <div><b>Cargo:</b> <?= htmlspecialchars($item['position'] ?? $item['cargo_nome'] ?? '') ?></div>
                                     <div><b>Código:</b> <?= htmlspecialchars($item['codigo'] ?? '') ?></div>
-                                    <div><b>Reciclagem:</b> <?php if (($item['reciclagem'] ?? false) && ($item['reciclagem_periodo'] ?? false)): ?><?= $item['reciclagem_periodo'] ?> meses<?php else: ?><span class="text-muted">Não exige</span><?php endif; ?></div>
-                                    <div><b>Validade:</b> <?= htmlspecialchars($item['validade'] ?? '-') ?></div>
+                                    <!-- <div><b>Reciclagem:</b> <?php if (($item['reciclagem'] ?? false) && ($item['reciclagem_periodo'] ?? false)): ?><?= $item['reciclagem_periodo'] ?> meses<?php else: ?><span class="text-muted">Não exige</span><?php endif; ?></div>
+                                    <div><b>Validade:</b> <?= htmlspecialchars($item['validade'] ?? '-') ?></div> -->
                                     <div class="mt-2">
                                         <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $item['user_id'] ?? $item['id'] ?>-<?= $item['training_id'] ?>" class="btn btn-info btn-sm me-1 mb-1" title="Ver histórico de reciclagem"><i class="fas fa-history"></i> Histórico</a>
                                     </div>

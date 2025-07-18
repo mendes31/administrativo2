@@ -70,7 +70,7 @@ class CompletedTrainingsMatrix
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         // Cabeçalho
-        $headers = ['Colaborador', 'Treinamento', 'Código', 'Data Realização', 'Instrutor', 'Nota', 'Observações'];
+        $headers = ['Colaborador', 'Treinamento', 'Código', 'Data Realização', 'Data Avaliação', 'Horas', 'Instrutor', 'Nota', 'Observações'];
         $sheet->fromArray($headers, null, 'A1');
         // Dados
         $row = 2;
@@ -78,14 +78,16 @@ class CompletedTrainingsMatrix
             $sheet->setCellValue('A' . $row, $item['user_name']);
             $sheet->setCellValue('B' . $row, $item['training_name']);
             $sheet->setCellValue('C' . $row, $item['training_code']);
-            $sheet->setCellValue('D' . $row, $item['data_realizacao'] ? date('d/m/Y', strtotime($item['data_realizacao'])) : '-');
-            $sheet->setCellValue('E' . $row, $item['instrutor_nome'] ?? '-');
-            $sheet->setCellValue('F' . $row, $item['nota'] ?? '-');
-            $sheet->setCellValue('G' . $row, $item['observacoes'] ?? '-');
+            $sheet->setCellValue('D' . $row, $item['data_realizacao'] ? date('d/m/Y H:i', strtotime($item['data_realizacao'])) : '-');
+            $sheet->setCellValue('E' . $row, $item['data_avaliacao'] ? date('d/m/Y H:i', strtotime($item['data_avaliacao'])) : '-');
+            $sheet->setCellValue('F' . $row, $item['carga_horaria'] ? $item['carga_horaria'] . 'h' : '-');
+            $sheet->setCellValue('G' . $row, $item['instrutor_nome'] ?? '-');
+            $sheet->setCellValue('H' . $row, $item['nota'] ?? '-');
+            $sheet->setCellValue('I' . $row, $item['observacoes'] ?? '-');
             $row++;
         }
         // Ajustar largura das colunas
-        foreach (range('A', 'G') as $col) {
+        foreach (range('A', 'I') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
         // Download
@@ -101,23 +103,25 @@ class CompletedTrainingsMatrix
     {
         // Montar HTML da tabela
         $html = '<h2 style="text-align:center;">Matriz de Treinamentos Realizados</h2>';
-        $html .= '<table border="1" cellpadding="5" cellspacing="0" width="100%" style="font-size:12px; border-collapse:collapse;">';
+        $html .= '<table border="1" cellpadding="5" cellspacing="0" width="100%" style="font-size:10px; border-collapse:collapse;">';
         $html .= '<thead><tr style="background:#f0f0f0;">';
-        $html .= '<th>Colaborador</th><th>Treinamento</th><th>Código</th><th>Data Realização</th><th>Instrutor</th><th>Nota</th><th>Observações</th>';
+        $html .= '<th>Colaborador</th><th>Treinamento</th><th>Código</th><th>Data Realização</th><th>Data Avaliação</th><th>Horas</th><th>Instrutor</th><th>Nota</th><th>Observações</th>';
         $html .= '</tr></thead><tbody>';
         foreach ($matrix as $item) {
             $html .= '<tr>';
             $html .= '<td>' . htmlspecialchars($item['user_name']) . '</td>';
             $html .= '<td>' . htmlspecialchars($item['training_name']) . '</td>';
             $html .= '<td>' . htmlspecialchars($item['training_code']) . '</td>';
-            $html .= '<td>' . ($item['data_realizacao'] ? date('d/m/Y', strtotime($item['data_realizacao'])) : '-') . '</td>';
+            $html .= '<td>' . ($item['data_realizacao'] ? date('d/m/Y H:i', strtotime($item['data_realizacao'])) : '-') . '</td>';
+            $html .= '<td>' . ($item['data_avaliacao'] ? date('d/m/Y H:i', strtotime($item['data_avaliacao'])) : '-') . '</td>';
+            $html .= '<td>' . ($item['carga_horaria'] ? $item['carga_horaria'] . 'h' : '-') . '</td>';
             $html .= '<td>' . htmlspecialchars($item['instrutor_nome'] ?? '-') . '</td>';
             $html .= '<td>' . htmlspecialchars($item['nota'] ?? '-') . '</td>';
             $html .= '<td>' . htmlspecialchars($item['observacoes'] ?? '-') . '</td>';
             $html .= '</tr>';
         }
         if (empty($matrix)) {
-            $html .= '<tr><td colspan="7" style="text-align:center; color:#888;">Nenhum treinamento realizado encontrado.</td></tr>';
+            $html .= '<tr><td colspan="9" style="text-align:center; color:#888;">Nenhum treinamento realizado encontrado.</td></tr>';
         }
         $html .= '</tbody></table>';
 
