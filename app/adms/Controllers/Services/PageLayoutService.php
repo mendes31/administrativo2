@@ -70,6 +70,7 @@ class PageLayoutService
             'ListLogAcessos',
             'ListStrategicPlans',
             "ListBranches",
+            "ListInformativos",
 
             // Adicione aqui outras permissões de páginas/submenus que possam existir no futuro
         ];

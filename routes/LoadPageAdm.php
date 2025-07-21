@@ -87,6 +87,7 @@ class LoadPageAdm
         "ListStrategicPlans", "CreateStrategicPlan", "EditStrategicPlan", "UpdateStrategicPlan", "DeleteStrategicPlan", "ViewStrategicPlan",
         "ListStrategicIndicators", "CreateStrategicIndicator", "EditStrategicIndicator", "UpdateStrategicIndicator", "DeleteStrategicIndicator", "ViewStrategicIndicator",
         "ListBranches", "CreateBranch", "ViewBranch", "UpdateBranch", "DeleteBranch",
+        "ListInformativos", "CreateInformativo", "ViewInformativo", "UpdateInformativo", "DeleteInformativo", "ServeFile",
     ];
 
     /** @var array $listDirectory Recebe a lista de diretórios com as controllers */
@@ -119,7 +120,9 @@ class LoadPageAdm
         "settings",
         "strategicPlans",
         "strategicIndicators",
-        "branches"
+        "branches",
+        "informativos",
+        "serveFile"
     ];
 
     /** @var array $listPackages Recebe a lista de pacotes com as controllers */

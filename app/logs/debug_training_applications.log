@@ -290,3 +290,332 @@ PARAMS: Array
 )
 
 Novo ID: 2
+
+==== NOVO INSERT ====
+2025-07-21 13:18:28
+Array
+(
+    [adms_user_id] => 12
+    [adms_training_id] => 12
+    [data_realizacao] => 2025-07-01
+    [data_avaliacao] => 2025-07-10
+    [data_agendada] => 
+    [nota] => 5
+    [observacoes] => 
+    [instrutor_nome] => 
+    [instrutor_email] => camila.lago@tiaraju.com.br
+    [instructor_user_id] => 7
+    [real_instructor_nome] => Camila Carvalho Lago
+    [real_instructor_email] => camila.lago@tiaraju.com.br
+    [aplicado_por] => 7
+    [status] => concluido
+)
+
+SQL: INSERT INTO adms_training_applications (
+                        adms_user_id, adms_training_id, data_realizacao, data_avaliacao, data_agendada, instrutor_nome, instrutor_email, instructor_user_id, real_instructor_nome, real_instructor_email, aplicado_por, nota, observacoes, status, created_at, updated_at
+                    ) VALUES (
+                        :adms_user_id, :adms_training_id, :data_realizacao, :data_avaliacao, :data_agendada, :instrutor_nome, :instrutor_email, :instructor_user_id, :real_instructor_nome, :real_instructor_email, :aplicado_por, :nota, :observacoes, :status, :created_at, NOW()
+                    )
+
+PARAMS: Array
+(
+    [:adms_user_id] => 12
+    [:adms_training_id] => 12
+    [:data_realizacao] => 2025-07-01
+    [:data_avaliacao] => 2025-07-10
+    [:data_agendada] => 
+    [:instrutor_nome] => 
+    [:instrutor_email] => camila.lago@tiaraju.com.br
+    [:instructor_user_id] => 7
+    [:real_instructor_nome] => Camila Carvalho Lago
+    [:real_instructor_email] => camila.lago@tiaraju.com.br
+    [:aplicado_por] => 7
+    [:nota] => 5
+    [:observacoes] => 
+    [:status] => concluido
+    [:created_at] => 2025-07-21 13:18:28
+)
+
+Novo ID: 3
+
+==== NOVO INSERT ====
+2025-07-21 13:20:25
+Array
+(
+    [adms_user_id] => 7
+    [adms_training_id] => 12
+    [data_realizacao] => 2025-07-21
+    [data_avaliacao] => 2025-07-21
+    [data_agendada] => 
+    [nota] => 5
+    [observacoes] => 
+    [instrutor_nome] => 
+    [instrutor_email] => aline.veiga@tiaraju.com.br
+    [instructor_user_id] => 6
+    [real_instructor_nome] => Aline Veiga
+    [real_instructor_email] => aline.veiga@tiaraju.com.br
+    [aplicado_por] => 7
+    [status] => concluido
+)
+
+SQL: INSERT INTO adms_training_applications (
+                        adms_user_id, adms_training_id, data_realizacao, data_avaliacao, data_agendada, instrutor_nome, instrutor_email, instructor_user_id, real_instructor_nome, real_instructor_email, aplicado_por, nota, observacoes, status, created_at, updated_at
+                    ) VALUES (
+                        :adms_user_id, :adms_training_id, :data_realizacao, :data_avaliacao, :data_agendada, :instrutor_nome, :instrutor_email, :instructor_user_id, :real_instructor_nome, :real_instructor_email, :aplicado_por, :nota, :observacoes, :status, :created_at, NOW()
+                    )
+
+PARAMS: Array
+(
+    [:adms_user_id] => 7
+    [:adms_training_id] => 12
+    [:data_realizacao] => 2025-07-21
+    [:data_avaliacao] => 2025-07-21
+    [:data_agendada] => 
+    [:instrutor_nome] => 
+    [:instrutor_email] => aline.veiga@tiaraju.com.br
+    [:instructor_user_id] => 6
+    [:real_instructor_nome] => Aline Veiga
+    [:real_instructor_email] => aline.veiga@tiaraju.com.br
+    [:aplicado_por] => 7
+    [:nota] => 5
+    [:observacoes] => 
+    [:status] => concluido
+    [:created_at] => 2025-07-21 13:20:25
+)
+
+Novo ID: 4
+
+==== NOVO INSERT ====
+2025-07-21 13:31:15
+Array
+(
+    [adms_user_id] => 12
+    [adms_training_id] => 14
+    [data_realizacao] => 2025-07-21
+    [data_avaliacao] => 
+    [data_agendada] => 
+    [nota] => 5
+    [observacoes] => 
+    [instrutor_nome] => 
+    [instrutor_email] => aline.veiga@tiaraju.com.br
+    [instructor_user_id] => 6
+    [real_instructor_nome] => Aline Veiga
+    [real_instructor_email] => aline.veiga@tiaraju.com.br
+    [aplicado_por] => 7
+    [status] => concluido
+)
+
+SQL: INSERT INTO adms_training_applications (
+                        adms_user_id, adms_training_id, data_realizacao, data_avaliacao, data_agendada, instrutor_nome, instrutor_email, instructor_user_id, real_instructor_nome, real_instructor_email, aplicado_por, nota, observacoes, status, created_at, updated_at
+                    ) VALUES (
+                        :adms_user_id, :adms_training_id, :data_realizacao, :data_avaliacao, :data_agendada, :instrutor_nome, :instrutor_email, :instructor_user_id, :real_instructor_nome, :real_instructor_email, :aplicado_por, :nota, :observacoes, :status, :created_at, NOW()
+                    )
+
+PARAMS: Array
+(
+    [:adms_user_id] => 12
+    [:adms_training_id] => 14
+    [:data_realizacao] => 2025-07-21
+    [:data_avaliacao] => 
+    [:data_agendada] => 
+    [:instrutor_nome] => 
+    [:instrutor_email] => aline.veiga@tiaraju.com.br
+    [:instructor_user_id] => 6
+    [:real_instructor_nome] => Aline Veiga
+    [:real_instructor_email] => aline.veiga@tiaraju.com.br
+    [:aplicado_por] => 7
+    [:nota] => 5
+    [:observacoes] => 
+    [:status] => concluido
+    [:created_at] => 2025-07-21 13:31:15
+)
+
+Novo ID: 5
+
+==== NOVO INSERT ====
+2025-07-21 13:32:00
+Array
+(
+    [adms_user_id] => 10
+    [adms_training_id] => 14
+    [data_realizacao] => 2025-07-21
+    [data_avaliacao] => 
+    [data_agendada] => 
+    [nota] => 8
+    [observacoes] => 
+    [instrutor_nome] => 
+    [instrutor_email] => aline.veiga@tiaraju.com.br
+    [instructor_user_id] => 6
+    [real_instructor_nome] => Aline Veiga
+    [real_instructor_email] => aline.veiga@tiaraju.com.br
+    [aplicado_por] => 7
+    [status] => concluido
+)
+
+SQL: INSERT INTO adms_training_applications (
+                        adms_user_id, adms_training_id, data_realizacao, data_avaliacao, data_agendada, instrutor_nome, instrutor_email, instructor_user_id, real_instructor_nome, real_instructor_email, aplicado_por, nota, observacoes, status, created_at, updated_at
+                    ) VALUES (
+                        :adms_user_id, :adms_training_id, :data_realizacao, :data_avaliacao, :data_agendada, :instrutor_nome, :instrutor_email, :instructor_user_id, :real_instructor_nome, :real_instructor_email, :aplicado_por, :nota, :observacoes, :status, :created_at, NOW()
+                    )
+
+PARAMS: Array
+(
+    [:adms_user_id] => 10
+    [:adms_training_id] => 14
+    [:data_realizacao] => 2025-07-21
+    [:data_avaliacao] => 
+    [:data_agendada] => 
+    [:instrutor_nome] => 
+    [:instrutor_email] => aline.veiga@tiaraju.com.br
+    [:instructor_user_id] => 6
+    [:real_instructor_nome] => Aline Veiga
+    [:real_instructor_email] => aline.veiga@tiaraju.com.br
+    [:aplicado_por] => 7
+    [:nota] => 8
+    [:observacoes] => 
+    [:status] => concluido
+    [:created_at] => 2025-07-21 13:32:00
+)
+
+Novo ID: 6
+
+==== NOVO INSERT ====
+2025-07-21 13:57:19
+Array
+(
+    [adms_user_id] => 1
+    [adms_training_id] => 14
+    [data_realizacao] => 2025-07-09
+    [data_avaliacao] => 
+    [data_agendada] => 
+    [nota] => 4
+    [observacoes] => 
+    [instrutor_nome] => 
+    [instrutor_email] => camila.lago@tiaraju.com.br
+    [instructor_user_id] => 7
+    [real_instructor_nome] => Camila Carvalho Lago
+    [real_instructor_email] => camila.lago@tiaraju.com.br
+    [aplicado_por] => 7
+    [status] => concluido
+)
+
+SQL: INSERT INTO adms_training_applications (
+                        adms_user_id, adms_training_id, data_realizacao, data_avaliacao, data_agendada, instrutor_nome, instrutor_email, instructor_user_id, real_instructor_nome, real_instructor_email, aplicado_por, nota, observacoes, status, created_at, updated_at
+                    ) VALUES (
+                        :adms_user_id, :adms_training_id, :data_realizacao, :data_avaliacao, :data_agendada, :instrutor_nome, :instrutor_email, :instructor_user_id, :real_instructor_nome, :real_instructor_email, :aplicado_por, :nota, :observacoes, :status, :created_at, NOW()
+                    )
+
+PARAMS: Array
+(
+    [:adms_user_id] => 1
+    [:adms_training_id] => 14
+    [:data_realizacao] => 2025-07-09
+    [:data_avaliacao] => 
+    [:data_agendada] => 
+    [:instrutor_nome] => 
+    [:instrutor_email] => camila.lago@tiaraju.com.br
+    [:instructor_user_id] => 7
+    [:real_instructor_nome] => Camila Carvalho Lago
+    [:real_instructor_email] => camila.lago@tiaraju.com.br
+    [:aplicado_por] => 7
+    [:nota] => 4
+    [:observacoes] => 
+    [:status] => concluido
+    [:created_at] => 2025-07-21 13:57:19
+)
+
+Novo ID: 7
+
+==== NOVO INSERT ====
+2025-07-21 14:19:07
+Array
+(
+    [adms_user_id] => 7
+    [adms_training_id] => 1
+    [data_realizacao] => 2025-07-08
+    [data_avaliacao] => 2025-07-10
+    [data_agendada] => 
+    [nota] => 5
+    [observacoes] => 
+    [instrutor_nome] => 
+    [instrutor_email] => marciane.meotti1@tiaraju.com.br
+    [instructor_user_id] => 4
+    [real_instructor_nome] => Marciane Meotti
+    [real_instructor_email] => marciane.meotti1@tiaraju.com.br
+    [aplicado_por] => 7
+    [status] => concluido
+)
+
+SQL: INSERT INTO adms_training_applications (
+                        adms_user_id, adms_training_id, data_realizacao, data_avaliacao, data_agendada, instrutor_nome, instrutor_email, instructor_user_id, real_instructor_nome, real_instructor_email, aplicado_por, nota, observacoes, status, created_at, updated_at
+                    ) VALUES (
+                        :adms_user_id, :adms_training_id, :data_realizacao, :data_avaliacao, :data_agendada, :instrutor_nome, :instrutor_email, :instructor_user_id, :real_instructor_nome, :real_instructor_email, :aplicado_por, :nota, :observacoes, :status, :created_at, NOW()
+                    )
+
+PARAMS: Array
+(
+    [:adms_user_id] => 7
+    [:adms_training_id] => 1
+    [:data_realizacao] => 2025-07-08
+    [:data_avaliacao] => 2025-07-10
+    [:data_agendada] => 
+    [:instrutor_nome] => 
+    [:instrutor_email] => marciane.meotti1@tiaraju.com.br
+    [:instructor_user_id] => 4
+    [:real_instructor_nome] => Marciane Meotti
+    [:real_instructor_email] => marciane.meotti1@tiaraju.com.br
+    [:aplicado_por] => 7
+    [:nota] => 5
+    [:observacoes] => 
+    [:status] => concluido
+    [:created_at] => 2025-07-21 14:19:07
+)
+
+Novo ID: 1
+
+==== NOVO INSERT ====
+2025-07-21 14:20:50
+Array
+(
+    [adms_user_id] => 12
+    [adms_training_id] => 1
+    [data_realizacao] => 2025-07-15
+    [data_avaliacao] => 2025-07-15
+    [data_agendada] => 
+    [nota] => 7
+    [observacoes] => 
+    [instrutor_nome] => 
+    [instrutor_email] => rafael.oliveira@tiaraju.com.br
+    [instructor_user_id] => 2
+    [real_instructor_nome] => Rafael Mendes de Oliveira
+    [real_instructor_email] => rafael.oliveira@tiaraju.com.br
+    [aplicado_por] => 7
+    [status] => concluido
+)
+
+SQL: INSERT INTO adms_training_applications (
+                        adms_user_id, adms_training_id, data_realizacao, data_avaliacao, data_agendada, instrutor_nome, instrutor_email, instructor_user_id, real_instructor_nome, real_instructor_email, aplicado_por, nota, observacoes, status, created_at, updated_at
+                    ) VALUES (
+                        :adms_user_id, :adms_training_id, :data_realizacao, :data_avaliacao, :data_agendada, :instrutor_nome, :instrutor_email, :instructor_user_id, :real_instructor_nome, :real_instructor_email, :aplicado_por, :nota, :observacoes, :status, :created_at, NOW()
+                    )
+
+PARAMS: Array
+(
+    [:adms_user_id] => 12
+    [:adms_training_id] => 1
+    [:data_realizacao] => 2025-07-15
+    [:data_avaliacao] => 2025-07-15
+    [:data_agendada] => 
+    [:instrutor_nome] => 
+    [:instrutor_email] => rafael.oliveira@tiaraju.com.br
+    [:instructor_user_id] => 2
+    [:real_instructor_nome] => Rafael Mendes de Oliveira
+    [:real_instructor_email] => rafael.oliveira@tiaraju.com.br
+    [:aplicado_por] => 7
+    [:nota] => 7
+    [:observacoes] => 
+    [:status] => concluido
+    [:created_at] => 2025-07-21 14:20:50
+)
+
+Novo ID: 2

@@ -1,0 +1,285 @@
+BASE: C:\wamp64\www\administrativo2\app\public\adms\uploads
+PATH: imagens/687e4c66564df1753107558png
+FULL: 
+BASE: C:\wamp64\www\administrativo2\app\public\adms\uploads
+PATH: imagens/687e4c66564df1753107558png
+FULL: 
+BASE: C:\wamp64\www\administrativo2\app\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e4c66564df1753107558png
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e4c66564df1753107558png
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e4c66564df1753107558png
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: uploads/imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: uploads/imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: uploads/imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: uploads/imagens/687e19a5020921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e19a5020921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: uploads/imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: uploads/imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: uploads/imagens/687e19a5020921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e19a5020921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: uploads/imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: uploads/imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: uploads/imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e19a5020921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e19a5020921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e19a5020921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e19a5020921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: uploads/imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: uploads/imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e19a5020921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e19a5020921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e4c66564df1753107558png
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e4c66580d51753107558pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e91a9520921753125289jpg
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa1753128295png
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e9d6756fe31753128295pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa1753128295png
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa1753128295png
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e9d6756fe31753128295pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa1753128295png
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa1753128295png
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e9d6756fe31753128295pdf
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa1753128295png
+FULL: 
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa_1753128295.png
+FULL: C:\wamp64\www\administrativo2\public\adms\uploads\imagens\687e9d67565aa_1753128295.png
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e9d6756fe3_1753128295.pdf
+FULL: C:\wamp64\www\administrativo2\public\adms\uploads\anexos\687e9d6756fe3_1753128295.pdf
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa_1753128295.png
+FULL: C:\wamp64\www\administrativo2\public\adms\uploads\imagens\687e9d67565aa_1753128295.png
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa_1753128295.png
+FULL: C:\wamp64\www\administrativo2\public\adms\uploads\imagens\687e9d67565aa_1753128295.png
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa_1753128295.png
+FULL: C:\wamp64\www\administrativo2\public\adms\uploads\imagens\687e9d67565aa_1753128295.png
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e9d6756fe3_1753128295.pdf
+FULL: C:\wamp64\www\administrativo2\public\adms\uploads\anexos\687e9d6756fe3_1753128295.pdf
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: anexos/687e9d6756fe3_1753128295.pdf
+FULL: C:\wamp64\www\administrativo2\public\adms\uploads\anexos\687e9d6756fe3_1753128295.pdf
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa_1753128295.png
+FULL: C:\wamp64\www\administrativo2\public\adms\uploads\imagens\687e9d67565aa_1753128295.png
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa_1753128295.png
+FULL: C:\wamp64\www\administrativo2\public\adms\uploads\imagens\687e9d67565aa_1753128295.png
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa_1753128295.png
+FULL: C:\wamp64\www\administrativo2\public\adms\uploads\imagens\687e9d67565aa_1753128295.png
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa_1753128295.png
+FULL: C:\wamp64\www\administrativo2\public\adms\uploads\imagens\687e9d67565aa_1753128295.png
+BASE: C:\wamp64\www\administrativo2\public\adms\uploads
+PATH: imagens/687e9d67565aa_1753128295.png
+FULL: C:\wamp64\www\administrativo2\public\adms\uploads\imagens\687e9d67565aa_1753128295.png

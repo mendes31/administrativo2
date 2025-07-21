@@ -137,6 +137,18 @@ $menus = [
         ]
     ],
     [
+        'id' => 'comunicacao_interna',
+        'icon' => 'fa-solid fa-comments',
+        'label' => 'Comunicação Interna',
+        'submenu' => [
+            [
+                'label' => 'Informativos',
+                'url' => $_ENV['URL_ADM'] . 'list-informativos',
+                'permission' => 'ListInformativos'
+            ]
+        ]
+    ],
+    [
         'id' => 'financeiro',
         'icon' => 'fa-solid fa-coins',
         'label' => 'Financeiro',
