@@ -106,6 +106,21 @@
                             <div class="text-muted mb-2 flex-grow-1 text-start" style="font-size: 1rem; min-height: 40px;">
                                 <?php echo htmlspecialchars($info['resumo'] ?? substr(strip_tags($info['conteudo']), 0, 100) . '...'); ?>
                             </div>
+                            <div class="d-flex gap-2 mt-2">
+                                <?php if (!empty($info['imagem'])): ?>
+                                    <a href="#" onclick="showImageModal('<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($info['imagem']); ?>'); return false;">
+                                        <img src="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($info['imagem']); ?>"
+                                             class="img-fluid rounded shadow"
+                                             alt="Imagem do informativo"
+                                             style="width: 56px; height: 56px; object-fit: cover; border-radius: 6px; border: 1px solid #e9ecef; cursor: pointer;">
+                                    </a>
+                                <?php endif; ?>
+                                <?php if (!empty($info['anexo'])): ?>
+                                    <a href="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($info['anexo']); ?>" target="_blank" title="Baixar anexo">
+                                        <i class="fas fa-file-pdf fa-2x text-danger" style="vertical-align: middle;"></i>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
                             <div class="mt-auto text-end">
                                 <button type="button" class="btn btn-outline-primary fw-semibold px-4" style="border-radius: 8px; border-width:2px; min-width: 120px;" data-bs-toggle="modal" data-bs-target="#informativoModal<?php echo $info['id']; ?>">
                                     <i class="fas fa-eye me-1"></i>Ver Mais
@@ -127,11 +142,27 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <?php if (!empty($info['imagem'])): ?>
-                                        <div class="text-center mb-3">
-                                            <img src="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($info['imagem']); ?>" class="img-fluid rounded shadow" alt="Imagem do informativo" style="max-height: 300px; border-radius: 8px;" onerror="this.style.display='none';">
+                                    <div class="informativo-card">
+                                        <div class="informativo-conteudo" id="conteudo-<?php echo $info['id']; ?>">
+                                            <?php echo nl2br(htmlspecialchars($info['conteudo'])); ?>
                                         </div>
-                                    <?php endif; ?>
+                                        <div class="d-flex gap-2 mt-2">
+                                            <?php if (!empty($info['imagem'])): ?>
+                                                <a href="#" onclick="showImageModal('<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($info['imagem']); ?>'); return false;">
+                                                    <img src="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($info['imagem']); ?>"
+                                                         class="img-fluid rounded shadow"
+                                                         alt="Imagem do informativo"
+                                                         style="width: 56px; height: 56px; object-fit: cover; border-radius: 6px; border: 1px solid #e9ecef; cursor: pointer;">
+                                                </a>
+                                            <?php endif; ?>
+                                            <?php if (!empty($info['anexo'])): ?>
+                                                <a href="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($info['anexo']); ?>" target="_blank" title="Baixar anexo">
+                                                    <i class="fas fa-file-pdf fa-2x text-danger" style="vertical-align: middle;"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
+                                        <button class="btn btn-outline-primary w-100 mt-2" id="verMais-<?php echo $info['id']; ?>" style="display:none;" onclick="abrirModalInformativo(<?php echo $info['id']; ?>)">Ver Mais</button>
+                                    </div>
                                     <div class="mb-3">
                                         <span class="badge bg-info" style="border-radius: 8px;"><?php echo htmlspecialchars($info['categoria']); ?></span>
                                         <small class="text-muted ms-2">
@@ -142,17 +173,6 @@
                                             </span>
                                         </small>
                                     </div>
-                                    <div class="mb-3">
-                                        <?php echo nl2br(htmlspecialchars($info['conteudo'])); ?>
-                                    </div>
-                                    <?php if (!empty($info['anexo'])): ?>
-                                        <div class="border rounded p-3 bg-light" style="border-radius: 8px;">
-                                            <h6><i class="fas fa-paperclip me-2"></i>Anexo</h6>
-                                            <a href="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($info['anexo']); ?>" target="_blank" class="btn btn-outline-primary w-100 fw-semibold" style="border-radius: 8px; border-width:2px;">
-                                                <i class="fas fa-download me-1"></i>Download
-                                            </a>
-                                        </div>
-                                    <?php endif; ?>
                                 </div>
                                 <div class="modal-footer" style="border-radius: 0 0 12px 12px; border-top: 1px solid #e9ecef;">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px;">Fechar</button>
@@ -271,4 +291,26 @@
     border-color: #219150 !important;
     cursor: pointer;
 }
+.informativo-conteudo {
+    max-height: 80px;
+    overflow: hidden;
+    position: relative;
+}
 </style>
+<!-- Modal para ampliar imagem -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <img id="modalImage" src="" alt="Imagem ampliada" style="max-width: 100%; max-height: 70vh;">
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function showImageModal(src) {
+    document.getElementById('modalImage').src = src;
+    var modal = new bootstrap.Modal(document.getElementById('imageModal'));
+    modal.show();
+}
+</script>

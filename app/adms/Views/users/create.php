@@ -39,7 +39,7 @@ use App\adms\Helpers\CSRFHelper;
             ?>
 
             <!-- Formulário para cadastrar um novo usuário -->
-            <form action="" method="POST" class="row g-3">
+            <form action="" method="POST" class="row g-3" enctype="multipart/form-data">
 
                 <!-- Campo oculto para o token CSRF para proteger o formulário contra ataques de falsificação de solicitação entre sites -->
                 <input type="hidden" name="csrf_token" value="<?php echo CSRFHelper::generateCSRFToken('form_create_user'); ?>">
@@ -126,6 +126,15 @@ use App\adms\Helpers\CSRFHelper;
                 <div class="col-md-4">
                     <label for="tentativas_login" class="form-label">Tentativas de Login</label>
                     <input type="number" name="tentativas_login" class="form-control" id="tentativas_login" value="0" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="image" class="form-label">Imagem do Usuário</label>
+                    <input type="file" name="image" class="form-control" id="image" accept="image/*">
+                    <small class="form-text text-muted">Formatos permitidos: JPG, PNG, GIF. Tamanho máximo: 2MB.</small>
+                </div>
+                <div class="col-md-6">
+                    <label for="data_nascimento" class="form-label">Data de Nascimento</label>
+                    <input type="date" name="data_nascimento" class="form-control" id="data_nascimento" value="<?php echo $this->data['form']['data_nascimento'] ?? ''; ?>">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Status</label><br>

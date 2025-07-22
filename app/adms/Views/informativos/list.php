@@ -169,14 +169,33 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_informativo');
                                                 </a>
                                             <?php endif; ?>
                                             <?php if (in_array('DeleteInformativo', $this->data['buttonPermission'])): ?>
-                                                <form id="formDelete<?php echo $informativo['id']; ?>" action="<?php echo $_ENV['URL_ADM']; ?>delete-informativo" method="POST" class="d-inline">
-                                                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                                                    <input type="hidden" name="id" value="<?php echo $informativo['id']; ?>">
-                                                    <input type="hidden" name="titulo" value="<?php echo htmlspecialchars($informativo['titulo']); ?>">
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir este informativo?');">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
+                                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalDelete<?php echo $informativo['id']; ?>-desktop">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                                <!-- Modal Bootstrap Desktop -->
+                                                <div class="modal fade" id="modalDelete<?php echo $informativo['id']; ?>-desktop" tabindex="-1" aria-labelledby="modalDeleteLabel<?php echo $informativo['id']; ?>-desktop" aria-hidden="true">
+                                                  <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                      <div class="modal-header">
+                                                        <h5 class="modal-title" id="modalDeleteLabel<?php echo $informativo['id']; ?>-desktop"><i class="fas fa-exclamation-triangle text-danger me-2"></i>Confirmar Exclusão</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                                      </div>
+                                                      <div class="modal-body">
+                                                        Tem certeza que deseja excluir o informativo <strong><?php echo htmlspecialchars($informativo['titulo']); ?></strong>?<br>
+                                                        <small class="text-muted">Você não poderá reverter esta ação.</small>
+                                                      </div>
+                                                      <div class="modal-footer">
+                                                        <form id="formDelete<?php echo $informativo['id']; ?>-desktop" action="<?php echo $_ENV['URL_ADM']; ?>delete-informativo" method="POST" class="d-inline">
+                                                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                            <input type="hidden" name="id" value="<?php echo $informativo['id']; ?>">
+                                                            <input type="hidden" name="titulo" value="<?php echo htmlspecialchars($informativo['titulo']); ?>">
+                                                            <button type="submit" class="btn btn-danger">Sim, excluir!</button>
+                                                        </form>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div>
                                             <?php endif; ?>
                                         </div>
                                     </td>
@@ -244,14 +263,33 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_informativo');
                                             </a>
                                         <?php endif; ?>
                                         <?php if (in_array('DeleteInformativo', $this->data['buttonPermission'])): ?>
-                                            <form id="formDelete<?php echo $informativo['id']; ?>" action="<?php echo $_ENV['URL_ADM']; ?>delete-informativo" method="POST" class="d-inline">
-                                                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                                                <input type="hidden" name="id" value="<?php echo $informativo['id']; ?>">
-                                                <input type="hidden" name="titulo" value="<?php echo htmlspecialchars($informativo['titulo']); ?>">
-                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir este informativo?');">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-danger btn-sm mb-1" data-bs-toggle="modal" data-bs-target="#modalDelete<?php echo $informativo['id']; ?>-mobile">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <!-- Modal Bootstrap Mobile -->
+                                            <div class="modal fade" id="modalDelete<?php echo $informativo['id']; ?>-mobile" tabindex="-1" aria-labelledby="modalDeleteLabel<?php echo $informativo['id']; ?>-mobile" aria-hidden="true">
+                                              <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                  <div class="modal-header">
+                                                    <h5 class="modal-title" id="modalDeleteLabel<?php echo $informativo['id']; ?>-mobile"><i class="fas fa-exclamation-triangle text-danger me-2"></i>Confirmar Exclusão</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                                  </div>
+                                                  <div class="modal-body">
+                                                    Tem certeza que deseja excluir o informativo <strong><?php echo htmlspecialchars($informativo['titulo']); ?></strong>?<br>
+                                                    <small class="text-muted">Você não poderá reverter esta ação.</small>
+                                                  </div>
+                                                  <div class="modal-footer">
+                                                    <form id="formDelete<?php echo $informativo['id']; ?>-mobile" action="<?php echo $_ENV['URL_ADM']; ?>delete-informativo" method="POST" class="d-inline">
+                                                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                                        <input type="hidden" name="id" value="<?php echo $informativo['id']; ?>">
+                                                        <input type="hidden" name="titulo" value="<?php echo htmlspecialchars($informativo['titulo']); ?>">
+                                                        <button type="submit" class="btn btn-danger">Sim, excluir!</button>
+                                                    </form>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
                                         <?php endif; ?>
                                     </div>
                                 </div>

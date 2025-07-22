@@ -25,6 +25,10 @@ class Login
      */
     public function index(): void
     {
+        if (isset($_SESSION['user_id'])) {
+            header("Location: {$_ENV['URL_ADM']}dashboard");
+            exit;
+        }
         // Receber os dados do formulário
         $this->data['form'] = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 

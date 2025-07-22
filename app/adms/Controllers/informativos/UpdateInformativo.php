@@ -86,7 +86,7 @@ class UpdateInformativo
         // Upload de nova imagem
         $imagem = $this->data['informativo']['imagem'];
         if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
-            $novaImagem = $this->uploadFile($_FILES['imagem'], 'imagens');
+            $novaImagem = $this->uploadFile($_FILES['imagem'], 'imagens', $imagem);
             if ($novaImagem) {
                 $imagem = $novaImagem;
             }
@@ -95,7 +95,7 @@ class UpdateInformativo
         // Upload de novo anexo
         $anexo = $this->data['informativo']['anexo'];
         if (isset($_FILES['anexo']) && $_FILES['anexo']['error'] === UPLOAD_ERR_OK) {
-            $novoAnexo = $this->uploadFile($_FILES['anexo'], 'anexos');
+            $novoAnexo = $this->uploadFile($_FILES['anexo'], 'anexos', $anexo);
             if ($novoAnexo) {
                 $anexo = $novoAnexo;
             }
@@ -129,25 +129,52 @@ class UpdateInformativo
         }
     }
 
-    private function uploadFile(array $file, string $folder): ?string
+    private function uploadFile(array $file, string $folder, ?string $oldFile = null): ?string
     {
-        $uploadDir = __DIR__ . '/../../../public/adms/uploads/' . $folder . '/';
+        // Verificar se o arquivo foi enviado corretamente
+        if (!isset($file) || !is_array($file) || $file['error'] !== UPLOAD_ERR_OK) {
+            error_log('Arquivo não foi enviado corretamente: ' . ($file['error'] ?? 'desconhecido'));
+            return null;
+        }
+
+        // Verificar se o arquivo temporário existe
+        if (!is_uploaded_file($file['tmp_name'])) {
+            error_log('Arquivo temporário não existe ou não é válido: ' . $file['tmp_name']);
+            return null;
+        }
+
+        // Caminho correto para uploads (subindo 4 níveis)
+        $basePath = dirname(__DIR__, 4);
+        $uploadDir = $basePath . '/public/adms/uploads/' . $folder . '/';
+        error_log('UPLOAD DIR (corrigido): ' . $uploadDir);
+        // Criar diretório se não existir
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+            if (!mkdir($uploadDir, 0755, true)) {
+                error_log('Não foi possível criar o diretório: ' . $uploadDir);
+                return null;
+            }
         }
-        $allowedTypes = [
-            'imagens' => ['image/jpeg', 'image/png', 'image/gif'],
-            'anexos' => ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain']
-        ];
-        if (!in_array($file['type'], $allowedTypes[$folder])) {
-            $_SESSION['msg'] = '<div class="alert alert-warning" role="alert">Tipo de arquivo não permitido!</div>';
+        // Verificar se o diretório é gravável
+        if (!is_writable($uploadDir)) {
+            error_log('Diretório não é gravável: ' . $uploadDir);
             return null;
         }
-        $maxSize = 5 * 1024 * 1024; // 5MB
+        // Para imagens, verificar extensão
+        if ($folder === 'imagens') {
+            $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            if (!in_array($extension, $allowedExtensions)) {
+                error_log('Extensão não permitida para imagem: ' . $extension);
+                return null;
+            }
+        }
+        // Validar tamanho (5MB)
+        $maxSize = 5 * 1024 * 1024;
         if ($file['size'] > $maxSize) {
-            $_SESSION['msg'] = '<div class="alert alert-warning" role="alert">Arquivo muito grande! Máximo 5MB.</div>';
+            error_log('Arquivo muito grande: ' . $file['size'] . ' bytes');
             return null;
         }
+        // Gerar nome único para o arquivo
         $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
         if ($extension) {
             $filename = uniqid() . '_' . time() . '.' . $extension;
@@ -155,10 +182,22 @@ class UpdateInformativo
             $filename = uniqid() . '_' . time();
         }
         $filepath = $uploadDir . $filename;
+        // Mover arquivo
         if (move_uploaded_file($file['tmp_name'], $filepath)) {
+            // Remover arquivo antigo se existir
+            if ($oldFile) {
+                $oldPath = $basePath . '/public/adms/uploads/' . $oldFile;
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
             return $folder . '/' . $filename;
+        } else {
+            error_log('Erro ao mover arquivo: ' . $file['tmp_name'] . ' para ' . $filepath);
+            error_log('Erro do PHP: ' . (error_get_last()['message'] ?? 'Desconhecido'));
+            return null;
         }
-        $_SESSION['msg'] = '<div class="alert alert-warning" role="alert">Erro ao fazer upload do arquivo!</div>';
-        return null;
     }
+
+    // Remover métodos removerImagem e removerAnexo para isolar o problema do upload/atualização.
 } 

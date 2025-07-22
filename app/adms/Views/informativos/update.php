@@ -62,12 +62,20 @@ $informativo = $this->data['informativo'];
                             <div class="form-text">Formatos aceitos: JPG, PNG, GIF. Máximo 5MB.</div>
                             
                             <?php if (!empty($informativo['imagem'])): ?>
-                                <div class="mt-2">
-                                    <small class="text-muted">Imagem atual:</small>
-                                    <div class="mt-1">
-                                        <img src="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($informativo['imagem']); ?>" 
-                                             class="img-thumbnail" style="max-width: 150px; max-height: 150px;" alt="Imagem atual">
+                                <div class="mt-2 d-flex align-items-center gap-2">
+                                    <div>
+                                        <small class="text-muted">Imagem atual:</small>
+                                        <div class="mt-1">
+                                            <img src="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($informativo['imagem']); ?>" 
+                                                 class="img-thumbnail" style="max-width: 150px; max-height: 150px;" alt="Imagem atual">
+                                        </div>
                                     </div>
+                                    <a href="<?php echo $_ENV['URL_ADM']; ?>remove-informativo-imagem/<?php echo $informativo['id']; ?>"
+                                       class="btn btn-outline-danger btn-sm ms-2"
+                                       onclick="return confirm('Deseja realmente remover a imagem?');"
+                                       title="Remover imagem">
+                                       <i class="fas fa-trash"></i>
+                                    </a>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -78,15 +86,23 @@ $informativo = $this->data['informativo'];
                             <div class="form-text">Formatos aceitos: PDF, DOC, DOCX, TXT. Máximo 5MB.</div>
                             
                             <?php if (!empty($informativo['anexo'])): ?>
-                                <div class="mt-2">
-                                    <small class="text-muted">Anexo atual:</small>
-                                    <div class="mt-1">
-                                        <a href="<?php echo $_ENV['URL_ADM']; ?><?php echo htmlspecialchars($informativo['anexo']); ?>" 
-                                           target="_blank" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-paperclip me-1"></i>
-                                            <?php echo pathinfo($informativo['anexo'], PATHINFO_FILENAME); ?>
-                                        </a>
+                                <div class="mt-2 d-flex align-items-center gap-2">
+                                    <div>
+                                        <small class="text-muted">Anexo atual:</small>
+                                        <div class="mt-1">
+                                            <a href="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($informativo['anexo']); ?>" 
+                                               target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-paperclip me-1"></i>
+                                                <?php echo pathinfo($informativo['anexo'], PATHINFO_FILENAME); ?>
+                                            </a>
+                                        </div>
                                     </div>
+                                    <a href="<?php echo $_ENV['URL_ADM']; ?>remove-informativo-anexo/<?php echo $informativo['id']; ?>"
+                                       class="btn btn-outline-danger btn-sm ms-2"
+                                       onclick="return confirm('Deseja realmente remover o anexo?');"
+                                       title="Remover anexo">
+                                       <i class="fas fa-trash"></i>
+                                    </a>
                                 </div>
                             <?php endif; ?>
                         </div>

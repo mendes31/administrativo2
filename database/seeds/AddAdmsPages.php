@@ -279,6 +279,8 @@ class AddAdmsPages extends AbstractSeed
             ['name'=> 'Editar Informativo', 'controller' => 'UpdateInformativo', 'controller_url' => 'update-informativo', 'directory' => 'informativos', 'obs' => 'Página com o formulário editar informativo.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 30],
             ['name'=> 'Apagar Informativo', 'controller' => 'DeleteInformativo', 'controller_url' => 'delete-informativo', 'directory' => 'informativos', 'obs' => 'Página para apagar o informativo do banco de dados.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 30],
             ['name'=> 'Servir Arquivo de Upload', 'controller' => 'ServeFile', 'controller_url' => 'serve-file', 'directory' => 'serveFile', 'obs' => 'Página para servir arquivos de upload (imagens/anexos) dos informativos.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 30],
+            ['name'=> 'Remover Imagem do Informativo', 'controller' => 'RemoveInformativoImagem', 'controller_url' => 'remove-informativo-imagem', 'directory' => 'informativos', 'obs' => 'Página para remover a imagem do informativo.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 30],
+            ['name'=> 'Remover Anexo do Informativo', 'controller' => 'RemoveInformativoAnexo', 'controller_url' => 'remove-informativo-anexo', 'directory' => 'informativos', 'obs' => 'Página para remover o anexo do informativo.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 30],
         ];
 
         // Percorrer o array com dados que devem ser validados antes de cadastrar

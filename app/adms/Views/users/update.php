@@ -43,7 +43,7 @@ use App\adms\Helpers\CSRFHelper;
             include './app/adms/Views/partials/alerts.php';
             ?>
 
-            <form action="" method="POST" class="row g-3">
+            <form action="" method="POST" class="row g-3" enctype="multipart/form-data">
 
                 <input type="hidden" name="csrf_token" value="<?php echo CSRFHelper::generateCSRFToken('form_update_user'); ?>">
 
@@ -107,6 +107,21 @@ use App\adms\Helpers\CSRFHelper;
                 <div class="col-md-4">
                     <label for="tentativas_login" class="form-label">Tentativas de Login</label>
                     <input type="number" name="tentativas_login" class="form-control" id="tentativas_login" value="<?php echo $this->data['form']['tentativas_login'] ?? '0'; ?>" readonly>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="image" class="form-label">Imagem do Usuário</label>
+                    <input type="file" name="image" class="form-control" id="image" accept="image/*">
+                    <small class="form-text text-muted">Formatos permitidos: JPG, PNG, GIF. Tamanho máximo: 2MB.</small>
+                    <?php if (!empty($this->data['form']['image'])): ?>
+                        <div class="mt-2">
+                            <img src="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($this->data['form']['image']); ?>" alt="Imagem atual" style="max-width: 120px; max-height: 120px; border-radius: 8px;">
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div class="col-md-6">
+                    <label for="data_nascimento" class="form-label">Data de Nascimento</label>
+                    <input type="date" name="data_nascimento" class="form-control" id="data_nascimento" value="<?php echo $this->data['form']['data_nascimento'] ?? ''; ?>">
                 </div>
 
                 <div class="col-md-3">
