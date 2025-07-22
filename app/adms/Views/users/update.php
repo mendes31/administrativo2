@@ -115,8 +115,10 @@ use App\adms\Helpers\CSRFHelper;
                     <small class="form-text text-muted">Formatos permitidos: JPG, PNG, GIF. Tamanho máximo: 2MB.</small>
                     <?php if (!empty($this->data['form']['image'])): ?>
                         <div class="mt-2">
-                            <img src="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($this->data['form']['image']); ?>" alt="Imagem atual" style="max-width: 120px; max-height: 120px; border-radius: 8px;">
+                            <img src="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($this->data['form']['image']); ?>" alt="Imagem atual" style="max-width: 120px; max-height: 120px; border-radius: 8px;" onerror="this.style.display='none';">
                         </div>
+                    <?php else: ?>
+                        <div class="mt-2 text-muted">Sem imagem</div>
                     <?php endif; ?>
                 </div>
                 <div class="col-md-6">

@@ -63,7 +63,7 @@
                                 <div class="card border-0 shadow-sm text-center p-4 flex-fill d-flex flex-column align-items-center justify-content-center" style="border-radius: 18px; min-height: 180px;">
                                     <div class="mb-2">
                                         <?php if (!empty($aniv['image'])): ?>
-                                            <img src="<?php echo $_ENV['URL_ADM']; ?>serve-file/<?php echo htmlspecialchars($aniv['image']); ?>" class="rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">
+                                            <img src="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($aniv['image']); ?>" class="rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">
                                         <?php else: ?>
                                             <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($aniv['name']); ?>&background=ececec&color=6c757d&size=100" class="rounded-circle mb-2" style="width: 80px; height: 80px;">
                                         <?php endif; ?>
@@ -199,7 +199,7 @@
                         <div class="card border-0 shadow-sm text-center p-4 flex-fill d-flex flex-column align-items-center justify-content-center" style="border-radius: 18px; min-height: 180px;">
                             <div class="mb-2">
                                 <?php if (!empty($aniv['image'])): ?>
-                                    <img src="<?php echo $_ENV['URL_ADM']; ?>serve-file/<?php echo htmlspecialchars($aniv['image']); ?>" class="rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">
+                                    <img src="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($aniv['image']); ?>" class="rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">
                                 <?php else: ?>
                                     <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($aniv['name']); ?>&background=ececec&color=6c757d&size=100" class="rounded-circle mb-2" style="width: 80px; height: 80px;">
                                 <?php endif; ?>

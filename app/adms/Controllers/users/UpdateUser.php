@@ -146,16 +146,16 @@ class UpdateUser
         // Instanciar Repository para editar o usuário
         $form = $this->data['form'];
         $form['data_nascimento'] = $_POST['data_nascimento'] ?? null;
-        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = 'public/adms/image/users/';
-            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $fileName = uniqid('user_') . '.' . $ext;
-            $destPath = $uploadDir . $fileName;
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK && !empty($form['id'])) {
+            $uploadDir = 'public/adms/uploads/users/' . $form['id'] . '/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
+            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+            $fileName = uniqid('user_') . '.' . $ext;
+            $destPath = $uploadDir . $fileName;
             if (move_uploaded_file($_FILES['image']['tmp_name'], $destPath)) {
-                $form['image'] = 'adms/image/users/' . $fileName;
+                $form['image'] = 'users/' . $form['id'] . '/' . $fileName;
             }
         }
         $this->data['form'] = $form;

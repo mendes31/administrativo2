@@ -40,6 +40,7 @@ class ValidationUserRakitService
             'email'             => 'required|email',
             // 'username'          => 'required|uniqueInColumns:adms_users,username',
             // 'password'          => 'required|min:6|regex:/[a-zA-Z]/|regex:/[0-9]/|regex:/[^\w\s]/',
+            'data_nascimento'   => 'required|date|before:tomorrow',
             
         ];
 
@@ -50,12 +51,19 @@ class ValidationUserRakitService
             // $rules['password'] = 'required|regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).{6,}$/';
             $rules['password'] = 'required|min:6|regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_])/';
             $rules['confirm_password'] = 'required|same:password';
+            // Validação de imagem apenas se enviada
+            if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                $rules['image'] = 'uploaded_file:0,2048K,png,jpg,jpeg,gif';
+            }
         } else {
             // Para edição, adicionar validação de ID e ignorar o próprio usuário na verificação de email e username
             $rules['id'] = 'required|integer';
             $rules['username'] = 'required|min:6|regex:/^\S*$/|uniqueInColumns:adms_users,email;username,' . $data['id'];
             $rules['email'] = 'required|email|uniqueInColumns:adms_users,email;username,' . $data['id'];
             
+            if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                $rules['image'] = 'uploaded_file:0,2048K,png,jpg,jpeg,gif';
+            }
         }
         
          // Definir mensagens personalizadas
@@ -79,6 +87,10 @@ class ValidationUserRakitService
             'password:regex'                => 'A senha deve conter letra(s), numero(s) e caractere(s) especial.',
             'confirm_password:required'     => 'O campo confirmar senha é obrigatório.',
             'confirm_password:same'         => 'A confirmação da senha deve ser igual à senha.',
+            'data_nascimento:required' => 'O campo data de nascimento é obrigatório.',
+            'data_nascimento:date' => 'A data de nascimento deve ser uma data válida.',
+            'data_nascimento:before_or_equal' => 'A data de nascimento não pode ser futura.',
+            'image:uploaded_file' => 'A imagem deve ser JPG, PNG ou GIF e ter no máximo 2MB.',
         ];
 
         // Criar o validador com os dados e regras fornecidas

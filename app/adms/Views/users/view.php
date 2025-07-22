@@ -5,6 +5,8 @@ use App\adms\Helpers\CSRFHelper;
 // Gera o token CSRF para proteger o formulário de deleção
 $csrf_token = CSRFHelper::generateCSRFToken('form_delete_user');
 $csrf_token_update_access_level = CSRFHelper::generateCSRFToken('form_update_access_level');
+// Gera o token CSRF para proteger o formulário de deleção de imagem
+$csrf_token_delete_image = CSRFHelper::generateCSRFToken('form_delete_user_image');
 
 ?>
 
@@ -93,7 +95,80 @@ $csrf_token_update_access_level = CSRFHelper::generateCSRFToken('form_update_acc
                     <dd class="col-sm-9"><?php echo $username; ?></dd>
 
                     <dt class="col-sm-3">Imagem: </dt>
-                    <dd class="col-sm-9"><?php echo $image; ?></dd>
+                    <dd class="col-sm-9">
+                        <?php 
+                        $imgPath = 'users/icon_user.png';
+                        if (!empty($image) && file_exists('public/adms/uploads/' . $image)) {
+                            $imgPath = $image;
+                        }
+                        ?>
+                        <img src="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($imgPath); ?>" alt="Imagem do usuário" style="max-width: 120px; max-height: 120px; border-radius: 8px;">
+                        <?php if (!empty($image) && file_exists('public/adms/uploads/' . $image)): ?>
+                            <!-- Botão para abrir o modal de confirmação (desktop) -->
+                            <button type="button" class="btn btn-outline-danger btn-sm d-none d-md-inline-block" data-bs-toggle="modal" data-bs-target="#modalDeleteImage<?php echo $id; ?>-desktop" style="margin-left: 10px;">
+                                Remover imagem
+                            </button>
+                            <!-- Modal de confirmação (desktop) -->
+                            <div class="modal fade" id="modalDeleteImage<?php echo $id; ?>-desktop" tabindex="-1" aria-labelledby="modalDeleteImageLabel<?php echo $id; ?>-desktop" aria-hidden="true">
+                              <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="modalDeleteImageLabel<?php echo $id; ?>-desktop">
+                                      <i class="fas fa-exclamation-triangle text-danger me-2"></i>Confirmar Remoção da Imagem
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    Tem certeza que deseja remover a imagem do usuário?<br>
+                                    <small class="text-muted">Você não poderá reverter esta ação.</small>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <form action="<?php echo $_ENV['URL_ADM']; ?>delete-user-image/<?php echo $id; ?>" method="POST" class="d-inline">
+                                      <input type="hidden" name="csrf_token" value="<?php echo $csrf_token_delete_image; ?>">
+                                      <button type="submit" class="btn btn-danger">Sim, remover!</button>
+                                    </form>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <!-- Botão para abrir o modal de confirmação (mobile) -->
+                            <button type="button" class="btn btn-outline-danger btn-sm d-inline-block d-md-none mt-2" data-bs-toggle="modal" data-bs-target="#modalDeleteImage<?php echo $id; ?>-mobile">
+                                Remover imagem
+                            </button>
+                            <!-- Modal de confirmação (mobile) -->
+                            <div class="modal fade" id="modalDeleteImage<?php echo $id; ?>-mobile" tabindex="-1" aria-labelledby="modalDeleteImageLabel<?php echo $id; ?>-mobile" aria-hidden="true">
+                              <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="modalDeleteImageLabel<?php echo $id; ?>-mobile">
+                                      <i class="fas fa-exclamation-triangle text-danger me-2"></i>Confirmar Remoção da Imagem
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    Tem certeza que deseja remover a imagem do usuário?<br>
+                                    <small class="text-muted">Você não poderá reverter esta ação.</small>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <form action="<?php echo $_ENV['URL_ADM']; ?>delete-user-image/<?php echo $id; ?>" method="POST" class="d-inline">
+                                      <input type="hidden" name="csrf_token" value="<?php echo $csrf_token_delete_image; ?>">
+                                      <button type="submit" class="btn btn-danger">Sim, remover!</button>
+                                    </form>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                        <?php endif; ?>
+                    </dd>
+                    <dt class="col-sm-3">Data de Nascimento: </dt>
+                    <dd class="col-sm-9">
+                        <?php 
+                        $dataNasc = isset($data_nascimento) ? $data_nascimento : ($this->data['user']['data_nascimento'] ?? null);
+                        echo !empty($dataNasc) ? date('d/m/Y', strtotime($dataNasc)) : '<span class="text-muted">Não informado</span>'; 
+                        ?>
+                    </dd>
 
                     <dt class="col-sm-3">Departamento: </dt>
                     <dd class="col-sm-9"><?php echo $dep_name; ?></dd>

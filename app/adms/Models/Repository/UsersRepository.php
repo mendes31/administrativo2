@@ -126,6 +126,7 @@ class UsersRepository extends DbConnection
                     t0.email, 
                     t0.username, 
                     t0.image, 
+                    t0.data_nascimento, 
                     t0.user_department_id, 
                     t0.user_position_id, 
                     t0.created_at, 
@@ -168,9 +169,9 @@ class UsersRepository extends DbConnection
     {
         try {
             $sql = 'INSERT INTO adms_users (
-                name, email, username, user_department_id, user_position_id, password, status, bloqueado, tentativas_login, senha_nunca_expira, modificar_senha_proximo_logon, created_at
+                name, email, username, user_department_id, user_position_id, password, status, bloqueado, tentativas_login, senha_nunca_expira, modificar_senha_proximo_logon, created_at, image, data_nascimento
             ) VALUES (
-                :name, :email, :username, :user_department_id, :user_position_id, :password, :status, :bloqueado, :tentativas_login, :senha_nunca_expira, :modificar_senha_proximo_logon, :created_at
+                :name, :email, :username, :user_department_id, :user_position_id, :password, :status, :bloqueado, :tentativas_login, :senha_nunca_expira, :modificar_senha_proximo_logon, :created_at, :image, :data_nascimento
             )';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':name', $data['name'], PDO::PARAM_STR);
@@ -185,6 +186,8 @@ class UsersRepository extends DbConnection
             $stmt->bindValue(':senha_nunca_expira', $data['senha_nunca_expira'] ?? 'Não', PDO::PARAM_STR);
             $stmt->bindValue(':modificar_senha_proximo_logon', $data['modificar_senha_proximo_logon'] ?? 'Não', PDO::PARAM_STR);
             $stmt->bindValue(':created_at', date("Y-m-d H:i:s"));
+            $stmt->bindValue(':image', $data['image'] ?? null, PDO::PARAM_STR);
+            $stmt->bindValue(':data_nascimento', $data['data_nascimento'] ?? null, PDO::PARAM_STR);
             $stmt->execute();
             $novoId = $this->getConnection()->lastInsertId();
             // Log de inserção
@@ -247,6 +250,12 @@ class UsersRepository extends DbConnection
             if (isset($data['modificar_senha_proximo_logon'])) {
                 $sql .= ', modificar_senha_proximo_logon = :modificar_senha_proximo_logon';
             }
+            if (!empty($data['image'])) {
+                $sql .= ', image = :image';
+            }
+            if (!empty($data['data_nascimento'])) {
+                $sql .= ', data_nascimento = :data_nascimento';
+            }
             if (isset($data['bloqueado']) && $data['bloqueado'] === 'Não' && isset($dadosAntes['bloqueado']) && $dadosAntes['bloqueado'] === 'Sim') {
                 $sql .= ', tentativas_login = 0, data_bloqueio_temporario = NULL';
             }
@@ -269,6 +278,12 @@ class UsersRepository extends DbConnection
             }
             if (isset($data['modificar_senha_proximo_logon'])) {
                 $stmt->bindValue(':modificar_senha_proximo_logon', $data['modificar_senha_proximo_logon'], PDO::PARAM_STR);
+            }
+            if (!empty($data['image'])) {
+                $stmt->bindValue(':image', $data['image'], PDO::PARAM_STR);
+            }
+            if (!empty($data['data_nascimento'])) {
+                $stmt->bindValue(':data_nascimento', $data['data_nascimento'], PDO::PARAM_STR);
             }
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
             if (!empty($data['password'])) {

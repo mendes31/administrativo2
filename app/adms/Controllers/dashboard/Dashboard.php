@@ -59,6 +59,13 @@ class Dashboard
         $stmt->bindValue(':mes', $mesAtual, \PDO::PARAM_INT);
         $stmt->execute();
         $aniversariantes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        // Ajuste: só mantenha o campo image se o arquivo existir
+        foreach ($aniversariantes as &$aniv) {
+            if (empty($aniv['image']) || !file_exists('public/adms/uploads/' . $aniv['image'])) {
+                $aniv['image'] = null;
+            }
+        }
+        unset($aniv);
         $this->data['aniversariantes_mes'] = $aniversariantes;
         $this->data['qtd_aniversariantes_mes'] = count($aniversariantes);
 

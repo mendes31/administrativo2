@@ -120,7 +120,7 @@ class CreateUser
 
         // Processar upload da imagem
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = 'public/adms/image/users/';
+            $uploadDir = 'public/adms/uploads/users/';
             $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
             $fileName = uniqid('user_') . '.' . $ext;
             $destPath = $uploadDir . $fileName;
@@ -128,13 +128,37 @@ class CreateUser
                 mkdir($uploadDir, 0777, true);
             }
             if (move_uploaded_file($_FILES['image']['tmp_name'], $destPath)) {
-                $form['image'] = 'adms/image/users/' . $fileName;
+                $form['image'] = 'users/' . $fileName;
             }
         }
 
         $this->data['form'] = $form;
         $userCreate = new UsersRepository();
         $result = $userCreate->createUser($this->data['form']);
+
+        // Se houve upload de imagem e o usuário foi criado, mova a imagem para a subpasta do usuário
+        if ($result && isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = 'public/adms/uploads/users/' . $result . '/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+            $fileName = uniqid('user_') . '.' . $ext;
+            $destPath = $uploadDir . $fileName;
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $destPath)) {
+                // Atualize o caminho da imagem no banco para users/{id}/arquivo.png
+                $userCreate->updateUser([
+                    'id' => $result,
+                    'image' => 'users/' . $result . '/' . $fileName,
+                    // outros campos obrigatórios para updateUser
+                    'name' => $this->data['form']['name'],
+                    'email' => $this->data['form']['email'],
+                    'username' => $this->data['form']['username'],
+                    'user_department_id' => $this->data['form']['user_department_id'],
+                    'user_position_id' => $this->data['form']['user_position_id'],
+                ]);
+            }
+        }
 
         // Acessa o IF se o repository retornou TRUE
         if ($result) {
