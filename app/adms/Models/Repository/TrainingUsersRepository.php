@@ -203,6 +203,14 @@ class TrainingUsersRepository extends DbConnection
             $sql .= ' AND t.id = ?';
             $params[] = $filters['treinamento'];
         }
+        if (!empty($filters['area_responsavel_id'])) {
+            $sql .= ' AND t.area_responsavel_id = ?';
+            $params[] = $filters['area_responsavel_id'];
+        }
+        if (!empty($filters['area_elaborador_id'])) {
+            $sql .= ' AND t.area_elaborador_id = ?';
+            $params[] = $filters['area_elaborador_id'];
+        }
         
         $sql .= ' ORDER BY u.name ASC, t.nome ASC';
         

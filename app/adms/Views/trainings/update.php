@@ -47,6 +47,36 @@ if (!empty($this->data['training']['instructor_user_id'])) {
                     <input type="number" name="prazo_treinamento" class="form-control" id="prazo_treinamento" min="0" value="<?php echo $this->data['training']['prazo_treinamento'] ?? '0'; ?>" required>
                 </div>
                 <div class="col-md-3">
+                    <label for="area_responsavel_id" class="form-label">Área Responsável</label>
+                    <select name="area_responsavel_id" class="form-select" id="area_responsavel_id" required>
+                        <option value="">Selecione...</option>
+                        <?php foreach (($this->data['listDepartments'] ?? []) as $dep): ?>
+                            <option value="<?php echo $dep['id']; ?>" <?php echo (isset($this->data['training']['area_responsavel_id']) && $this->data['training']['area_responsavel_id'] == $dep['id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($dep['name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="area_elaborador_id" class="form-label">Área Elaborador</label>
+                    <select name="area_elaborador_id" class="form-select" id="area_elaborador_id" required>
+                        <option value="">Selecione...</option>
+                        <?php foreach (($this->data['listDepartments'] ?? []) as $dep): ?>
+                            <option value="<?php echo $dep['id']; ?>" <?php echo (isset($this->data['training']['area_elaborador_id']) && $this->data['training']['area_elaborador_id'] == $dep['id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($dep['name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="tipo_obrigatoriedade" class="form-label">Tipo de Obrigatoriedade</label>
+                    <select name="tipo_obrigatoriedade" class="form-select" id="tipo_obrigatoriedade" required>
+                        <option value="">Selecione...</option>
+                        <option value="Legal" <?php echo (isset($this->data['training']['tipo_obrigatoriedade']) && $this->data['training']['tipo_obrigatoriedade'] == 'Legal') ? 'selected' : ''; ?>>Legal</option>
+                        <option value="Normativa" <?php echo (isset($this->data['training']['tipo_obrigatoriedade']) && $this->data['training']['tipo_obrigatoriedade'] == 'Normativa') ? 'selected' : ''; ?>>Normativa</option>
+                        <option value="Contratual" <?php echo (isset($this->data['training']['tipo_obrigatoriedade']) && $this->data['training']['tipo_obrigatoriedade'] == 'Contratual') ? 'selected' : ''; ?>>Contratual</option>
+                        <option value="Corporativa" <?php echo (isset($this->data['training']['tipo_obrigatoriedade']) && $this->data['training']['tipo_obrigatoriedade'] == 'Corporativa') ? 'selected' : ''; ?>>Corporativa</option>
+                        <option value="Técnica" <?php echo (isset($this->data['training']['tipo_obrigatoriedade']) && $this->data['training']['tipo_obrigatoriedade'] == 'Técnica') ? 'selected' : ''; ?>>Técnica</option>
+                        <option value="Estratégica" <?php echo (isset($this->data['training']['tipo_obrigatoriedade']) && $this->data['training']['tipo_obrigatoriedade'] == 'Estratégica') ? 'selected' : ''; ?>>Estratégica</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <label for="tipo" class="form-label">Categoria</label>
                     <select name="tipo" class="form-select" id="tipo" required>
                         <option value="">Selecione...</option>

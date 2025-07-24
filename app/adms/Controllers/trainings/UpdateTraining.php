@@ -7,6 +7,7 @@ use App\adms\Controllers\Services\PageLayoutService;
 use App\adms\Views\Services\LoadViewService;
 use App\adms\Helpers\CSRFHelper;
 use App\adms\Models\Repository\UsersRepository;
+use App\adms\Models\Repository\DepartmentsRepository;
 
 class UpdateTraining
 {
@@ -30,9 +31,11 @@ class UpdateTraining
     private function viewUpdateTraining(): void
     {
         $repo = new TrainingsRepository();
+        $departmentsRepo = new DepartmentsRepository();
         $this->data['training'] = $repo->getTraining($this->id);
         $usersRepo = new UsersRepository();
         $this->data['listUsers'] = $usersRepo->getAllUsersSelect();
+        $this->data['listDepartments'] = $departmentsRepo->getAllDepartmentsSelect();
         $pageElements = [
             'title_head' => 'Editar Treinamento',
             'menu' => 'list-trainings',
@@ -72,6 +75,9 @@ class UpdateTraining
         }
         
         $repo = new TrainingsRepository();
+        $this->data['form']['area_responsavel_id'] = $this->data['form']['area_responsavel_id'] ?? null;
+        $this->data['form']['area_elaborador_id'] = $this->data['form']['area_elaborador_id'] ?? null;
+        $this->data['form']['tipo_obrigatoriedade'] = $this->data['form']['tipo_obrigatoriedade'] ?? null;
         $result = $repo->updateTraining($this->id, $this->data['form']);
         if ($result) {
             $matrixService = new \App\adms\Controllers\trainings\TrainingMatrixService();

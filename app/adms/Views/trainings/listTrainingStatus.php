@@ -187,6 +187,24 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                         <option value="concluido" <?= ($this->data['filters']['status'] ?? '') == 'concluido' ? 'selected' : '' ?>>Concluído</option>
                     </select>
                 </div>
+                <div class="col-md-2">
+                    <label for="area_responsavel_id" class="form-label">Área Responsável</label>
+                    <select name="area_responsavel_id" id="area_responsavel_id" class="form-select">
+                        <option value="">Todas</option>
+                        <?php foreach (($this->data['listDepartments'] ?? []) as $dep): ?>
+                            <option value="<?= $dep['id'] ?>" <?= ($this->data['filters']['area_responsavel_id'] ?? '') == $dep['id'] ? 'selected' : '' ?>><?= $dep['name'] ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="area_elaborador_id" class="form-label">Área Elaborador</label>
+                    <select name="area_elaborador_id" id="area_elaborador_id" class="form-select">
+                        <option value="">Todas</option>
+                        <?php foreach (($this->data['listDepartments'] ?? []) as $dep): ?>
+                            <option value="<?= $dep['id'] ?>" <?= ($this->data['filters']['area_elaborador_id'] ?? '') == $dep['id'] ? 'selected' : '' ?>><?= $dep['name'] ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
                 <!-- <div class="col-md-2">
                     <label for="performance" class="form-label">Aproveitamento</label>
                     <select name="performance" id="performance" class="form-select">

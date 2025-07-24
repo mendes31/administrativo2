@@ -38,9 +38,23 @@ class TrainingsRepository extends DbConnection
             $where[] = 't.reciclagem_periodo = :reciclagem';
             $params[':reciclagem'] = (int)$filters['reciclagem'];
         }
+        if (!empty($filters['area_responsavel_id'])) {
+            $where[] = 't.area_responsavel_id = :area_responsavel_id';
+            $params[':area_responsavel_id'] = (int)$filters['area_responsavel_id'];
+        }
+        if (!empty($filters['area_elaborador_id'])) {
+            $where[] = 't.area_elaborador_id = :area_elaborador_id';
+            $params[':area_elaborador_id'] = (int)$filters['area_elaborador_id'];
+        }
+        if (!empty($filters['tipo_obrigatoriedade'])) {
+            $where[] = 't.tipo_obrigatoriedade = :tipo_obrigatoriedade';
+            $params[':tipo_obrigatoriedade'] = $filters['tipo_obrigatoriedade'];
+        }
         $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
-        $sql = 'SELECT t.*, u.name as user_name FROM adms_trainings t
+        $sql = 'SELECT t.*, u.name as user_name, dep_resp.name as area_responsavel_nome, dep_elab.name as area_elaborador_nome FROM adms_trainings t
                 LEFT JOIN adms_users u ON u.id = t.instructor_user_id
+                LEFT JOIN adms_departments dep_resp ON dep_resp.id = t.area_responsavel_id
+                LEFT JOIN adms_departments dep_elab ON dep_elab.id = t.area_elaborador_id
                 ' . $whereSql . '
                 ORDER BY t.id DESC LIMIT :limit OFFSET :offset';
         $stmt = $this->getConnection()->prepare($sql);
@@ -65,7 +79,7 @@ class TrainingsRepository extends DbConnection
     public function createTraining(array $data): bool|int
     {
         try {
-            $sql = 'INSERT INTO adms_trainings (nome, codigo, versao, prazo_treinamento, tipo, instrutor, carga_horaria, ativo, created_at, instructor_user_id, instructor_email, instructor_name, reciclagem, reciclagem_periodo) VALUES (:nome, :codigo, :versao, :prazo_treinamento, :tipo, :instrutor, :carga_horaria, :ativo, NOW(), :instructor_user_id, :instructor_email, :instructor_name, :reciclagem, :reciclagem_periodo)';
+            $sql = 'INSERT INTO adms_trainings (nome, codigo, versao, prazo_treinamento, tipo, instrutor, carga_horaria, ativo, created_at, instructor_user_id, instructor_email, instructor_name, reciclagem, reciclagem_periodo, area_responsavel_id, area_elaborador_id, tipo_obrigatoriedade) VALUES (:nome, :codigo, :versao, :prazo_treinamento, :tipo, :instrutor, :carga_horaria, :ativo, NOW(), :instructor_user_id, :instructor_email, :instructor_name, :reciclagem, :reciclagem_periodo, :area_responsavel_id, :area_elaborador_id, :tipo_obrigatoriedade)';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':nome', $data['nome'], PDO::PARAM_STR);
             $stmt->bindValue(':codigo', $data['codigo'], PDO::PARAM_STR);
@@ -80,6 +94,9 @@ class TrainingsRepository extends DbConnection
             $stmt->bindValue(':instructor_name', $data['instructor_name'] ?? null, PDO::PARAM_STR);
             $stmt->bindValue(':reciclagem', $data['reciclagem'] ?? 0, PDO::PARAM_BOOL);
             $stmt->bindValue(':reciclagem_periodo', $data['reciclagem_periodo'] ?? null, PDO::PARAM_INT);
+            $stmt->bindValue(':area_responsavel_id', $data['area_responsavel_id'] ?? null, PDO::PARAM_INT);
+            $stmt->bindValue(':area_elaborador_id', $data['area_elaborador_id'] ?? null, PDO::PARAM_INT);
+            $stmt->bindValue(':tipo_obrigatoriedade', $data['tipo_obrigatoriedade'] ?? null, PDO::PARAM_STR);
             $stmt->execute();
             $novoId = $this->getConnection()->lastInsertId();
             
@@ -127,7 +144,7 @@ class TrainingsRepository extends DbConnection
             // Captura os dados antigos antes da alteração
             $dadosAntes = $this->getTraining($id);
             
-            $sql = 'UPDATE adms_trainings SET nome = :nome, codigo = :codigo, versao = :versao, prazo_treinamento = :prazo_treinamento, tipo = :tipo, instrutor = :instrutor, carga_horaria = :carga_horaria, ativo = :ativo, instructor_user_id = :instructor_user_id, instructor_email = :instructor_email, instructor_name = :instructor_name, reciclagem = :reciclagem, reciclagem_periodo = :reciclagem_periodo, updated_at = NOW() WHERE id = :id';
+            $sql = 'UPDATE adms_trainings SET nome = :nome, codigo = :codigo, versao = :versao, prazo_treinamento = :prazo_treinamento, tipo = :tipo, instrutor = :instrutor, carga_horaria = :carga_horaria, ativo = :ativo, instructor_user_id = :instructor_user_id, instructor_email = :instructor_email, instructor_name = :instructor_name, reciclagem = :reciclagem, reciclagem_periodo = :reciclagem_periodo, area_responsavel_id = :area_responsavel_id, area_elaborador_id = :area_elaborador_id, tipo_obrigatoriedade = :tipo_obrigatoriedade, updated_at = NOW() WHERE id = :id';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':nome', $data['nome'], PDO::PARAM_STR);
             $stmt->bindValue(':codigo', $data['codigo'], PDO::PARAM_STR);
@@ -142,6 +159,9 @@ class TrainingsRepository extends DbConnection
             $stmt->bindValue(':instructor_name', $data['instructor_name'] ?? null, PDO::PARAM_STR);
             $stmt->bindValue(':reciclagem', $data['reciclagem'] ?? 0, PDO::PARAM_BOOL);
             $stmt->bindValue(':reciclagem_periodo', $data['reciclagem_periodo'] ?? null, PDO::PARAM_INT);
+            $stmt->bindValue(':area_responsavel_id', $data['area_responsavel_id'] ?? null, PDO::PARAM_INT);
+            $stmt->bindValue(':area_elaborador_id', $data['area_elaborador_id'] ?? null, PDO::PARAM_INT);
+            $stmt->bindValue(':tipo_obrigatoriedade', $data['tipo_obrigatoriedade'] ?? null, PDO::PARAM_STR);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
             $result = $stmt->execute();
             
