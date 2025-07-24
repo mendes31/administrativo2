@@ -35,6 +35,8 @@ class ListTrainings
         // Adicionar total de colaboradores vinculados em cada treinamento
         foreach ($this->data['trainings'] as &$training) {
             $training['colaboradores_vinculados'] = $repo->getTotalColaboradoresVinculados($training['id']);
+            // Log temporário para depuração
+            error_log('Treinamento ID ' . $training['id'] . ' - Colaboradores vinculados: ' . $training['colaboradores_vinculados']);
             $training['cargos_vinculados'] = $repo->getLinkedPositionsCount($training['id']);
         }
         unset($training);

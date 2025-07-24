@@ -27,7 +27,7 @@ class TrainingMatrixService
 
         // Garante que todos os obrigatórios estejam na matriz
         foreach ($mandatoryTrainings as $trainingId) {
-            $trainingUsersRepo->insertOrUpdate($userId, $trainingId, 'pendente');
+            $trainingUsersRepo->insertOrUpdate($userId, $trainingId, 'dentro_do_prazo');
         }
     }
 

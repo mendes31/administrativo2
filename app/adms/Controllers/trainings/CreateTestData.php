@@ -72,7 +72,7 @@ class CreateTestData
         foreach ($users as $user) {
             foreach ($trainings as $training) {
                 // Criar vínculo de treinamento
-                $trainingUsersRepo->insertOrUpdate($user['id'], $training['id'], 'pendente');
+                $trainingUsersRepo->insertOrUpdate($user['id'], $training['id'], 'dentro_do_prazo');
 
                 // Criar aplicação vencida (30 dias atrás)
                 $dataVencida = date('Y-m-d', strtotime('-30 days'));

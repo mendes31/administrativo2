@@ -21,6 +21,10 @@ Instalar as dependências:
 composer install
 ```
 
+```bash
+composer require --dev phpunit/phpunit
+```
+
 Executar as migrations:
 
 ```bash

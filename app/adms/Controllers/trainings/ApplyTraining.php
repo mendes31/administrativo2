@@ -301,11 +301,20 @@ class ApplyTraining
                 $msg = $data_realizacao ? "Treinamento registrado como realizado!" : "Treinamento agendado com sucesso!";
             }
 
-            // Se foi realizado e tem reciclagem, marcar como concluído e criar novo ciclo
+            // Se foi realizado, analisar aprovação/reprovação e reciclagem
             if ($data_realizacao) {
                 $training = $trainingsRepo->getTraining($training_id);
-                if ($training['reciclagem'] && $training['reciclagem_periodo']) {
-                    $trainingUsersRepo->markAsCompleted($user_id, $training_id, true);
+                $reprovado = false;
+                if (isset($nota) && is_numeric($nota) && $nota < 7) {
+                    $reprovado = true;
+                }
+
+                // Se reprovado, sempre criar novo ciclo (mesmo sem reciclagem)
+                if ($reprovado) {
+                    $trainingUsersRepo->markAsCompleted($user_id, $training_id, true, true);
+                } elseif ($training['reciclagem'] && $training['reciclagem_periodo']) {
+                    // Se aprovado e exige reciclagem, criar novo ciclo normalmente
+                    $trainingUsersRepo->markAsCompleted($user_id, $training_id, true, false);
                 }
             }
 

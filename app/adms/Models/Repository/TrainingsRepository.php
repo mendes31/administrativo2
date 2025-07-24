@@ -280,9 +280,16 @@ class TrainingsRepository extends DbConnection
      */
     public function getTotalColaboradoresVinculados($trainingId): int
     {
-        $sql = "SELECT COUNT(DISTINCT tu.adms_user_id) as total
-                FROM adms_training_users tu
-                WHERE tu.adms_training_id = :training_id";
+        $sql = "SELECT COUNT(DISTINCT u.id) as total
+                FROM adms_users u
+                INNER JOIN adms_training_users tu ON tu.adms_user_id = u.id
+                LEFT JOIN adms_training_positions tp ON tp.adms_training_id = tu.adms_training_id AND tp.adms_position_id = u.user_position_id AND tp.obrigatorio = 1
+                WHERE tu.adms_training_id = :training_id
+                  AND u.status = 'Ativo'
+                  AND (
+                        tu.tipo_vinculo = 'individual'
+                        OR tp.id IS NOT NULL
+                      )";
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->bindValue(':training_id', $trainingId, \PDO::PARAM_INT);
         $stmt->execute();

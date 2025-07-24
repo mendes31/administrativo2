@@ -42,9 +42,12 @@ class LinkTrainingUsers
             $trainingUsersRepoSync = new TrainingUsersRepository();
             foreach ($todosUsuarios as $usuario) {
                 if (in_array($usuario['user_position_id'], $cargosObrigatorios)) {
-                    $trainingUsersRepoSync->insertOrUpdate($usuario['id'], $id, 'pendente', 'cargo');
+                    $trainingUsersRepoSync->insertOrUpdate($usuario['id'], $id, 'dentro_do_prazo', 'cargo');
                 }
             }
+            // Atualizar matriz de treinamentos para todos os usuários
+            $matrixService = new \App\adms\Controllers\trainings\TrainingMatrixService();
+            $matrixService->updateMatrixForAllUsers();
         }
 
         // Buscar usuários já vinculados (direto ou por cargo obrigatório)

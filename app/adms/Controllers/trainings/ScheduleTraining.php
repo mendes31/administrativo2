@@ -88,13 +88,8 @@ class ScheduleTraining
     {
         $training_id = (int) ($_POST['training_id'] ?? 0);
         $user_id = (int) ($_POST['user_id'] ?? 0);
-        $edit_id = (int) ($_POST['edit_id'] ?? 0);
-        
         $data_agendada = $_POST['data_agendada'] ?? null;
         $observacoes = $_POST['observacoes'] ?? null;
-        $instrutor_nome = $_POST['instrutor_nome'] ?? null;
-        $instrutor_email = $_POST['instrutor_email'] ?? null;
-        $aplicado_por = $_SESSION['user_id'] ?? null;
 
         // Validações básicas
         if (!$training_id || !$user_id) {
@@ -118,24 +113,9 @@ class ScheduleTraining
             exit;
         }
 
-        $applicationsRepo = new TrainingApplicationsRepository();
         $trainingUsersRepo = new TrainingUsersRepository();
-        
         try {
-            $dados = [
-                'adms_user_id' => $user_id,
-                'adms_training_id' => $training_id,
-                'data_realizacao' => null,
-                'data_agendada' => $data_agendada,
-                'nota' => null,
-                'observacoes' => $observacoes,
-                'instrutor_nome' => $instrutor_nome,
-                'instrutor_email' => $instrutor_email,
-                'aplicado_por' => $aplicado_por,
-                'status' => 'agendado'
-            ];
-
-            // Atualizar vínculo principal
+            // Atualizar vínculo principal apenas
             $trainingUsersRepo->applyTraining($user_id, $training_id, [
                 'data_realizacao' => null,
                 'data_agendada' => $data_agendada,
@@ -144,18 +124,7 @@ class ScheduleTraining
                 'status' => 'agendado'
             ]);
 
-            if ($edit_id) {
-                $oldData = $applicationsRepo->getById($edit_id);
-                $applicationsRepo->update($edit_id, $dados);
-                LogHelper::logUpdate('adms_training_applications', $edit_id, $oldData, $dados, $aplicado_por);
-                $msg = "Agendamento atualizado com sucesso!";
-            } else {
-                $newId = $applicationsRepo->insert($dados);
-                LogHelper::log('adms_training_applications', 'inserção', $newId, 'Novo agendamento de treinamento', $aplicado_por);
-                $msg = "Treinamento agendado com sucesso!";
-            }
-
-            $_SESSION['msg'] = $msg;
+            $_SESSION['msg'] = "Treinamento agendado com sucesso!";
             $_SESSION['msg_type'] = "success";
             header("Location: " . $_ENV['URL_ADM'] . "list-training-status");
         } catch (\Exception $e) {

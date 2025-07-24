@@ -32,9 +32,16 @@ class TrainingPositions
         
         if ($result) {
             $_SESSION['success'] = 'Vínculos atualizados com sucesso!';
-            
-            // Atualizar matriz de obrigatoriedade para todos os usuários
-            $this->updateTrainingMatrix();
+            // Buscar todos os cargos obrigatórios do treinamento (não só os recém-marcados)
+            $allObrigatorios = $trainingPositionsRepo->getPositionIdsByTraining($trainingId);
+            $usersRepo = new \App\adms\Models\Repository\UsersRepository();
+            $trainingUsersRepo = new \App\adms\Models\Repository\TrainingUsersRepository();
+            foreach ($allObrigatorios as $cargoId) {
+                $users = $usersRepo->getUsersByPosition($cargoId);
+                foreach ($users as $user) {
+                    $trainingUsersRepo->recreateLinksForUser($user['id'], $cargoId);
+                }
+            }
         } else {
             $_SESSION['error'] = 'Erro ao atualizar vínculos!';
         }

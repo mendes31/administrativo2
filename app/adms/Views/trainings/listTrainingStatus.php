@@ -59,15 +59,16 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
         </div>
 
         <!-- Cards de Estatísticas por Status -->
-        <div class="row mb-4 sticky-cards">
+        <?php $statusCounts = $this->data['statusCounts'] ?? []; ?>
+        <div class="row mb-4">
             <div class="col-md-2">
-                <div class="card border-warning">
+                <div class="card border-primary">
                     <div class="card-body text-center">
-                        <h3 class="text-warning">
-                            <i class="fas fa-clock"></i>
-                            <?= number_format($this->data['summary']['pendentes'] ?? 0) ?>
+                        <h3 class="text-primary">
+                            <i class="fas fa-users"></i>
+                            <?= number_format($statusCounts['todos'] ?? 0) ?>
                         </h3>
-                        <p class="card-text">Pendentes</p>
+                        <p class="card-text">Todos</p>
                     </div>
                 </div>
             </div>
@@ -76,9 +77,20 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                     <div class="card-body text-center">
                         <h3 class="text-success">
                             <i class="fas fa-check-circle"></i>
-                            <?= number_format($this->data['summary']['concluidos'] ?? 0) ?>
+                            <?= number_format($statusCounts['dentro_do_prazo'] ?? 0) ?>
                         </h3>
-                        <p class="card-text">Concluídos</p>
+                        <p class="card-text">Dentro do Prazo</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-warning">
+                    <div class="card-body text-center">
+                        <h3 class="text-warning">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <?= number_format($statusCounts['proximo_vencimento'] ?? 0) ?>
+                        </h3>
+                        <p class="card-text">Próximo do Vencimento</p>
                     </div>
                 </div>
             </div>
@@ -87,42 +99,31 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                     <div class="card-body text-center">
                         <h3 class="text-danger">
                             <i class="fas fa-exclamation-triangle"></i>
-                            <?= number_format($this->data['summary']['vencidos'] ?? 0) ?>
+                            <?= number_format($statusCounts['vencido'] ?? 0) ?>
                         </h3>
-                        <p class="card-text">Vencidos</p>
+                        <p class="card-text">Vencido</p>
                     </div>
                 </div>
             </div>
-            <!-- <div class="col-md-2">
+            <div class="col-md-2">
                 <div class="card border-info">
                     <div class="card-body text-center">
                         <h3 class="text-info">
                             <i class="fas fa-calendar-alt"></i>
-                            <?= number_format($this->data['summary']['agendados'] ?? 0) ?>
+                            <?= number_format($statusCounts['agendado'] ?? 0) ?>
                         </h3>
-                        <p class="card-text">Agendados</p>
-                    </div>
-                </div>
-            </div> -->
-            <div class="col-md-2">
-                <div class="card border-warning">
-                    <div class="card-body text-center">
-                        <h3 class="text-warning">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <?= number_format($this->data['summary']['proximo_vencimento'] ?? 0) ?>
-                        </h3>
-                        <p class="card-text">Próximo Vencimento</p>
+                        <p class="card-text">Agendado</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-2">
-                <div class="card border-primary">
+                <div class="card border-secondary">
                     <div class="card-body text-center">
-                        <h3 class="text-primary">
-                            <i class="fas fa-users"></i>
-                            <?= number_format($this->data['summary']['total'] ?? 0) ?>
+                        <h3 class="text-secondary">
+                            <i class="fas fa-check"></i>
+                            <?= number_format($statusCounts['concluido'] ?? 0) ?>
                         </h3>
-                        <p class="card-text">Total</p>
+                        <p class="card-text">Concluído</p>
                     </div>
                 </div>
             </div>
@@ -179,11 +180,11 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                     <label for="status" class="form-label">Status</label>
                     <select name="status" id="status" class="form-select">
                         <option value="">Todos</option>
-                        <option value="pendente" <?= ($this->data['filters']['status'] ?? '') == 'pendente' ? 'selected' : '' ?>>Pendente</option>
-                        <option value="concluido" <?= ($this->data['filters']['status'] ?? '') == 'concluido' ? 'selected' : '' ?>>Concluído</option>
-                        <option value="valido" <?= ($this->data['filters']['status'] ?? '') == 'valido' ? 'selected' : '' ?>>Válido</option>
+                        <option value="dentro_do_prazo" <?= ($this->data['filters']['status'] ?? '') == 'dentro_do_prazo' ? 'selected' : '' ?>>Dentro do Prazo</option>
                         <option value="proximo_vencimento" <?= ($this->data['filters']['status'] ?? '') == 'proximo_vencimento' ? 'selected' : '' ?>>Próximo do Vencimento</option>
                         <option value="vencido" <?= ($this->data['filters']['status'] ?? '') == 'vencido' ? 'selected' : '' ?>>Vencido</option>
+                        <option value="agendado" <?= ($this->data['filters']['status'] ?? '') == 'agendado' ? 'selected' : '' ?>>Agendado</option>
+                        <option value="concluido" <?= ($this->data['filters']['status'] ?? '') == 'concluido' ? 'selected' : '' ?>>Concluído</option>
                     </select>
                 </div>
                 <!-- <div class="col-md-2">
@@ -219,7 +220,8 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                             <th class="status-col">Status</th>
                             <!-- <th>Nota</th> -->
                             <!-- <th>Aproveitamento</th> -->
-                            <th class="prazo-col">Prazo 1º Treinamento</th>
+                            <th class="prazo-col">Prazo Treinamento</th>
+                            <th class="prazo-col">Agendamento</th>
                             <th class="acoes-col text-center">Ações</th>
                         </tr>
                     </thead>
@@ -316,9 +318,21 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                                         <span class="text-muted">-</span>
                                     <?php endif; ?>
                                 </td>
+                                <td>
+                                    <?php
+                                    $dataAgendada = $row['data_agendada'] ?? null;
+                                    if (!empty($dataAgendada) && $dataAgendada !== '0000-00-00') {
+                                        echo (new DateTime($dataAgendada))->format('d/m/Y');
+                                    } else {
+                                        echo '<span class="text-muted">-</span>';
+                                    }
+                                    ?>
+                                </td>
                                 <td class="text-center">
-                                    <!-- <a href="<?= $_ENV['URL_ADM'] ?>schedule-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-info mb-1" title="Agendar"><i class="fas fa-calendar-plus"></i></a> -->
-                                    <a href="<?= $_ENV['URL_ADM'] ?>apply-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-success mb-1" title="Aplicar"><i class="fas fa-check"></i></a>
+                                    <a href="<?= $_ENV['URL_ADM'] ?>schedule-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-info mb-1" title="Agendar"><i class="fas fa-calendar-plus"></i></a>
+                                    <?php if (($row['status_dinamico'] ?? $row['status'] ?? '') !== 'concluido'): ?>
+                                        <a href="<?= $_ENV['URL_ADM'] ?>apply-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-success mb-1" title="Aplicar"><i class="fas fa-check"></i></a>
+                                    <?php endif; ?>
                                     <!-- <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $row['user_id'] ?>-<?= $row['training_id'] ?>" class="btn btn-sm btn-secondary mb-1" title="Histórico"><i class="fas fa-history"></i></a> -->
                                 </td>
                             </tr>
@@ -368,10 +382,20 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                                 <!-- <div><b>Vencimento:</b> <?php if (!empty($row['reciclagem']) && !empty($row['reciclagem_periodo']) && !empty($row['data_realizacao'])): ?><?php $dataVencimento = new DateTime($row['data_realizacao']); $dataVencimento->add(new DateInterval('P' . $row['reciclagem_periodo'] . 'M')); echo $dataVencimento->format('d/m/Y'); ?><?php else: ?><span class="text-muted">N/A</span><?php endif; ?></div> -->
                                 <!-- <div><b>Nota:</b> <?= htmlspecialchars($row['nota'] ?? '-') ?></div> -->
                                 <!-- <div><b>Aproveitamento:</b> <span class="<?= $performance['class'] ?>"><?= $performance['label'] ?></span></div> -->
-                                <div><b>Prazo 1º Treinamento:</b> <?php if (!empty($row['data_limite_primeiro_treinamento'])): ?><?= (new DateTime($row['data_limite_primeiro_treinamento']))->format('d/m/Y') ?><?php else: ?><span class="text-muted">-</span><?php endif; ?></div>
+                                <div><b>Prazo Treinamento:</b> <?php if (!empty($row['data_limite_primeiro_treinamento'])): ?><?= (new DateTime($row['data_limite_primeiro_treinamento']))->format('d/m/Y') ?><?php else: ?><span class="text-muted">-</span><?php endif; ?></div>
+                                <div><b>Agendado:</b> <?php 
+                                    $dataAgendada = $row['data_agendada'] ?? null;
+                                    if (!empty($dataAgendada) && $dataAgendada !== '0000-00-00') {
+                                        echo (new DateTime($dataAgendada))->format('d/m/Y');
+                                    } else {
+                                        echo '<span class="text-muted">-</span>';
+                                    }
+                                ?></div>
                                 <div class="mt-2">
-                                    <!-- <a href="<?= $_ENV['URL_ADM'] ?>schedule-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-info mb-1" title="Agendar"><i class="fas fa-calendar-plus"></i></a> -->
-                                    <a href="<?= $_ENV['URL_ADM'] ?>apply-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-success mb-1" title="Aplicar"><i class="fas fa-check"></i></a>
+                                    <a href="<?= $_ENV['URL_ADM'] ?>schedule-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-info mb-1" title="Agendar"><i class="fas fa-calendar-plus"></i></a>
+                                    <?php if (($row['status_dinamico'] ?? $row['status'] ?? '') !== 'concluido'): ?>
+                                        <a href="<?= $_ENV['URL_ADM'] ?>apply-training/<?= $row['user_id'] ?>/<?= $row['training_id'] ?>" class="btn btn-sm btn-success mb-1" title="Aplicar"><i class="fas fa-check"></i></a>
+                                    <?php endif; ?>
                                     <!-- <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $row['user_id'] ?>-<?= $row['training_id'] ?>" class="btn btn-sm btn-secondary mb-1" title="Histórico"><i class="fas fa-history"></i></a> -->
                                 </div>
                             </div>

@@ -70,6 +70,9 @@ class CreateTraining
         // Depuração: ver o que está sendo enviado para o banco
         // var_dump($this->data['form']); exit;
         
+        // Garantir que 'tipo' receba o valor de 'categoria'
+        $this->data['form']['tipo'] = $this->data['form']['categoria'] ?? '';
+
         $repo = new TrainingsRepository();
         $result = $repo->createTraining($this->data['form']);
         if ($result) {

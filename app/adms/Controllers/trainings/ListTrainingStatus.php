@@ -23,11 +23,13 @@ class ListTrainingStatus
         $trainingsRepo = new TrainingsRepository();
 
         // Filtros da URL
+        $statusFiltro = $_GET['status'] ?? '';
         $filters = [
             'colaborador' => $_GET['colaborador'] ?? null,
             'departamento' => $_GET['departamento'] ?? null,
             'cargo' => $_GET['cargo'] ?? null,
             'treinamento' => $_GET['treinamento'] ?? null,
+            'status' => $statusFiltro,
         ];
 
         // Dados para a view
@@ -41,6 +43,43 @@ class ListTrainingStatus
             'listTrainings' => $trainingsRepo->getAllTrainingsSelect(),
             'listUsers' => $usersRepo->getAllUsersSelect(),
         ];
+
+        // Filtragem de status no backend
+        $matrix = $trainingUsersRepo->getTrainingStatusByUser($filters);
+        if ($statusFiltro === '') {
+            // Todos exceto concluído
+            $matrix = array_filter($matrix, function($row) {
+                $status = $row['status_dinamico'] ?? $row['status'] ?? '';
+                return $status !== 'concluido';
+            });
+        } elseif ($statusFiltro === 'concluido') {
+            $matrix = array_filter($matrix, function($row) {
+                $status = $row['status_dinamico'] ?? $row['status'] ?? '';
+                return $status === 'concluido';
+            });
+        } elseif ($statusFiltro) {
+            $matrix = array_filter($matrix, function($row) use ($statusFiltro) {
+                $status = $row['status_dinamico'] ?? $row['status'] ?? '';
+                return $status === $statusFiltro;
+            });
+        }
+        $this->data['matrix'] = $matrix;
+        // Contagem dinâmica dos status para os cards
+        $statusCounts = [
+            'dentro_do_prazo' => 0,
+            'proximo_vencimento' => 0,
+            'vencido' => 0,
+            'agendado' => 0,
+            'concluido' => 0,
+        ];
+        foreach ($matrix as $row) {
+            $status = $row['status_dinamico'] ?? $row['status'] ?? '';
+            if (isset($statusCounts[$status])) {
+                $statusCounts[$status]++;
+            }
+        }
+        $statusCounts['todos'] = $statusCounts['dentro_do_prazo'] + $statusCounts['proximo_vencimento'] + $statusCounts['vencido'] + $statusCounts['agendado'];
+        $this->data['statusCounts'] = $statusCounts;
 
         // Elementos de página
         $pageElements = [
