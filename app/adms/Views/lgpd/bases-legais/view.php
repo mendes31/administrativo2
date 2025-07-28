@@ -20,7 +20,7 @@ use App\adms\Helpers\FormatHelper;
         <div class="card-header">
             <h5 class="mb-0">
                 <i class="fas fa-gavel me-2"></i>
-                <?php echo htmlspecialchars($this->data['baseLegal']['base_legal']); ?>
+                <?php echo htmlspecialchars($this->data['base_legal']['base_legal']); ?>
             </h5>
         </div>
         <div class="card-body">
@@ -29,16 +29,16 @@ use App\adms\Helpers\FormatHelper;
                     <table class="table table-borderless">
                         <tr>
                             <td><strong>ID:</strong></td>
-                            <td><?php echo $this->data['baseLegal']['id']; ?></td>
+                            <td><?php echo $this->data['base_legal']['id']; ?></td>
                         </tr>
                         <tr>
                             <td><strong>Base Legal:</strong></td>
-                            <td><?php echo htmlspecialchars($this->data['baseLegal']['base_legal']); ?></td>
+                            <td><?php echo htmlspecialchars($this->data['base_legal']['base_legal']); ?></td>
                         </tr>
                         <tr>
                             <td><strong>Status:</strong></td>
                             <td>
-                                <?php if ($this->data['baseLegal']['status']): ?>
+                                <?php if ($this->data['base_legal']['status'] === 'Ativo'): ?>
                                     <span class="badge bg-success">
                                         <i class="fas fa-check me-1"></i>Ativo
                                     </span>
@@ -56,8 +56,8 @@ use App\adms\Helpers\FormatHelper;
                         <tr>
                             <td><strong>Descrição:</strong></td>
                             <td>
-                                <?php if (!empty($this->data['baseLegal']['descricao'])): ?>
-                                    <?php echo htmlspecialchars($this->data['baseLegal']['descricao']); ?>
+                                <?php if (!empty($this->data['base_legal']['descricao'])): ?>
+                                    <?php echo htmlspecialchars($this->data['base_legal']['descricao']); ?>
                                 <?php else: ?>
                                     <span class="text-muted">Não informada</span>
                                 <?php endif; ?>
@@ -66,8 +66,8 @@ use App\adms\Helpers\FormatHelper;
                         <tr>
                             <td><strong>Exemplo:</strong></td>
                             <td>
-                                <?php if (!empty($this->data['baseLegal']['exemplo'])): ?>
-                                    <?php echo htmlspecialchars($this->data['baseLegal']['exemplo']); ?>
+                                <?php if (!empty($this->data['base_legal']['exemplo'])): ?>
+                                    <?php echo htmlspecialchars($this->data['base_legal']['exemplo']); ?>
                                 <?php else: ?>
                                     <span class="text-muted">Não informado</span>
                                 <?php endif; ?>
@@ -75,13 +75,13 @@ use App\adms\Helpers\FormatHelper;
                         </tr>
                         <tr>
                             <td><strong>Criado em:</strong></td>
-                            <td><?php echo FormatHelper::formatDate($this->data['baseLegal']['created_at']); ?></td>
+                            <td><?php echo FormatHelper::formatDate($this->data['base_legal']['created_at']); ?></td>
                         </tr>
                         <tr>
                             <td><strong>Atualizado em:</strong></td>
                             <td>
-                                <?php if (!empty($this->data['baseLegal']['updated_at'])): ?>
-                                    <?php echo FormatHelper::formatDate($this->data['baseLegal']['updated_at']); ?>
+                                <?php if (!empty($this->data['base_legal']['updated_at'])): ?>
+                                    <?php echo FormatHelper::formatDate($this->data['base_legal']['updated_at']); ?>
                                 <?php else: ?>
                                     <span class="text-muted">Não atualizado</span>
                                 <?php endif; ?>
@@ -100,13 +100,13 @@ use App\adms\Helpers\FormatHelper;
         </div>
         <div class="card-body">
             <div class="d-flex gap-2 flex-wrap">
-                <a href="<?php echo $_ENV['URL_ADM']; ?>lgpd-bases-legais-edit/<?php echo $this->data['baseLegal']['id']; ?>" class="btn btn-warning">
+                <a href="<?php echo $_ENV['URL_ADM']; ?>lgpd-bases-legais-edit/<?php echo $this->data['base_legal']['id']; ?>" class="btn btn-warning">
                     <i class="fas fa-edit me-1"></i>Editar
                 </a>
                 <a href="<?php echo $_ENV['URL_ADM']; ?>lgpd-bases-legais" class="btn btn-secondary">
                     <i class="fas fa-arrow-left me-1"></i>Voltar à Lista
                 </a>
-                <a href="<?php echo $_ENV['URL_ADM']; ?>lgpd-bases-legais-delete/<?php echo $this->data['baseLegal']['id']; ?>" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir esta base legal?')">
+                <a href="<?php echo $_ENV['URL_ADM']; ?>lgpd-bases-legais-delete/<?php echo $this->data['base_legal']['id']; ?>" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir esta base legal?')">
                     <i class="fas fa-trash me-1"></i>Excluir
                 </a>
             </div>

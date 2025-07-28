@@ -77,6 +77,9 @@ class PageLayoutService
             'ListLgpdBasesLegais',
             'ListLgpdTiposDados',
             'ListLgpdClassificacoesDados',
+            'LgpdBasesLegais',
+            'UpdateLgpdBasesLegais',
+            'DeleteLgpdBasesLegais',
 
             // Adicione aqui outras permissões de páginas/submenus que possam existir no futuro
         ];

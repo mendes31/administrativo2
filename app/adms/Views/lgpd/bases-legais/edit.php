@@ -1,6 +1,6 @@
 <?php
 use App\adms\Helpers\CSRFHelper;
-$csrf_token = CSRFHelper::generateCSRFToken('form_update_base_legal');
+$csrf_token = CSRFHelper::generateCSRFToken('form_edit_base_legal');
 ?>
 <div class="container-fluid px-4">
     <div class="mb-1 hstack gap-2">
@@ -23,24 +23,24 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_update_base_legal');
             <?php include './app/adms/Views/partials/alerts.php'; ?>
             <form action="" method="POST" class="row g-3">
                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                <input type="hidden" name="id" value="<?php echo $this->data['registro']['id']; ?>">
+                <input type="hidden" name="id" value="<?php echo $this->data['form']['id']; ?>">
                 <div class="col-md-6">
                     <label for="base_legal" class="form-label">Base Legal <span class="text-danger">*</span></label>
-                    <input type="text" name="base_legal" class="form-control" id="base_legal" value="<?php echo $this->data['registro']['base_legal'] ?? ''; ?>" required>
+                    <input type="text" name="base_legal" class="form-control" id="base_legal" value="<?php echo $this->data['form']['base_legal'] ?? ''; ?>" required>
                     <?php if (isset($this->data['errors']['base_legal'])): ?>
                         <div class="text-danger small"><?php echo $this->data['errors']['base_legal']; ?></div>
                     <?php endif; ?>
                 </div>
                 <div class="col-md-6">
                     <label for="descricao" class="form-label">Descrição</label>
-                    <input type="text" name="descricao" class="form-control" id="descricao" value="<?php echo $this->data['registro']['descricao'] ?? ''; ?>">
+                    <input type="text" name="descricao" class="form-control" id="descricao" value="<?php echo $this->data['form']['descricao'] ?? ''; ?>">
                     <?php if (isset($this->data['errors']['descricao'])): ?>
                         <div class="text-danger small"><?php echo $this->data['errors']['descricao']; ?></div>
                     <?php endif; ?>
                 </div>
                 <div class="col-md-6">
                     <label for="exemplo" class="form-label">Exemplo</label>
-                    <input type="text" name="exemplo" class="form-control" id="exemplo" value="<?php echo $this->data['registro']['exemplo'] ?? ''; ?>">
+                    <input type="text" name="exemplo" class="form-control" id="exemplo" value="<?php echo $this->data['form']['exemplo'] ?? ''; ?>">
                     <?php if (isset($this->data['errors']['exemplo'])): ?>
                         <div class="text-danger small"><?php echo $this->data['errors']['exemplo']; ?></div>
                     <?php endif; ?>
@@ -49,8 +49,8 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_update_base_legal');
                     <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
                     <select name="status" class="form-select" id="status" required>
                         <option value="">Selecione...</option>
-                        <option value="Ativo" <?php echo (isset($this->data['registro']['status']) && $this->data['registro']['status'] === 'Ativo') ? 'selected' : ''; ?>>Ativo</option>
-                        <option value="Inativo" <?php echo (isset($this->data['registro']['status']) && $this->data['registro']['status'] === 'Inativo') ? 'selected' : ''; ?>>Inativo</option>
+                        <option value="Ativo" <?php echo (isset($this->data['form']['status']) && $this->data['form']['status'] === 'Ativo') ? 'selected' : ''; ?>>Ativo</option>
+                        <option value="Inativo" <?php echo (isset($this->data['form']['status']) && $this->data['form']['status'] === 'Inativo') ? 'selected' : ''; ?>>Inativo</option>
                     </select>
                     <?php if (isset($this->data['errors']['status'])): ?>
                         <div class="text-danger small"><?php echo $this->data['errors']['status']; ?></div>
