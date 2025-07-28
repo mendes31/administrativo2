@@ -329,6 +329,43 @@ $menus = [
         ]
     ],
     [
+        'id' => 'lgpd',
+        'icon' => 'fa-solid fa-shield-halved',
+        'label' => 'LGPD',
+        'submenu' => [
+            [
+                'label' => 'ROPA',
+                'url' => $_ENV['URL_ADM'] . 'lgpd-ropa',
+                'permission' => 'ListLgpdRopa'
+            ],
+            [
+                'label' => 'Categorias de Titulares',
+                'url' => $_ENV['URL_ADM'] . 'lgpd-categorias-titulares',
+                'permission' => 'ListLgpdCategoriasTitulares'
+            ],
+            [
+                'label' => 'Finalidades',
+                'url' => $_ENV['URL_ADM'] . 'lgpd-finalidades',
+                'permission' => 'ListLgpdFinalidades'
+            ],
+            [
+                'label' => 'Bases Legais',
+                'url' => $_ENV['URL_ADM'] . 'lgpd-bases-legais',
+                'permission' => 'ListLgpdBasesLegais'
+            ],
+            [
+                'label' => 'Tipos de Dados',
+                'url' => $_ENV['URL_ADM'] . 'lgpd-tipos-dados',
+                'permission' => 'ListLgpdTiposDados'
+            ],
+            [
+                'label' => 'Classificações de Dados',
+                'url' => $_ENV['URL_ADM'] . 'lgpd-classificacoes-dados',
+                'permission' => 'ListLgpdClassificacoesDados'
+            ]
+        ]
+    ],
+    [
         'id' => 'parceiros',
         'icon' => 'fa-solid fa-handshake-simple',
         'label' => 'Parceiros',
@@ -357,6 +394,7 @@ $menus = [
             ],
         ]
     ],
+
     [
         'id' => 'logout',
         'icon' => 'fa-solid fa-arrow-right-from-bracket',

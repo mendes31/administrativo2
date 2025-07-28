@@ -71,6 +71,12 @@ class PageLayoutService
             'ListStrategicPlans',
             "ListBranches",
             "ListInformativos",
+            'ListLgpdRopa', 
+            'ListLgpdCategoriasTitulares',
+            'ListLgpdFinalidades',
+            'ListLgpdBasesLegais',
+            'ListLgpdTiposDados',
+            'ListLgpdClassificacoesDados',
 
             // Adicione aqui outras permissões de páginas/submenus que possam existir no futuro
         ];
