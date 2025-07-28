@@ -12,25 +12,41 @@ class FileServer
 
     public function serveFile(string $path): void
     {
-        ini_set('display_errors', 1);
-        ini_set('display_startup_errors', 1);
-        error_reporting(E_ALL);
+        // Desabilitar exibição de erros para produção
+        ini_set('display_errors', 0);
+        error_reporting(0);
 
         if (headers_sent($file, $line)) {
             error_log("Headers already sent in $file on line $line");
-            exit('Erro: headers já enviados!');
+            $this->sendError('Erro interno do servidor', 500);
+            return;
         }
 
-        $base = realpath(__DIR__ . '/../../../../public/adms/uploads');
-        $fullPath = realpath($base . DIRECTORY_SEPARATOR . $path);
-        file_put_contents(__DIR__ . '/debug_realpath.txt', "BASE: $base\nPATH: $path\nFULL: $fullPath\n", FILE_APPEND);
-
-        // Validar o caminho
-        if (empty($path) || strpos($path, '..') !== false) {
+        // Limpar o caminho de caracteres perigosos
+        $path = $this->sanitizePath($path);
+        
+        if (empty($path)) {
             $this->sendError('Caminho inválido', 400);
             return;
         }
 
+        // Obter o caminho base correto (subindo 4 níveis a partir do diretório atual)
+        $base = realpath(__DIR__ . '/../../../../public/adms/uploads');
+        
+        if (!$base) {
+            error_log("Base path não encontrado: " . __DIR__ . '/../../../../public/adms/uploads');
+            $this->sendError('Erro de configuração do servidor', 500);
+            return;
+        }
+
+        $fullPath = realpath($base . DIRECTORY_SEPARATOR . $path);
+        
+        // Log para debug (remover em produção)
+        if (isset($_ENV['APP_DEBUG']) && $_ENV['APP_DEBUG'] === 'true') {
+            error_log("DEBUG - Base: $base, Path: $path, Full: $fullPath");
+        }
+
+        // Validar o caminho
         if (!$fullPath || strpos($fullPath, $base) !== 0) {
             $this->sendError('Caminho inválido', 400);
             return;
@@ -71,24 +87,49 @@ class FileServer
 
         $mimeType = $mimeTypes[$extension] ?? 'application/octet-stream';
 
-        if (in_array($extension, ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'zip', 'rar'])) {
+        // Configurar headers apropriados
+        header('Content-Type: ' . $mimeType);
+        header('Content-Length: ' . filesize($fullPath));
+        
+        // Para imagens, permitir cache
+        if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            header('Cache-Control: public, max-age=31536000');
+            header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + 31536000));
+        } else {
+            // Para outros arquivos, forçar download
             $disposition = ($extension === 'pdf') ? 'inline' : 'attachment';
             header('Content-Disposition: ' . $disposition . '; filename="' . basename($fullPath) . '"');
         }
 
-        header('Content-Type: ' . $mimeType);
-        header('Content-Length: ' . filesize($fullPath));
-        header('Cache-Control: public, max-age=31536000');
-        header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + 31536000));
-
         // Limpar buffers antes de enviar arquivo binário
-        if (ob_get_level()) {
+        while (ob_get_level()) {
             ob_end_clean();
         }
-        flush();
-
-        readfile($fullPath);
+        
+        // Enviar o arquivo
+        if (readfile($fullPath) === false) {
+            $this->sendError('Erro ao ler arquivo', 500);
+            return;
+        }
+        
         exit;
+    }
+
+    /**
+     * Sanitiza o caminho do arquivo removendo caracteres perigosos
+     */
+    private function sanitizePath(string $path): string
+    {
+        // Remover caracteres perigosos
+        $path = str_replace(['..', '\\'], '', $path);
+        
+        // Remover barras duplas
+        $path = preg_replace('#/+#', '/', $path);
+        
+        // Remover barra inicial se existir
+        $path = ltrim($path, '/');
+        
+        return $path;
     }
 
     private function sendError(string $message, int $code): void

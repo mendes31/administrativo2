@@ -1,6 +1,7 @@
 <?php
 
 use App\adms\Helpers\CSRFHelper;
+use App\adms\Helpers\ImageHelper;
 
 // Gera o token CSRF para proteger o formulário de deleção
 $csrf_token = CSRFHelper::generateCSRFToken('form_delete_user');
@@ -97,12 +98,11 @@ $csrf_token_delete_image = CSRFHelper::generateCSRFToken('form_delete_user_image
                     <dt class="col-sm-3">Imagem: </dt>
                     <dd class="col-sm-9">
                         <?php 
-                        $imgPath = 'users/icon_user.png';
-                        if (!empty($image) && file_exists('public/adms/uploads/' . $image)) {
-                            $imgPath = $image;
-                        }
+                        echo ImageHelper::displayImage($image ?? null, [
+                            'alt' => 'Imagem do usuário',
+                            'style' => 'max-width: 120px; max-height: 120px; border-radius: 8px; object-fit: cover;'
+                        ], 'icon_user.png', 'users');
                         ?>
-                        <img src="<?php echo $_ENV['URL_ADM']; ?>serve-file?path=<?php echo urlencode($imgPath); ?>" alt="Imagem do usuário" style="max-width: 120px; max-height: 120px; border-radius: 8px;">
                         <?php if (!empty($image) && file_exists('public/adms/uploads/' . $image)): ?>
                             <!-- Botão para abrir o modal de confirmação (desktop) -->
                             <button type="button" class="btn btn-outline-danger btn-sm d-none d-md-inline-block" data-bs-toggle="modal" data-bs-target="#modalDeleteImage<?php echo $id; ?>-desktop" style="margin-left: 10px;">
