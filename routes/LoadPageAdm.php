@@ -93,7 +93,9 @@ class LoadPageAdm
         "LgpdFinalidades", "LgpdFinalidadesCreate", "LgpdFinalidadesEdit", "LgpdFinalidadesView", "LgpdFinalidadesDelete",
         "LgpdBasesLegais", "LgpdBasesLegaisCreate", "LgpdBasesLegaisEdit", "LgpdBasesLegaisView", "LgpdBasesLegaisDelete",
         "LgpdTiposDados", "LgpdTiposDadosCreate", "LgpdTiposDadosEdit", "LgpdTiposDadosView", "LgpdTiposDadosDelete",
-        "LgpdClassificacoesDados", "LgpdClassificacoesDadosCreate", "LgpdClassificacoesDadosEdit", "LgpdClassificacoesDadosView", "LgpdClassificacoesDadosDelete"
+        "LgpdClassificacoesDados", "LgpdClassificacoesDadosCreate", "LgpdClassificacoesDadosEdit", "LgpdClassificacoesDadosView", "LgpdClassificacoesDadosDelete",
+        "LgpdInventory", "LgpdInventoryCreate", "LgpdInventoryEdit", "LgpdInventoryView", "LgpdInventoryDelete",
+        "LgpdDataMapping", "LgpdDataMappingCreate", "LgpdDataMappingEdit", "LgpdDataMappingView", "LgpdDataMappingDelete"
     ];
 
     /** @var array $listDirectory Recebe a lista de diretórios com as controllers */

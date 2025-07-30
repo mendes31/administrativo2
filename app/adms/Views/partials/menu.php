@@ -334,6 +334,16 @@ $menus = [
         'label' => 'LGPD',
         'submenu' => [
             [
+                'label' => 'Inventário',
+                'url' => $_ENV['URL_ADM'] . 'lgpd-inventory',
+                'permission' => 'ListLgpdInventory'
+            ],
+            [
+                'label' => 'Data Mapping',
+                'url' => $_ENV['URL_ADM'] . 'lgpd-data-mapping',
+                'permission' => 'ListLgpdDataMapping'
+            ],
+            [
                 'label' => 'ROPA',
                 'url' => $_ENV['URL_ADM'] . 'lgpd-ropa',
                 'permission' => 'ListLgpdRopa'

@@ -37,6 +37,10 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_ropa');
 
                 $id = ($this->data['registro']['id'] ?? '');
 
+                if (in_array('LgpdDataMappingCreate', $this->data['buttonPermission'])) {
+                    echo "<a href='{$_ENV['URL_ADM']}lgpd-data-mapping-create-from-ropa/$id' class='btn btn-success btn-sm me-1 mb-1'><i class='fa-solid fa-plus-circle'></i> Criar Data Mapping</a> ";
+                }
+
                 if (in_array('EditLgpdRopa', $this->data['buttonPermission'])) {
                     echo "<a href='{$_ENV['URL_ADM']}lgpd-ropa-edit/$id' class='btn btn-warning btn-sm me-1 mb-1'><i class='fa-solid fa-pen-to-square'></i> Editar</a>";
                 }
