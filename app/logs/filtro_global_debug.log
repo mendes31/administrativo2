@@ -5519,3 +5519,13 @@
 2025-07-30 16:51:05 - main.php executado em /administrativo2/completed-trainings-matrix user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
 2025-07-30 16:51:22 - main.php executado em /administrativo2/completed-trainings-matrix?colaborador=&treinamento=1&mes=&ano=&performance=&per_page=20 user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
 2025-07-30 16:51:30 - main.php executado em /administrativo2/matrix-by-user user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
+2025-07-30 16:51:53 - main.php executado em /administrativo2/list-training-status user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
+2025-07-30 16:51:59 - main.php executado em /administrativo2/completed-trainings-matrix user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
+2025-07-30 16:52:19 - main.php executado em /administrativo2/completed-trainings-matrix user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
+2025-07-30 16:52:20 - main.php executado em /administrativo2/list-training-status user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
+2025-07-30 16:52:25 - main.php executado em /administrativo2/completed-trainings-matrix user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
+2025-07-30 16:52:37 - main.php executado em /administrativo2/completed-trainings-matrix?colaborador=&treinamento=1&mes=&ano=&performance=&per_page=20 user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
+2025-07-30 17:18:14 - main.php executado em /administrativo2/dashboard user_id=1 session_id=jonv6tvrhkidu5ud6ieffcdquh
+2025-07-30 17:18:18 - main.php executado em /administrativo2/lgpd-inventory user_id=1 session_id=jonv6tvrhkidu5ud6ieffcdquh
+2025-07-30 17:18:22 - main.php executado em /administrativo2/lgpd-data-mapping user_id=1 session_id=jonv6tvrhkidu5ud6ieffcdquh
+2025-07-30 17:18:41 - main.php executado em /administrativo2/lgpd-data-mapping-view/4 user_id=1 session_id=jonv6tvrhkidu5ud6ieffcdquh
