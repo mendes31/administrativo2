@@ -1,9 +1,0 @@
-area;data_type;data_category;data_subject;storage_location;access_level;risk_level
-Vendas;Nome, CPF;Pessoal;Clientes;ERP - Servidor local;Vendas, Financeiro;Médio
-RH;Dados bancários;Sensível;Funcionários;RH - Servidor interno;RH, Contabilidade ext.;Alto
-Marketing;E-mail, Preferências;Pessoal;Leads;Mailchimp (nuvem);Marketing;Médio
-Financeiro;CPF, CNPJ, Dados bancários;Sensível;Clientes, Fornecedores;Sistema Financeiro - Cloud;Financeiro, Contabilidade;Alto
-TI;Logs de acesso, IP;Pessoal;Usuários do sistema;Servidor de logs - Local;TI, Segurança;Baixo
-Recursos Humanos;Histórico médico, Dados de saúde;Sensível;Funcionários;Sistema RH - Local;RH, Medicina do trabalho;Alto
-Comercial;Histórico de compras, Preferências;Pessoal;Clientes;CRM - Cloud;Comercial, Marketing;Médio
-Jurídico;Documentos legais, Contratos;Pessoal;Clientes, Fornecedores;Sistema Jurídico - Local;Jurídico;Médio

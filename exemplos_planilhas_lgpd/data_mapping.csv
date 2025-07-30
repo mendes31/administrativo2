@@ -1,9 +1,0 @@
-source_system;source_field;transformation_rule;destination_system;destination_field;observation
-ERP (Vendas);cpf;Remover pontos e traços;Financeiro;document_id;Dado sensível
-E-commerce;E-mail;Validar duplicidade;Mailchimp;contact_email;Consentimento necessário
-Sistema RH;dados_bancarios;Criptografar dados;Sistema Financeiro;bank_data;Dado sensível - criptografia obrigatória
-CRM;preferencias_cliente;Normalizar categorias;Sistema Marketing;customer_preferences;Dados para segmentação
-Sistema de Acesso;ip_usuario;Mascarar último octeto;Logs de Segurança;masked_ip;Proteção de privacidade
-Sistema Financeiro;cnpj_fornecedor;Validar formato;Sistema Jurídico;supplier_document;Validação legal
-Sistema Médico;exames_funcionario;Criptografar completamente;Medicina do Trabalho;medical_records;Dado sensível - sigilo médico
-Sistema Comercial;historico_compras;Anonimizar dados pessoais;Analytics;purchase_history;Dados para análise sem identificação

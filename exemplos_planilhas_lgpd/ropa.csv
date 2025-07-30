@@ -1,9 +1,0 @@
-finalidade;titular;dados_tratados;base_legal;compartilhamento;retencao;medidas_seguranca
-Emissão de NF e entrega;Clientes;Nome, CPF, Telefone;Execução de contrato;Não há;5 anos;Criptografia, acesso restrito
-Pagamento de salários;Funcionários;Nome, CPF, Dados bancários;Obrigação legal;Contabilidade externa;10 anos;Backup seguro, senhas fortes
-Cadastro de colaboradores;Funcionários;Nome, endereço, documentos pessoais;Execução de contrato;Não há;5 anos;Restrição de acesso, criptografia
-Campanhas de marketing;Leads;E-mail, preferências de compra;Consentimento;Mailchimp (terceiro);Até revogação;Controle de consentimento, opção de descadastro
-Controle de acesso;Usuários do sistema;Logs de login, IP;Legítimo interesse;Não há;2 anos;Criptografia, logs seguros
-Gestão de fornecedores;Fornecedores;CNPJ, dados bancários, contratos;Execução de contrato;Sistema financeiro;10 anos;Acesso restrito, backup
-Avaliação de saúde ocupacional;Funcionários;Exames médicos, histórico de saúde;Obrigação legal;Medicina do trabalho;30 anos;Criptografia, acesso médico
-Relatórios financeiros;Clientes, Fornecedores;Dados financeiros, histórico;Obrigação legal;Contabilidade;10 anos;Backup seguro, acesso restrito
