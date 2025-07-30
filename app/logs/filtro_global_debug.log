@@ -5514,3 +5514,8 @@
 2025-07-30 16:43:59 - main.php executado em /administrativo2/list-training-status user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
 2025-07-30 16:45:10 - main.php executado em /administrativo2/lgpd-tipos-dados user_id=1 session_id=4i2ep92mlpet1utbe7ppr485ou
 2025-07-30 16:45:15 - main.php executado em /administrativo2/lgpd-bases-legais user_id=1 session_id=4i2ep92mlpet1utbe7ppr485ou
+2025-07-30 16:50:49 - main.php executado em /administrativo2/completed-trainings-matrix user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
+2025-07-30 16:50:56 - main.php executado em /administrativo2/list-training-status user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
+2025-07-30 16:51:05 - main.php executado em /administrativo2/completed-trainings-matrix user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
+2025-07-30 16:51:22 - main.php executado em /administrativo2/completed-trainings-matrix?colaborador=&treinamento=1&mes=&ano=&performance=&per_page=20 user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
+2025-07-30 16:51:30 - main.php executado em /administrativo2/matrix-by-user user_id=7 session_id=uvqj8sbc0ucosnlbmnjls1ofu2
