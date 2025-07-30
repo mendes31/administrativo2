@@ -326,6 +326,11 @@ class AddAdmsPages extends AbstractSeed
             ['name'=> 'Editar Data Mapping LGPD', 'controller' => 'LgpdDataMappingEdit', 'controller_url' => 'lgpd-data-mapping-edit', 'directory' => 'lgpd', 'obs' => 'Página para editar mapeamento de dados LGPD.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
             ['name'=> 'Visualizar Data Mapping LGPD', 'controller' => 'LgpdDataMappingView', 'controller_url' => 'lgpd-data-mapping-view', 'directory' => 'lgpd', 'obs' => 'Página para visualizar mapeamento de dados LGPD.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
             ['name'=> 'Excluir Data Mapping LGPD', 'controller' => 'LgpdDataMappingDelete', 'controller_url' => 'lgpd-data-mapping-delete', 'directory' => 'lgpd', 'obs' => 'Página para excluir mapeamento de dados LGPD.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
+            
+            // ===== GRUPO 31: LGPD - INTEGRAÇÕES =====
+            ['name'=> 'Criar ROPA a partir do Inventário', 'controller' => 'LgpdRopaCreateFromInventory', 'controller_url' => 'lgpd-ropa-create-from-inventory', 'directory' => 'lgpd', 'obs' => 'Página para criar ROPA automaticamente a partir do inventário LGPD.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
+            ['name'=> 'Criar Data Mapping a partir da ROPA', 'controller' => 'LgpdDataMappingCreateFromRopa', 'controller_url' => 'lgpd-data-mapping-create-from-ropa', 'directory' => 'lgpd', 'obs' => 'Página para criar Data Mapping automaticamente a partir da ROPA.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
+            ['name'=> 'Relatório Integrado do Fluxo LGPD', 'controller' => 'LgpdWorkflowReport', 'controller_url' => 'lgpd-workflow-report', 'directory' => 'lgpd', 'obs' => 'Página para visualizar relatório integrado do fluxo completo LGPD (Inventário → ROPA → Data Mapping).', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
         ];
 
         // Percorrer o array com dados que devem ser validados antes de cadastrar

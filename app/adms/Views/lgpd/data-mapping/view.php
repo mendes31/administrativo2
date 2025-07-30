@@ -47,19 +47,19 @@ use App\adms\Helpers\CSRFHelper;
                     <table class="table table-borderless">
                         <tr>
                             <th width="150">ID:</th>
-                            <td><?php echo $this->data['dataMapping']['id']; ?></td>
+                            <td><?php echo $this->data['data_mapping']['id']; ?></td>
                         </tr>
                         <tr>
                             <th>Sistema Origem:</th>
-                            <td><?php echo htmlspecialchars($this->data['dataMapping']['source_system']); ?></td>
+                            <td><?php echo htmlspecialchars($this->data['data_mapping']['source_system']); ?></td>
                         </tr>
                         <tr>
                             <th>Campo Origem:</th>
-                            <td><?php echo htmlspecialchars($this->data['dataMapping']['source_field']); ?></td>
+                            <td><?php echo htmlspecialchars($this->data['data_mapping']['source_field']); ?></td>
                         </tr>
                         <tr>
                             <th>Regra de Transformação:</th>
-                            <td><?php echo htmlspecialchars($this->data['dataMapping']['transformation_rule'] ?: 'Não informado'); ?></td>
+                            <td><?php echo htmlspecialchars($this->data['data_mapping']['transformation_rule'] ?: 'Não informado'); ?></td>
                         </tr>
                     </table>
                 </div>
@@ -67,41 +67,75 @@ use App\adms\Helpers\CSRFHelper;
                     <table class="table table-borderless">
                         <tr>
                             <th width="150">Sistema Destino:</th>
-                            <td><?php echo htmlspecialchars($this->data['dataMapping']['destination_system']); ?></td>
+                            <td><?php echo htmlspecialchars($this->data['data_mapping']['destination_system']); ?></td>
                         </tr>
                         <tr>
                             <th>Campo Destino:</th>
-                            <td><?php echo htmlspecialchars($this->data['dataMapping']['destination_field']); ?></td>
+                            <td><?php echo htmlspecialchars($this->data['data_mapping']['destination_field']); ?></td>
                         </tr>
                         <tr>
                             <th>ROPA:</th>
-                            <td><?php echo htmlspecialchars($this->data['dataMapping']['ropa_atividade'] ?: 'Não vinculado'); ?></td>
+                            <td><?php echo htmlspecialchars($this->data['data_mapping']['ropa_atividade'] ?: 'Não vinculado'); ?></td>
                         </tr>
                         <tr>
                             <th>Inventário:</th>
-                            <td><?php echo htmlspecialchars($this->data['dataMapping']['inventory_area'] ?: 'Não vinculado'); ?></td>
+                            <td><?php echo htmlspecialchars($this->data['data_mapping']['inventory_area'] ?: 'Não vinculado'); ?></td>
+                        </tr>
+                        <tr>
+                            <th>Finalidade Relacionada:</th>
+                            <td><?php echo htmlspecialchars($this->data['data_mapping']['finalidade_relacionada'] ?: 'Não informado'); ?></td>
+                        </tr>
+                        <tr>
+                            <th>Prazo de Retenção:</th>
+                            <td><?php echo htmlspecialchars($this->data['data_mapping']['prazo_retencao_relacionado'] ?: 'Não informado'); ?></td>
                         </tr>
                     </table>
                 </div>
             </div>
+
+            <?php if (isset($this->data['fontes_data_mapping']) && !empty($this->data['fontes_data_mapping'])): ?>
+            <div class="row">
+                <div class="col-12">
+                    <h5 class="mb-3">Pontos de Coleta</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Fonte de Coleta</th>
+                                    <th>Observações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($this->data['fontes_data_mapping'] as $fonte): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($fonte['nome']); ?></td>
+                                        <td><?php echo htmlspecialchars($fonte['observacoes'] ?: 'Não informado'); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <div class="row">
                 <div class="col-12">
                     <table class="table table-borderless">
                         <tr>
                             <th width="150">Observações:</th>
-                            <td><?php echo htmlspecialchars($this->data['dataMapping']['observation'] ?: 'Não informado'); ?></td>
+                            <td><?php echo htmlspecialchars($this->data['data_mapping']['observation'] ?: 'Não informado'); ?></td>
                         </tr>
                         <tr>
                             <th>Data de Criação:</th>
-                            <td><?php echo date('d/m/Y H:i:s', strtotime($this->data['dataMapping']['created_at'])); ?></td>
+                            <td><?php echo date('d/m/Y H:i:s', strtotime($this->data['data_mapping']['created_at'])); ?></td>
                         </tr>
                         <tr>
                             <th>Última Atualização:</th>
                             <td>
                                 <?php 
-                                if (!empty($this->data['dataMapping']['updated_at'])) {
-                                    echo date('d/m/Y H:i:s', strtotime($this->data['dataMapping']['updated_at']));
+                                if (!empty($this->data['data_mapping']['updated_at'])) {
+                                    echo date('d/m/Y H:i:s', strtotime($this->data['data_mapping']['updated_at']));
                                 } else {
                                     echo '<span class="text-muted">Não atualizado</span>';
                                 }
@@ -115,15 +149,15 @@ use App\adms\Helpers\CSRFHelper;
             <div class="row mt-3">
                 <div class="col-12">
                     <?php if (in_array('LgpdDataMappingEdit', $this->data['buttonPermission'])): ?>
-                        <a href="<?php echo $_ENV['URL_ADM']; ?>lgpd-data-mapping-edit/<?php echo $this->data['dataMapping']['id']; ?>" class="btn btn-warning">
+                        <a href="<?php echo $_ENV['URL_ADM']; ?>lgpd-data-mapping-edit/<?php echo $this->data['data_mapping']['id']; ?>" class="btn btn-warning">
                             <i class="fa-solid fa-pen-to-square"></i> Editar
                         </a>
                     <?php endif; ?>
                     <?php if (in_array('LgpdDataMappingDelete', $this->data['buttonPermission'])): ?>
-                        <form id="formDelete<?php echo $this->data['dataMapping']['id']; ?>" action="<?php echo $_ENV['URL_ADM']; ?>lgpd-data-mapping-delete" method="POST" class="d-inline">
+                        <form id="formDelete<?php echo $this->data['data_mapping']['id']; ?>" action="<?php echo $_ENV['URL_ADM']; ?>lgpd-data-mapping-delete" method="POST" class="d-inline">
                             <input type="hidden" name="csrf_token" value="<?php echo CSRFHelper::generateCSRFToken('form_delete_data_mapping'); ?>">
-                            <input type="hidden" name="id" value="<?php echo $this->data['dataMapping']['id']; ?>">
-                            <button type="submit" class="btn btn-danger" onclick="confirmDeletion(event, <?php echo $this->data['dataMapping']['id']; ?>)">
+                            <input type="hidden" name="id" value="<?php echo $this->data['data_mapping']['id']; ?>">
+                            <button type="submit" class="btn btn-danger" onclick="confirmDeletion(event, <?php echo $this->data['data_mapping']['id']; ?>)">
                                 <i class="fa-regular fa-trash-can"></i> Apagar
                             </button>
                         </form>

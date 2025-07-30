@@ -7,6 +7,7 @@ use App\adms\Helpers\CSRFHelper;
 use App\adms\Models\Repository\LgpdDataMappingRepository;
 use App\adms\Models\Repository\LgpdRopaRepository;
 use App\adms\Models\Repository\LgpdInventoryRepository;
+use App\adms\Models\Repository\LgpdFontesColetaRepository;
 use App\adms\Views\Services\LoadViewService;
 
 class LgpdDataMappingEdit
@@ -35,9 +36,14 @@ class LgpdDataMappingEdit
     {
         $ropaRepo = new LgpdRopaRepository();
         $inventoryRepo = new LgpdInventoryRepository();
+        $fontesRepo = new LgpdFontesColetaRepository();
         
         $this->data['ropas'] = $ropaRepo->getAll([], 1, 1000); // Para select
-        $this->data['inventarios'] = $inventoryRepo->getAll([], 1, 1000); // Para select
+        $this->data['inventories'] = $inventoryRepo->getAll([], 1, 1000); // Para select
+        $this->data['fontes_coleta'] = $fontesRepo->listAllActive();
+        
+        // Carregar fontes já associadas a este data mapping
+        $this->data['fontes_data_mapping'] = $fontesRepo->getFontesByDataMapping($this->data['form']['id']);
 
         $pageElements = [
             'title_head' => 'Editar Data Mapping',
@@ -54,8 +60,15 @@ class LgpdDataMappingEdit
     private function editDataMapping($id): void
     {
         $repo = new LgpdDataMappingRepository();
+        $fontesRepo = new LgpdFontesColetaRepository();
+        
         $result = $repo->update($this->data['form']);
         if ($result) {
+            // Salvar fontes de coleta selecionadas
+            $fontesIds = $this->data['form']['fontes_coleta'] ?? [];
+            $observacoes = $this->data['form']['observacoes_fontes'] ?? [];
+            $fontesRepo->saveFontesForDataMapping($id, $fontesIds, $observacoes);
+            
             $_SESSION['success'] = "Data Mapping editado com sucesso!";
             header("Location: {$_ENV['URL_ADM']}lgpd-data-mapping");
             return;

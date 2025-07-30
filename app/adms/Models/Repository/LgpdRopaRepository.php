@@ -189,11 +189,11 @@ class LgpdRopaRepository extends DbConnection
     {
         try {
             $sql = 'INSERT INTO lgpd_ropa (codigo, atividade, departamento_id, base_legal, retencao, riscos, 
-                    medidas_seguranca, observacoes, processing_purpose, data_subject, personal_data, sharing, 
-                    inventory_id, status, ultima_atualizacao, created_at) 
+                    processing_purpose, data_subject, personal_data, sharing, inventory_id, status, ultima_atualizacao, 
+                    medidas_seguranca, responsavel, observacoes, created_at) 
                     VALUES (:codigo, :atividade, :departamento_id, :base_legal, :retencao, :riscos, 
-                    :medidas_seguranca, :observacoes, :processing_purpose, :data_subject, :personal_data, :sharing, 
-                    :inventory_id, :status, :ultima_atualizacao, NOW())';
+                    :processing_purpose, :data_subject, :personal_data, :sharing, :inventory_id, :status, :ultima_atualizacao, 
+                    :medidas_seguranca, :responsavel, :observacoes, NOW())';
             
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':codigo', $data['codigo']);
@@ -202,8 +202,6 @@ class LgpdRopaRepository extends DbConnection
             $stmt->bindValue(':base_legal', $data['base_legal']);
             $stmt->bindValue(':retencao', $data['retencao']);
             $stmt->bindValue(':riscos', $data['riscos']);
-            $stmt->bindValue(':medidas_seguranca', $data['medidas_seguranca'] ?? null);
-            $stmt->bindValue(':observacoes', $data['observacoes'] ?? null);
             $stmt->bindValue(':processing_purpose', $data['processing_purpose'] ?? null);
             $stmt->bindValue(':data_subject', $data['data_subject'] ?? null);
             $stmt->bindValue(':personal_data', $data['personal_data'] ?? null);
@@ -211,6 +209,9 @@ class LgpdRopaRepository extends DbConnection
             $stmt->bindValue(':inventory_id', $data['inventory_id'] ?? null);
             $stmt->bindValue(':status', $data['status']);
             $stmt->bindValue(':ultima_atualizacao', $data['ultima_atualizacao']);
+            $stmt->bindValue(':medidas_seguranca', $data['medidas_seguranca'] ?? null);
+            $stmt->bindValue(':responsavel', $data['responsavel'] ?? null);
+            $stmt->bindValue(':observacoes', $data['observacoes'] ?? null);
             $stmt->execute();
             
             return $this->getConnection()->lastInsertId();
@@ -230,10 +231,10 @@ class LgpdRopaRepository extends DbConnection
     {
         try {
             $sql = 'UPDATE lgpd_ropa SET codigo = :codigo, atividade = :atividade, departamento_id = :departamento_id, 
-                    base_legal = :base_legal, retencao = :retencao, riscos = :riscos, medidas_seguranca = :medidas_seguranca, 
-                    observacoes = :observacoes, processing_purpose = :processing_purpose, data_subject = :data_subject, 
-                    personal_data = :personal_data, sharing = :sharing, inventory_id = :inventory_id, status = :status, 
-                    ultima_atualizacao = :ultima_atualizacao, updated_at = NOW() WHERE id = :id';
+                    base_legal = :base_legal, retencao = :retencao, riscos = :riscos, processing_purpose = :processing_purpose, 
+                    data_subject = :data_subject, personal_data = :personal_data, sharing = :sharing, inventory_id = :inventory_id, 
+                    status = :status, ultima_atualizacao = :ultima_atualizacao, medidas_seguranca = :medidas_seguranca, 
+                    responsavel = :responsavel, observacoes = :observacoes, updated_at = NOW() WHERE id = :id';
             
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':codigo', $data['codigo']);
@@ -242,8 +243,6 @@ class LgpdRopaRepository extends DbConnection
             $stmt->bindValue(':base_legal', $data['base_legal']);
             $stmt->bindValue(':retencao', $data['retencao']);
             $stmt->bindValue(':riscos', $data['riscos']);
-            $stmt->bindValue(':medidas_seguranca', $data['medidas_seguranca'] ?? null);
-            $stmt->bindValue(':observacoes', $data['observacoes'] ?? null);
             $stmt->bindValue(':processing_purpose', $data['processing_purpose'] ?? null);
             $stmt->bindValue(':data_subject', $data['data_subject'] ?? null);
             $stmt->bindValue(':personal_data', $data['personal_data'] ?? null);
@@ -251,6 +250,9 @@ class LgpdRopaRepository extends DbConnection
             $stmt->bindValue(':inventory_id', $data['inventory_id'] ?? null);
             $stmt->bindValue(':status', $data['status']);
             $stmt->bindValue(':ultima_atualizacao', $data['ultima_atualizacao']);
+            $stmt->bindValue(':medidas_seguranca', $data['medidas_seguranca'] ?? null);
+            $stmt->bindValue(':responsavel', $data['responsavel'] ?? null);
+            $stmt->bindValue(':observacoes', $data['observacoes'] ?? null);
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
             
             return $stmt->execute();
@@ -448,7 +450,7 @@ class LgpdRopaRepository extends DbConnection
      *
      * @return int Próximo número disponível
      */
-    private function getNextCode(): int
+    public function getNextCode(): int
     {
         $sql = 'SELECT MAX(CAST(SUBSTRING(codigo, 6) AS UNSIGNED)) as max_code FROM lgpd_ropa WHERE codigo LIKE "ROPA-%"';
         $stmt = $this->getConnection()->prepare($sql);

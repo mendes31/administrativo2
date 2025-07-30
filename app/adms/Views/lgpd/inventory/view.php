@@ -33,7 +33,7 @@ use App\adms\Helpers\CSRFHelper;
                 if (in_array('LgpdRopaCreate', $this->data['buttonPermission'])) {
                     echo "<a href='{$_ENV['URL_ADM']}lgpd-ropa-create-from-inventory/{$this->data['inventory']['id']}' class='btn btn-success btn-sm me-1 mb-1'><i class='fa-solid fa-plus-circle'></i> Criar ROPA</a> ";
                 }
-                if (in_array('LgpdInventory', $this->data['buttonPermission'])) {
+                if (in_array('ListLgpdInventory', $this->data['buttonPermission'])) {
                     echo "<a href='{$_ENV['URL_ADM']}lgpd-inventory' class='btn btn-info btn-sm me-1 mb-1'><i class='fa-solid fa-list'></i> Listar</a> ";
                 }
                 ?>

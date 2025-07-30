@@ -27,7 +27,7 @@ class LgpdRopaView
         $pageElements = [
             'title_head' => 'Visualizar ROPA',
             'menu' => 'ListLgpdRopa',
-            'buttonPermission' => ['ListLgpdRopa', 'EditLgpdRopa', 'DeleteLgpdRopa'],
+            'buttonPermission' => ['ListLgpdRopa', 'EditLgpdRopa', 'DeleteLgpdRopa', 'LgpdDataMappingCreate'],
         ];
         $pageLayoutService = new PageLayoutService();
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));

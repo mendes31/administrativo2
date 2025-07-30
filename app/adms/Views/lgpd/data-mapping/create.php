@@ -97,6 +97,37 @@ use App\adms\Helpers\CSRFHelper;
                     </select>
                 </div>
 
+                <div class="col-md-6 col-sm-12">
+                    <label for="finalidade_relacionada" class="form-label">Finalidade Relacionada</label>
+                    <input type="text" name="finalidade_relacionada" class="form-control" id="finalidade_relacionada" placeholder="Finalidade relacionada à atividade ROPA" value="<?php echo $this->data['form']['finalidade_relacionada'] ?? ''; ?>">
+                </div>
+
+                <div class="col-md-6 col-sm-12">
+                    <label for="prazo_retencao_relacionado" class="form-label">Prazo de Retenção Relacionado</label>
+                    <input type="text" name="prazo_retencao_relacionado" class="form-control" id="prazo_retencao_relacionado" placeholder="Ex: 5 anos, 10 anos, Indefinido" value="<?php echo $this->data['form']['prazo_retencao_relacionado'] ?? ''; ?>">
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Pontos de Coleta</label>
+                    <div class="row">
+                        <?php if (isset($this->data['fontes_coleta'])): ?>
+                            <?php foreach ($this->data['fontes_coleta'] as $fonte): ?>
+                                <div class="col-md-4 col-sm-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input fonte-coleta-checkbox" type="checkbox" name="fontes_coleta[]" value="<?= $fonte['id'] ?>" id="fonte_<?= $fonte['id'] ?>">
+                                        <label class="form-check-label" for="fonte_<?= $fonte['id'] ?>">
+                                            <?= htmlspecialchars($fonte['nome']) ?>
+                                        </label>
+                                    </div>
+                                    <div class="fonte-observacao" id="observacao_<?= $fonte['id'] ?>" style="display: none;">
+                                        <input type="text" name="observacoes_fontes[<?= $fonte['id'] ?>]" class="form-control form-control-sm mt-1" placeholder="Observações para <?= htmlspecialchars($fonte['nome']) ?>">
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
                 <div class="col-12">
                     <label for="observation" class="form-label">Observações</label>
                     <textarea name="observation" class="form-control" id="observation" placeholder="Observações sobre o mapeamento (LGPD)" rows="3"><?php echo $this->data['form']['observation'] ?? ''; ?></textarea>
@@ -113,3 +144,28 @@ use App\adms\Helpers\CSRFHelper;
 
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gerenciar exibição das observações dos pontos de coleta
+    const checkboxes = document.querySelectorAll('.fonte-coleta-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const fonteId = this.value;
+            const observacaoDiv = document.getElementById('observacao_' + fonteId);
+            
+            if (this.checked) {
+                observacaoDiv.style.display = 'block';
+            } else {
+                observacaoDiv.style.display = 'none';
+                // Limpar o campo de observação quando desmarcado
+                const observacaoInput = observacaoDiv.querySelector('input');
+                if (observacaoInput) {
+                    observacaoInput.value = '';
+                }
+            }
+        });
+    });
+});
+</script>

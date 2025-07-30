@@ -142,8 +142,8 @@ class LgpdDataMappingRepository extends DbConnection
     public function create(array $data): int|bool
     {
         try {
-            $sql = 'INSERT INTO lgpd_data_mapping (source_system, source_field, transformation_rule, destination_system, destination_field, observation, ropa_id, inventory_id, created_at) 
-                    VALUES (:source_system, :source_field, :transformation_rule, :destination_system, :destination_field, :observation, :ropa_id, :inventory_id, NOW())';
+            $sql = 'INSERT INTO lgpd_data_mapping (source_system, source_field, transformation_rule, destination_system, destination_field, observation, ropa_id, inventory_id, finalidade_relacionada, prazo_retencao_relacionado, created_at) 
+                    VALUES (:source_system, :source_field, :transformation_rule, :destination_system, :destination_field, :observation, :ropa_id, :inventory_id, :finalidade_relacionada, :prazo_retencao_relacionado, NOW())';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':source_system', $data['source_system']);
             $stmt->bindValue(':source_field', $data['source_field']);
@@ -153,6 +153,8 @@ class LgpdDataMappingRepository extends DbConnection
             $stmt->bindValue(':observation', $data['observation'] ?? null);
             $stmt->bindValue(':ropa_id', $data['ropa_id'] ?? null);
             $stmt->bindValue(':inventory_id', $data['inventory_id'] ?? null);
+            $stmt->bindValue(':finalidade_relacionada', $data['finalidade_relacionada'] ?? null);
+            $stmt->bindValue(':prazo_retencao_relacionado', $data['prazo_retencao_relacionado'] ?? null);
             $stmt->execute();
             
             return $this->getConnection()->lastInsertId();
@@ -174,7 +176,8 @@ class LgpdDataMappingRepository extends DbConnection
             $sql = 'UPDATE lgpd_data_mapping SET source_system = :source_system, source_field = :source_field, 
                     transformation_rule = :transformation_rule, destination_system = :destination_system, 
                     destination_field = :destination_field, observation = :observation, ropa_id = :ropa_id, 
-                    inventory_id = :inventory_id, updated_at = NOW() WHERE id = :id';
+                    inventory_id = :inventory_id, finalidade_relacionada = :finalidade_relacionada, 
+                    prazo_retencao_relacionado = :prazo_retencao_relacionado, updated_at = NOW() WHERE id = :id';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':source_system', $data['source_system']);
             $stmt->bindValue(':source_field', $data['source_field']);
@@ -184,6 +187,8 @@ class LgpdDataMappingRepository extends DbConnection
             $stmt->bindValue(':observation', $data['observation'] ?? null);
             $stmt->bindValue(':ropa_id', $data['ropa_id'] ?? null);
             $stmt->bindValue(':inventory_id', $data['inventory_id'] ?? null);
+            $stmt->bindValue(':finalidade_relacionada', $data['finalidade_relacionada'] ?? null);
+            $stmt->bindValue(':prazo_retencao_relacionado', $data['prazo_retencao_relacionado'] ?? null);
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
             
             return $stmt->execute();
@@ -377,7 +382,7 @@ class LgpdDataMappingRepository extends DbConnection
      * @param array|null $inventory Dados do inventário
      * @return array Fluxos técnicos sugeridos
      */
-    private function suggestTechnicalFlows(array $ropa, ?array $inventory): array
+    public function suggestTechnicalFlows(array $ropa, ?array $inventory): array
     {
         $flows = [];
         

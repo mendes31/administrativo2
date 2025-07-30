@@ -36,7 +36,7 @@ class LgpdWorkflowReport
         $pageElements = [
             'title_head' => 'Relatório Integrado - Fluxo LGPD',
             'menu' => 'ListLgpdInventory',
-            'buttonPermission' => ['ListLgpdInventory', 'ListLgpdRopa', 'ListLgpdDataMapping'],
+            'buttonPermission' => ['ListLgpdInventory', 'ListLgpdRopa', 'ListLgpdDataMapping', 'LgpdWorkflowReport'],
         ];
         $pageLayoutService = new PageLayoutService();
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));

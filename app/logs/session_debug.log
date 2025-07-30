@@ -75,3 +75,12 @@
 2025-07-28 17:02:16 - [login] SALVOU SESSION NO BANCO: l47dg2rp0qom0h4pvsn996uen6 - $_SESSION: {"user_id":1,"user_name":"Manager","user_email":"manager@tiaraju.com.br","user_username":"manager","user_image":"users\/1\/user_687feaf14b4ad.jpg","user_department":"Tecnologia da Informa\u00e7\u00e3o","user_position":"Lider","session_id":"l47dg2rp0qom0h4pvsn996uen6"}
 2025-07-29 09:19:38 - [login] INICIO - session_id: fflf3vqfqrnisg36lumjadft60 - {"csrf_tokens":[]}
 2025-07-29 09:19:38 - [login] SALVOU SESSION NO BANCO: 4i2ep92mlpet1utbe7ppr485ou - $_SESSION: {"user_id":1,"user_name":"Manager","user_email":"manager@tiaraju.com.br","user_username":"manager","user_image":"users\/1\/user_687feaf14b4ad.jpg","user_department":"Tecnologia da Informa\u00e7\u00e3o","user_position":"Lider","session_id":"4i2ep92mlpet1utbe7ppr485ou"}
+2025-07-30 14:26:22 - [login] INICIO - session_id: 3jo5r0bfrvmt1ifqsq00gkhmlc - {"csrf_tokens":[]}
+2025-07-30 14:26:23 - [login] SALVOU SESSION NO BANCO: epa766fdqn67i35qn007r91qcl - $_SESSION: {"user_id":7,"user_name":"Camila Carvalho Lago","user_email":"camila.lago@tiaraju.com.br","user_username":"camila.lago","user_image":null,"user_department":"Garantia da Qualidade","user_position":"Analista","session_id":"epa766fdqn67i35qn007r91qcl"}
+2025-07-30 14:27:32 - [login] INICIO - session_id: an7dqo1gglb6lmd6n8n9v6so0c - {"csrf_tokens":[]}
+2025-07-30 14:27:33 - [login] SALVOU SESSION NO BANCO: 8j4e5lg0pbbqa16dlnvmmcqjc8 - $_SESSION: {"user_id":7,"user_name":"Camila Carvalho Lago","user_email":"camila.lago@tiaraju.com.br","user_username":"camila.lago","user_image":null,"user_department":"Garantia da Qualidade","user_position":"Analista","session_id":"8j4e5lg0pbbqa16dlnvmmcqjc8"}
+2025-07-30 14:35:07 - [login] INICIO - session_id: 0ae0u9ulvc78i4305pr9joapc8 - {"csrf_tokens":[]}
+2025-07-30 14:35:07 - [login] SALVOU SESSION NO BANCO: uvqj8sbc0ucosnlbmnjls1ofu2 - $_SESSION: {"user_id":7,"user_name":"Camila Carvalho Lago","user_email":"camila.lago@tiaraju.com.br","user_username":"camila.lago","user_image":null,"user_department":"Garantia da Qualidade","user_position":"Analista","session_id":"uvqj8sbc0ucosnlbmnjls1ofu2"}
+2025-07-30 14:35:22 - [login] INICIO - session_id: qq00makeck5s6qmq3i0078t96s - {"csrf_tokens":[]}
+2025-07-30 16:30:31 - [login] INICIO - session_id: 1lmqe36ikv6v4ve2nag7g8pbg1 - {"csrf_tokens":[]}
+2025-07-30 16:30:35 - [login] INICIO - session_id: up8hts1mb5d28godpja6l83089 - {"csrf_tokens":[]}

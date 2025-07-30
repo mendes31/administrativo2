@@ -95,7 +95,8 @@ class LoadPageAdm
         "LgpdTiposDados", "LgpdTiposDadosCreate", "LgpdTiposDadosEdit", "LgpdTiposDadosView", "LgpdTiposDadosDelete",
         "LgpdClassificacoesDados", "LgpdClassificacoesDadosCreate", "LgpdClassificacoesDadosEdit", "LgpdClassificacoesDadosView", "LgpdClassificacoesDadosDelete",
         "LgpdInventory", "LgpdInventoryCreate", "LgpdInventoryEdit", "LgpdInventoryView", "LgpdInventoryDelete",
-        "LgpdDataMapping", "LgpdDataMappingCreate", "LgpdDataMappingEdit", "LgpdDataMappingView", "LgpdDataMappingDelete"
+        "LgpdDataMapping", "LgpdDataMappingCreate", "LgpdDataMappingEdit", "LgpdDataMappingView", "LgpdDataMappingDelete",
+        "LgpdRopaCreateFromInventory", "LgpdDataMappingCreateFromRopa", "LgpdWorkflowReport"
     ];
 
     /** @var array $listDirectory Recebe a lista de diretórios com as controllers */

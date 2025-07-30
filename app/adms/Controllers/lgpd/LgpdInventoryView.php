@@ -27,7 +27,7 @@ class LgpdInventoryView
         $pageElements = [
             'title_head' => 'Visualizar Inventário',
             'menu' => 'ListLgpdInventory',
-            'buttonPermission' => ['ListLgpdInventory', 'EditLgpdInventory', 'DeleteLgpdInventory'],
+            'buttonPermission' => ['ListLgpdInventory', 'EditLgpdInventory', 'DeleteLgpdInventory', 'LgpdRopaCreate'],
         ];
         $pageLayoutService = new PageLayoutService();
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));

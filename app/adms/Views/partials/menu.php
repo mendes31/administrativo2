@@ -349,6 +349,11 @@ $menus = [
                 'permission' => 'ListLgpdRopa'
             ],
             [
+                'label' => 'Relatório Integrado',
+                'url' => $_ENV['URL_ADM'] . 'lgpd-workflow-report',
+                'permission' => 'LgpdWorkflowReport'
+            ],
+            [
                 'label' => 'Categorias de Titulares',
                 'url' => $_ENV['URL_ADM'] . 'lgpd-categorias-titulares',
                 'permission' => 'ListLgpdCategoriasTitulares'

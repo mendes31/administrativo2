@@ -61,7 +61,6 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_ropa');
 
                     </form>
                 <?php } ?>
-                </form>
 
             </span>
         </div>
