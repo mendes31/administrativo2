@@ -208,7 +208,7 @@ class LgpdRopaRepository extends DbConnection
             $stmt->bindValue(':sharing', $data['sharing'] ?? null);
             $stmt->bindValue(':inventory_id', $data['inventory_id'] ?? null);
             $stmt->bindValue(':status', $data['status']);
-            $stmt->bindValue(':ultima_atualizacao', $data['ultima_atualizacao']);
+            $stmt->bindValue(':ultima_atualizacao', $data['ultima_atualizacao'] ?? date('Y-m-d'));
             $stmt->bindValue(':medidas_seguranca', $data['medidas_seguranca'] ?? null);
             $stmt->bindValue(':responsavel', $data['responsavel'] ?? null);
             $stmt->bindValue(':observacoes', $data['observacoes'] ?? null);
@@ -249,7 +249,7 @@ class LgpdRopaRepository extends DbConnection
             $stmt->bindValue(':sharing', $data['sharing'] ?? null);
             $stmt->bindValue(':inventory_id', $data['inventory_id'] ?? null);
             $stmt->bindValue(':status', $data['status']);
-            $stmt->bindValue(':ultima_atualizacao', $data['ultima_atualizacao']);
+            $stmt->bindValue(':ultima_atualizacao', $data['ultima_atualizacao'] ?? date('Y-m-d'));
             $stmt->bindValue(':medidas_seguranca', $data['medidas_seguranca'] ?? null);
             $stmt->bindValue(':responsavel', $data['responsavel'] ?? null);
             $stmt->bindValue(':observacoes', $data['observacoes'] ?? null);

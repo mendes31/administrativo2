@@ -82,6 +82,7 @@ class PageLayoutService
             'DeleteLgpdBasesLegais',
             'ListLgpdInventory',
             'ListLgpdDataMapping',
+            'LgpdDashboard',
 
             // Adicione aqui outras permissões de páginas/submenus que possam existir no futuro
         ];

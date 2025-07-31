@@ -88,6 +88,7 @@ class LoadPageAdm
         "ListStrategicIndicators", "CreateStrategicIndicator", "EditStrategicIndicator", "UpdateStrategicIndicator", "DeleteStrategicIndicator", "ViewStrategicIndicator",
         "ListBranches", "CreateBranch", "ViewBranch", "UpdateBranch", "DeleteBranch",
         "ListInformativos", "CreateInformativo", "ViewInformativo", "UpdateInformativo", "DeleteInformativo", "ServeFile", "RemoveInformativoImagem", "RemoveInformativoAnexo",
+        "LgpdDashboard",
         "LgpdRopa", "LgpdRopaCreate", "LgpdRopaEdit", "LgpdRopaView", "LgpdRopaDelete",
         "LgpdCategoriasTitulares", "LgpdCategoriasTitularesCreate", "LgpdCategoriasTitularesEdit", "LgpdCategoriasTitularesView", "LgpdCategoriasTitularesDelete",
         "LgpdFinalidades", "LgpdFinalidadesCreate", "LgpdFinalidadesEdit", "LgpdFinalidadesView", "LgpdFinalidadesDelete",

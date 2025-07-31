@@ -51,6 +51,7 @@ class LgpdRopaEdit
     {
         $repo = new LgpdRopaRepository();
         $result = $repo->update($this->data['form']);
+        
         if ($result) {
             $_SESSION['success'] = "Registro ROPA editado com sucesso!";
             header("Location: {$_ENV['URL_ADM']}lgpd-ropa");
