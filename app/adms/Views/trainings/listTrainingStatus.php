@@ -48,7 +48,7 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
     font-weight: bold !important;
 }
 </style>
-<div class="container-fluid px-4">
+<div class="<?= $responsiveClasses['container'] ?? 'container-fluid px-4' ?>">
     <div class="sticky-top-bloco">
         <div class="mb-1 hstack gap-2">
             <h2 class="mt-3">Status de Treinamentos por Colaborador</h2>
@@ -60,8 +60,8 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
 
         <!-- Cards de Estatísticas por Status -->
         <?php $statusCounts = $this->data['statusCounts'] ?? []; ?>
-        <div class="row mb-4">
-            <div class="col-md-2">
+        <div class="<?= $responsiveClasses['cards'] ?? 'row mb-4' ?>">
+            <div class="<?= $responsiveClasses['card_cols'] ?? 'col-md-2' ?>">
                 <div class="card border-primary">
                     <div class="card-body text-center">
                         <h3 class="text-primary">
@@ -72,7 +72,7 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                     </div>
                 </div>
             </div>
-            <div class="col-md-2">
+            <div class="<?= $responsiveClasses['card_cols'] ?? 'col-md-2' ?>">
                 <div class="card border-success">
                     <div class="card-body text-center">
                         <h3 class="text-success">
@@ -83,7 +83,7 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                     </div>
                 </div>
             </div>
-            <div class="col-md-2">
+            <div class="<?= $responsiveClasses['card_cols'] ?? 'col-md-2' ?>">
                 <div class="card border-warning">
                     <div class="card-body text-center">
                         <h3 class="text-warning">
@@ -94,7 +94,7 @@ $codigoFiltro = trim($_GET['codigo'] ?? '');
                     </div>
                 </div>
             </div>
-            <div class="col-md-2">
+            <div class="<?= $responsiveClasses['card_cols'] ?? 'col-md-2' ?>">
                 <div class="card border-danger">
                     <div class="card-body text-center">
                         <h3 class="text-danger">

@@ -6,6 +6,7 @@ use App\adms\Controllers\Services\PageLayoutService;
 use App\adms\Controllers\Services\PaginationService;
 use App\adms\Models\Repository\TrainingsRepository;
 use App\adms\Views\Services\LoadViewService;
+use App\adms\Helpers\ScreenResolutionHelper;
 
 class ListTrainings
 {
@@ -18,9 +19,16 @@ class ListTrainings
         if (isset($_GET['page']) && is_numeric($_GET['page'])) {
             $page = (int)$_GET['page'];
         }
-        // Tratar per_page
-        if (isset($_GET['per_page']) && in_array((int)$_GET['per_page'], [10, 20, 50, 100])) {
+        // Obter configurações responsivas
+        $resolution = ScreenResolutionHelper::getScreenResolution();
+        $responsiveClasses = ScreenResolutionHelper::getResponsiveClasses($resolution['category']);
+        $paginationSettings = ScreenResolutionHelper::getPaginationSettings($resolution['category']);
+        
+        // Tratar per_page com base na resolução
+        if (isset($_GET['per_page']) && in_array((int)$_GET['per_page'], $paginationSettings['options'])) {
             $this->limitResult = (int)$_GET['per_page'];
+        } else {
+            $this->limitResult = $paginationSettings['per_page'];
         }
         $filters = [
             'nome' => $_GET['nome'] ?? '',
@@ -57,6 +65,12 @@ class ListTrainings
         ];
         $pageLayoutService = new PageLayoutService();
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
+        
+        // Adicionar dados responsivos
+        $this->data['responsiveClasses'] = $responsiveClasses;
+        $this->data['paginationSettings'] = $paginationSettings;
+        $this->data['screenResolution'] = $resolution;
+        
         $loadView = new LoadViewService('adms/Views/trainings/list', $this->data);
         $loadView->loadView();
     }

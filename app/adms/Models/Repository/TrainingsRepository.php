@@ -79,12 +79,18 @@ class TrainingsRepository extends DbConnection
     public function createTraining(array $data): bool|int
     {
         try {
+            // Validação do prazo de treinamento
+            $prazoTreinamento = (int)($data['prazo_treinamento'] ?? 0);
+            if ($prazoTreinamento <= 0) {
+                throw new Exception('O campo "Prazo de treinamento (dias)" é obrigatório e deve ser maior que 0.');
+            }
+            
             $sql = 'INSERT INTO adms_trainings (nome, codigo, versao, prazo_treinamento, tipo, instrutor, carga_horaria, ativo, created_at, instructor_user_id, instructor_email, instructor_name, reciclagem, reciclagem_periodo, area_responsavel_id, area_elaborador_id, tipo_obrigatoriedade) VALUES (:nome, :codigo, :versao, :prazo_treinamento, :tipo, :instrutor, :carga_horaria, :ativo, NOW(), :instructor_user_id, :instructor_email, :instructor_name, :reciclagem, :reciclagem_periodo, :area_responsavel_id, :area_elaborador_id, :tipo_obrigatoriedade)';
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':nome', $data['nome'], PDO::PARAM_STR);
             $stmt->bindValue(':codigo', $data['codigo'], PDO::PARAM_STR);
             $stmt->bindValue(':versao', $data['versao'], PDO::PARAM_STR);
-            $stmt->bindValue(':prazo_treinamento', (int)($data['prazo_treinamento'] ?? 0), PDO::PARAM_INT);
+            $stmt->bindValue(':prazo_treinamento', $prazoTreinamento, PDO::PARAM_INT);
             $stmt->bindValue(':tipo', $data['tipo'], PDO::PARAM_STR);
             $stmt->bindValue(':instrutor', $data['instrutor'], PDO::PARAM_STR);
             $stmt->bindValue(':carga_horaria', $data['carga_horaria'] !== '' ? $data['carga_horaria'] : null, PDO::PARAM_STR);
@@ -107,7 +113,7 @@ class TrainingsRepository extends DbConnection
                     'nome' => $data['nome'],
                     'codigo' => $data['codigo'],
                     'versao' => $data['versao'],
-                    'prazo_treinamento' => $data['prazo_treinamento'] ?? 0,
+                    'prazo_treinamento' => $prazoTreinamento,
                     'tipo' => $data['tipo'],
                     'instrutor' => $data['instrutor'],
                     'carga_horaria' => $data['carga_horaria'],
@@ -141,6 +147,12 @@ class TrainingsRepository extends DbConnection
     public function updateTraining(int|string $id, array $data): bool
     {
         try {
+            // Validação do prazo de treinamento
+            $prazoTreinamento = (int)($data['prazo_treinamento'] ?? 0);
+            if ($prazoTreinamento <= 0) {
+                throw new Exception('O campo "Prazo de treinamento (dias)" é obrigatório e deve ser maior que 0.');
+            }
+            
             // Captura os dados antigos antes da alteração
             $dadosAntes = $this->getTraining($id);
             
@@ -149,7 +161,7 @@ class TrainingsRepository extends DbConnection
             $stmt->bindValue(':nome', $data['nome'], PDO::PARAM_STR);
             $stmt->bindValue(':codigo', $data['codigo'], PDO::PARAM_STR);
             $stmt->bindValue(':versao', $data['versao'], PDO::PARAM_STR);
-            $stmt->bindValue(':prazo_treinamento', (int)($data['prazo_treinamento'] ?? 0), PDO::PARAM_INT);
+            $stmt->bindValue(':prazo_treinamento', $prazoTreinamento, PDO::PARAM_INT);
             $stmt->bindValue(':tipo', $data['tipo'], PDO::PARAM_STR);
             $stmt->bindValue(':instrutor', $data['instrutor'], PDO::PARAM_STR);
             $stmt->bindValue(':carga_horaria', $data['carga_horaria'] !== '' ? $data['carga_horaria'] : null, PDO::PARAM_STR);
@@ -172,7 +184,7 @@ class TrainingsRepository extends DbConnection
                     'nome' => $data['nome'],
                     'codigo' => $data['codigo'],
                     'versao' => $data['versao'],
-                    'prazo_treinamento' => $data['prazo_treinamento'] ?? 0,
+                    'prazo_treinamento' => $prazoTreinamento,
                     'tipo' => $data['tipo'],
                     'instrutor' => $data['instrutor'],
                     'carga_horaria' => $data['carga_horaria'],

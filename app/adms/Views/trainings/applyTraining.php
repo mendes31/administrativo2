@@ -88,6 +88,7 @@ use App\adms\Helpers\FormatHelper;
                                        class="form-control" 
                                        id="data_realizacao" 
                                        value="<?php echo $this->data['trainingUser']['data_realizacao'] ?? date('Y-m-d'); ?>"
+                                       min="<?php echo $this->data['trainingUser']['created_at'] ? date('Y-m-d', strtotime($this->data['trainingUser']['created_at'])) : ''; ?>"
                                        max="<?php echo date('Y-m-d'); ?>">
                                 <div class="form-text">Data em que o treinamento foi realizado</div>
                             </div>
@@ -99,7 +100,9 @@ use App\adms\Helpers\FormatHelper;
                                        name="data_avaliacao" 
                                        class="form-control" 
                                        id="data_avaliacao" 
-                                       value="<?php echo $this->data['trainingUser']['data_avaliacao'] ?? ''; ?>">
+                                       value="<?php echo $this->data['trainingUser']['data_avaliacao'] ?? ''; ?>"
+                                       min="<?php echo $this->data['trainingUser']['data_realizacao'] ?? ''; ?>"
+                                       max="<?php echo date('Y-m-d'); ?>">
                                 <div class="form-text">Data em que a avaliação do treinamento foi realizada</div>
                             </div>
                             <div class="col-md-4">
@@ -317,46 +320,41 @@ use App\adms\Helpers\FormatHelper;
 <script>
 // Exibe apenas o bloco do tipo correto
 const tipoRegistro = '<?= $tipoRegistro ?>';
+// Executar quando a página carregar
 document.addEventListener('DOMContentLoaded', function() {
-    if (tipoRegistro === 'realizacao') {
-        document.getElementById('div_realizacao').style.display = '';
-        document.getElementById('div_agendamento').style.display = 'none';
-    } else {
-        document.getElementById('div_realizacao').style.display = 'none';
-        document.getElementById('div_agendamento').style.display = '';
-    }
-    
-    // Inicializar campos do instrutor
     toggleInstructorFields();
-    if (document.getElementById('instructor_type').value === 'internal') {
-        fillInstructorEmail();
-    }
-
-    // Regras para Data de Avaliação
+    
+    // Configurar inicialmente o min da data de avaliação
+    updateDataAvaliacaoMin();
+    
+    // Event listeners para validação de data em tempo real
     const dataRealizacao = document.getElementById('data_realizacao');
     const dataAvaliacao = document.getElementById('data_avaliacao');
-    const hoje = new Date().toISOString().split('T')[0];
-    function atualizarLimitesDataAvaliacao() {
-        if (dataRealizacao && dataAvaliacao) {
-            dataAvaliacao.min = dataRealizacao.value;
-            dataAvaliacao.max = hoje;
-            if (dataAvaliacao.value && (dataAvaliacao.value < dataAvaliacao.min)) {
-                dataAvaliacao.value = dataAvaliacao.min;
-            }
-            if (dataAvaliacao.value && (dataAvaliacao.value > dataAvaliacao.max)) {
-                dataAvaliacao.value = dataAvaliacao.max;
-            }
-        }
+    
+    if (dataRealizacao) {
+        dataRealizacao.addEventListener('change', function() {
+            validateDataRealizacao();
+            updateDataAvaliacaoMin();
+        });
+        dataRealizacao.addEventListener('blur', validateDataRealizacao);
     }
-    if (dataRealizacao && dataAvaliacao) {
-        dataRealizacao.addEventListener('change', atualizarLimitesDataAvaliacao);
-        atualizarLimitesDataAvaliacao();
+    
+    if (dataAvaliacao) {
+        dataAvaliacao.addEventListener('change', validateDataAvaliacao);
+        dataAvaliacao.addEventListener('blur', validateDataAvaliacao);
     }
-    // Validação obrigatória da nota e do instrutor
-    const form = document.querySelector('form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
+    
+    // Validação do formulário
+    document.querySelector('form').addEventListener('submit', function(e) {
             let erro = false;
+            
+            // Validações de data
+            if (!validateDataRealizacao()) {
+                erro = true;
+            }
+            if (!validateDataAvaliacao()) {
+                erro = true;
+            }
             
             // Nota obrigatória
             const nota = document.getElementById('nota');
@@ -445,7 +443,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
             }
         });
-    }
 });
 
 function toggleInstructorFields() {
@@ -506,6 +503,91 @@ function fillInstructorEmail() {
         emailInput.value = selectedOption.getAttribute('data-email');
     } else {
         emailInput.value = '';
+    }
+}
+
+// Validações de data
+function validateDataRealizacao() {
+    var dataRealizacao = document.getElementById('data_realizacao');
+    var dataAvaliacao = document.getElementById('data_avaliacao');
+    var hoje = new Date().toISOString().split('T')[0];
+    
+    // Data de realização não pode ser superior à data atual
+    if (dataRealizacao.value > hoje) {
+        dataRealizacao.classList.add('is-invalid');
+        showFeedback(dataRealizacao, 'Data de realização não pode ser superior à data atual.');
+        return false;
+    }
+    
+    // Data de realização não pode ser anterior à data de criação do vínculo
+    var dataCriacaoVinculo = '<?php echo $this->data['trainingUser']['created_at'] ? date('Y-m-d', strtotime($this->data['trainingUser']['created_at'])) : ''; ?>';
+    if (dataCriacaoVinculo && dataRealizacao.value < dataCriacaoVinculo) {
+        dataRealizacao.classList.add('is-invalid');
+        showFeedback(dataRealizacao, 'Data de realização não pode ser anterior à data de criação do vínculo.');
+        return false;
+    }
+    
+    dataRealizacao.classList.remove('is-invalid');
+    removeFeedback(dataRealizacao);
+    return true;
+}
+
+function validateDataAvaliacao() {
+    var dataAvaliacao = document.getElementById('data_avaliacao');
+    var dataRealizacao = document.getElementById('data_realizacao');
+    var hoje = new Date().toISOString().split('T')[0];
+    
+    if (!dataAvaliacao.value) return true; // Campo opcional
+    
+    // Data de avaliação não pode ser superior à data atual
+    if (dataAvaliacao.value > hoje) {
+        dataAvaliacao.classList.add('is-invalid');
+        showFeedback(dataAvaliacao, 'Data de avaliação não pode ser superior à data atual.');
+        return false;
+    }
+    
+    // Data de avaliação não pode ser menor que a data de realização
+    if (dataRealizacao.value && dataAvaliacao.value < dataRealizacao.value) {
+        dataAvaliacao.classList.add('is-invalid');
+        showFeedback(dataAvaliacao, 'Data de avaliação não pode ser menor que a data de realização.');
+        return false;
+    }
+    
+    dataAvaliacao.classList.remove('is-invalid');
+    removeFeedback(dataAvaliacao);
+    return true;
+}
+
+function showFeedback(element, message) {
+    removeFeedback(element);
+    var feedback = document.createElement('div');
+    feedback.className = 'invalid-feedback';
+    feedback.innerText = message;
+    element.parentNode.appendChild(feedback);
+}
+
+function removeFeedback(element) {
+    var feedback = element.parentNode.querySelector('.invalid-feedback');
+    if (feedback) {
+        feedback.remove();
+    }
+}
+
+// Atualizar o atributo min da data de avaliação baseado na data de realização
+function updateDataAvaliacaoMin() {
+    var dataRealizacao = document.getElementById('data_realizacao');
+    var dataAvaliacao = document.getElementById('data_avaliacao');
+    
+    if (dataRealizacao && dataAvaliacao && dataRealizacao.value) {
+        dataAvaliacao.min = dataRealizacao.value;
+        
+        // Se a data de avaliação atual for menor que a nova data de realização, limpar
+        if (dataAvaliacao.value && dataAvaliacao.value < dataRealizacao.value) {
+            dataAvaliacao.value = '';
+            // Remover validação de erro se existir
+            dataAvaliacao.classList.remove('is-invalid');
+            removeFeedback(dataAvaliacao);
+        }
     }
 }
 </script> 

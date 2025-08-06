@@ -169,6 +169,9 @@ file_put_contents('caminho_do_log', 'session_id: ' . session_id() . ' - ' . json
     <!-- CSS Reset e Ajustes de Padronização -->
     <link rel="stylesheet" href="<?php echo $_ENV['URL_ADM']; ?>adms/css/reset.css">
     <link rel="stylesheet" href="<?php echo $_ENV['URL_ADM']; ?>adms/css/custom-ajustes.css">
+    
+    <!-- Sistema Responsivo para Diferentes Resoluções -->
+    <link rel="stylesheet" href="<?php echo $_ENV['URL_ADM']; ?>public/adms/css/responsive-screens.css">
 
     <!-- JQ por CDN -->
     <!-- <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script> -->
@@ -241,6 +244,9 @@ file_put_contents('caminho_do_log', 'session_id: ' . session_id() . ' - ' . json
 
     <!-- Ajax para funcionar Mascaras JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script>
+    
+    <!-- Sistema Responsivo para Diferentes Resoluções -->
+    <script src="<?php echo $_ENV['URL_ADM'] ?>public/adms/js/screen-resolution.js"></script>
 
     <!-- Bootstrap Bundle com Popper.js -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->

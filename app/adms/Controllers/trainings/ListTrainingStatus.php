@@ -9,6 +9,7 @@ use App\adms\Models\Repository\TrainingsRepository;
 use App\adms\Models\Repository\TrainingUsersRepository;
 use App\adms\Views\Services\LoadViewService;
 use App\adms\Controllers\Services\PageLayoutService;
+use App\adms\Helpers\ScreenResolutionHelper;
 
 class ListTrainingStatus
 {
@@ -16,6 +17,11 @@ class ListTrainingStatus
 
     public function index(): void
     {
+        // Obter configurações responsivas
+        $resolution = ScreenResolutionHelper::getScreenResolution();
+        $responsiveClasses = ScreenResolutionHelper::getResponsiveClasses($resolution['category']);
+        $paginationSettings = ScreenResolutionHelper::getPaginationSettings($resolution['category']);
+        
         $trainingUsersRepo = new TrainingUsersRepository();
         $usersRepo = new UsersRepository();
         $departmentsRepo = new DepartmentsRepository();
@@ -89,6 +95,10 @@ class ListTrainingStatus
         ];
         $pageLayoutService = new PageLayoutService();
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
+        
+        // Adicionar configurações responsivas
+        $this->data['responsiveClasses'] = $responsiveClasses;
+        $this->data['paginationSettings'] = $paginationSettings;
 
         $loadView = new LoadViewService('adms/Views/trainings/listTrainingStatus', $this->data);
         $loadView->loadView();

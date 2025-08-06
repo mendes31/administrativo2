@@ -53,7 +53,7 @@ class TrainingUsersRepository extends DbConnection
             if ($tipoVinculo === 'individual' && $existeAtivo['tipo_vinculo'] === 'cargo') {
                 return;
             }
-            // Se for cargo e já existe individual, permitir atualização para 'cargo' (NÃO retorna aqui)
+            // Se for cargo e já existe individual, permitir atualização para 'cargo'
         }
 
         try {
@@ -812,6 +812,7 @@ class TrainingUsersRepository extends DbConnection
                 t.id as training_id,
                 t.nome as training_name,
                 t.codigo,
+                t.versao as training_version,
                 t.reciclagem,
                 t.reciclagem_periodo,
                 t.prazo_treinamento,
@@ -824,10 +825,7 @@ class TrainingUsersRepository extends DbConnection
             INNER JOIN adms_departments d ON u.user_department_id = d.id
             INNER JOIN adms_positions p ON u.user_position_id = p.id
             INNER JOIN adms_trainings t ON t.id = tu.adms_training_id
-            INNER JOIN adms_training_positions tp ON tp.adms_training_id = t.id 
-                AND tp.adms_position_id = u.user_position_id 
-                AND tp.obrigatorio = 1
-            WHERE 1=1';
+            WHERE t.ativo = 1';
         $params = [];
         // Apenas aplica filtros se eles forem explicitamente passados
         if (!empty($filters['colaborador'])) {
@@ -845,6 +843,10 @@ class TrainingUsersRepository extends DbConnection
         if (!empty($filters['treinamento'])) {
             $sql .= ' AND t.id = ?';
             $params[] = $filters['treinamento'];
+        }
+        if (!empty($filters['tipo_vinculo'])) {
+            $sql .= ' AND tu.tipo_vinculo = ?';
+            $params[] = $filters['tipo_vinculo'];
         }
         $sql .= ' ORDER BY u.name ASC, t.nome ASC';
         $sql .= ' LIMIT ' . (int)$limit . ' OFFSET ' . (int)$offset;
@@ -940,26 +942,115 @@ class TrainingUsersRepository extends DbConnection
      */
     public function vincularUsuariosTreinamento(int $trainingId, array $userIds): void
     {
+        // Log de debug
+        \App\adms\Helpers\GenerateLog::generateLog(
+            "debug", 
+            "vincularUsuariosTreinamento - Iniciando", 
+            [
+                'trainingId' => $trainingId,
+                'userIds' => $userIds,
+                'count_userIds' => count($userIds)
+            ]
+        );
+        
         $positionsRepo = new \App\adms\Models\Repository\TrainingPositionsRepository();
         $cargosObrigatorios = $positionsRepo->getPositionIdsByTraining($trainingId);
         $usersRepo = new \App\adms\Models\Repository\UsersRepository();
+        
+        // Log dos cargos obrigatórios
+        \App\adms\Helpers\GenerateLog::generateLog(
+            "debug", 
+            "vincularUsuariosTreinamento - Cargos obrigatórios", 
+            [
+                'trainingId' => $trainingId,
+                'cargosObrigatorios' => $cargosObrigatorios
+            ]
+        );
+        
         foreach ($userIds as $userId) {
+            // Log para cada usuário
+            \App\adms\Helpers\GenerateLog::generateLog(
+                "debug", 
+                "vincularUsuariosTreinamento - Processando usuário", 
+                [
+                    'trainingId' => $trainingId,
+                    'userId' => $userId
+                ]
+            );
+            
             $user = $usersRepo->getUser($userId);
+            
+            // Log dos dados do usuário
+            \App\adms\Helpers\GenerateLog::generateLog(
+                "debug", 
+                "vincularUsuariosTreinamento - Dados do usuário", 
+                [
+                    'userId' => $userId,
+                    'user' => $user ? [
+                        'id' => $user['id'],
+                        'name' => $user['name'],
+                        'user_position_id' => $user['user_position_id'] ?? null
+                    ] : null
+                ]
+            );
+            
             // Verifica se já existe vínculo ativo
-            $sqlCheck = "SELECT 1 FROM adms_training_users WHERE adms_user_id = :user_id AND adms_training_id = :training_id AND status != 'concluido'";
+            $sqlCheck = "SELECT tipo_vinculo FROM adms_training_users WHERE adms_user_id = :user_id AND adms_training_id = :training_id AND status != 'concluido'";
             $stmtCheck = $this->getConnection()->prepare($sqlCheck);
             $stmtCheck->bindValue(':user_id', $userId, \PDO::PARAM_INT);
             $stmtCheck->bindValue(':training_id', $trainingId, \PDO::PARAM_INT);
             $stmtCheck->execute();
-            $existeAtivo = $stmtCheck->fetchColumn();
+            $vinculoExistente = $stmtCheck->fetch(\PDO::FETCH_ASSOC);
+            
+            // Log da verificação de vínculo existente
+            \App\adms\Helpers\GenerateLog::generateLog(
+                "debug", 
+                "vincularUsuariosTreinamento - Verificação de vínculo", 
+                [
+                    'userId' => $userId,
+                    'trainingId' => $trainingId,
+                    'vinculoExistente' => $vinculoExistente,
+                    'user_position_id' => $user['user_position_id'] ?? null,
+                    'is_cargo_obrigatorio' => in_array($user['user_position_id'], $cargosObrigatorios)
+                ]
+            );
 
             if (in_array($user['user_position_id'], $cargosObrigatorios)) {
-                // Sempre atualiza para 'cargo'
+                // Usuário tem cargo obrigatório - sempre criar/atualizar para 'cargo'
+                \App\adms\Helpers\GenerateLog::generateLog(
+                    "debug", 
+                    "vincularUsuariosTreinamento - Criando/atualizando vínculo por cargo", 
+                    [
+                        'userId' => $userId,
+                        'trainingId' => $trainingId,
+                        'tipo' => 'cargo',
+                        'vinculo_existente' => $vinculoExistente
+                    ]
+                );
                 $this->insertOrUpdate((int)$userId, (int)$trainingId, 'dentro_do_prazo', 'cargo');
             } else {
-                // Só cria individual se não existir vínculo
-                if (!$existeAtivo) {
+                // Usuário não tem cargo obrigatório - só criar individual se não existir vínculo
+                if (!$vinculoExistente) {
+                    \App\adms\Helpers\GenerateLog::generateLog(
+                        "debug", 
+                        "vincularUsuariosTreinamento - Criando vínculo individual", 
+                        [
+                            'userId' => $userId,
+                            'trainingId' => $trainingId,
+                            'tipo' => 'individual'
+                        ]
+                    );
                     $this->insertOrUpdate((int)$userId, (int)$trainingId, 'dentro_do_prazo', 'individual');
+                } else {
+                    \App\adms\Helpers\GenerateLog::generateLog(
+                        "debug", 
+                        "vincularUsuariosTreinamento - Vínculo já existe, ignorando", 
+                        [
+                            'userId' => $userId,
+                            'trainingId' => $trainingId,
+                            'vinculo_existente' => $vinculoExistente
+                        ]
+                    );
                 }
             }
             // Atualizar matriz do usuário após alteração
@@ -967,6 +1058,17 @@ class TrainingUsersRepository extends DbConnection
                 $this->recreateLinksForUser($userId, $user['user_position_id']);
             }
         }
+        
+        // Log final
+        \App\adms\Helpers\GenerateLog::generateLog(
+            "info", 
+            "vincularUsuariosTreinamento - Concluído", 
+            [
+                'trainingId' => $trainingId,
+                'userIds' => $userIds,
+                'count_userIds' => count($userIds)
+            ]
+        );
     }
 
     /**
@@ -1124,6 +1226,7 @@ class TrainingUsersRepository extends DbConnection
                     t.id as training_id,
                     t.nome as training_name,
                     t.codigo as training_code,
+                    t.versao as training_version,
                     ta.data_realizacao,
                     ta.data_avaliacao,
                     t.carga_horaria,
@@ -1222,8 +1325,7 @@ class TrainingUsersRepository extends DbConnection
                     COUNT(*) as total_treinamentos,
                     SUM(CASE WHEN ta.nota >= 7 THEN 1 ELSE 0 END) as total_aprovados,
                     SUM(CASE WHEN ta.nota < 7 AND ta.nota IS NOT NULL THEN 1 ELSE 0 END) as total_reprovados,
-                    AVG(ta.nota) as media_nota,
-                    SUM(COALESCE(t.carga_horaria, 0)) as total_horas
+                    AVG(ta.nota) as media_nota
                 FROM adms_training_applications ta
                 INNER JOIN adms_users u ON u.id = ta.adms_user_id
                 INNER JOIN adms_trainings t ON t.id = ta.adms_training_id
@@ -1251,13 +1353,52 @@ class TrainingUsersRepository extends DbConnection
         $stmt->execute($params);
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         
+        // Calcular total de horas separadamente para campos TIME
+        $sqlHoras = 'SELECT t.carga_horaria
+                    FROM adms_training_applications ta
+                    INNER JOIN adms_users u ON u.id = ta.adms_user_id
+                    INNER JOIN adms_trainings t ON t.id = ta.adms_training_id
+                    WHERE ta.status = "concluido"';
+        
+        if (!empty($filters['colaborador'])) {
+            $sqlHoras .= ' AND u.id = ?';
+        }
+        if (!empty($filters['treinamento'])) {
+            $sqlHoras .= ' AND t.id = ?';
+        }
+        if (!empty($filters['mes'])) {
+            $sqlHoras .= ' AND MONTH(ta.data_realizacao) = ?';
+        }
+        if (!empty($filters['ano'])) {
+            $sqlHoras .= ' AND YEAR(ta.data_realizacao) = ?';
+        }
+        
+        $stmtHoras = $this->getConnection()->prepare($sqlHoras);
+        $stmtHoras->execute($params);
+        $horas = $stmtHoras->fetchAll(\PDO::FETCH_COLUMN);
+        
+        // Calcular total de horas em formato HH:MM
+        $totalMinutos = 0;
+        foreach ($horas as $hora) {
+            if (!empty($hora)) {
+                $partes = explode(':', $hora);
+                if (count($partes) >= 2) {
+                    $totalMinutos += (int)$partes[0] * 60 + (int)$partes[1];
+                }
+            }
+        }
+        
+        $horasTotal = floor($totalMinutos / 60);
+        $minutosTotal = $totalMinutos % 60;
+        $totalHorasFormatado = sprintf('%02d:%02d', $horasTotal, $minutosTotal);
+        
         return [
             'total_colaboradores' => (int)($result['total_colaboradores'] ?? 0),
             'total_treinamentos' => (int)($result['total_treinamentos'] ?? 0),
             'total_aprovados' => (int)($result['total_aprovados'] ?? 0),
             'total_reprovados' => (int)($result['total_reprovados'] ?? 0),
             'media_nota' => round((float)($result['media_nota'] ?? 0), 1),
-            'total_horas' => (int)($result['total_horas'] ?? 0)
+            'total_horas' => $totalHorasFormatado
         ];
     }
 

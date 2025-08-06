@@ -5,6 +5,7 @@ use App\adms\Controllers\Services\PageLayoutService;
 use App\adms\Models\Repository\UsersRepository;
 use App\adms\Models\Repository\TrainingUsersRepository;
 use App\adms\Views\Services\LoadViewService;
+use App\adms\Helpers\ScreenResolutionHelper;
 
 class LinkTrainingUsers
 {
@@ -12,6 +13,11 @@ class LinkTrainingUsers
 
     public function index(int|string $id)
     {
+        // Obter configurações responsivas
+        $resolution = ScreenResolutionHelper::getScreenResolution();
+        $responsiveClasses = ScreenResolutionHelper::getResponsiveClasses($resolution['category']);
+        $paginationSettings = ScreenResolutionHelper::getPaginationSettings($resolution['category']);
+        
         if (!is_numeric($id)) {
             // Se não for numérico, redireciona para a listagem
             header('Location: ' . $_ENV['URL_ADM'] . 'list-trainings');
@@ -35,21 +41,6 @@ class LinkTrainingUsers
         $positionsRepo = new \App\adms\Models\Repository\TrainingPositionsRepository();
         $cargosObrigatorios = $positionsRepo->getPositionIdsByTraining($id);
 
-        // Sincronizar vínculos automáticos para todos os usuários em cargos obrigatórios
-        if (!empty($cargosObrigatorios)) {
-            $usersRepoAll = new \App\adms\Models\Repository\UsersRepository();
-            $todosUsuarios = $usersRepoAll->getAllUsers(1, 10000); // Busca todos os usuários
-            $trainingUsersRepoSync = new TrainingUsersRepository();
-            foreach ($todosUsuarios as $usuario) {
-                if (in_array($usuario['user_position_id'], $cargosObrigatorios)) {
-                    $trainingUsersRepoSync->insertOrUpdate($usuario['id'], $id, 'dentro_do_prazo', 'cargo');
-                }
-            }
-            // Atualizar matriz de treinamentos para todos os usuários
-            $matrixService = new \App\adms\Controllers\trainings\TrainingMatrixService();
-            $matrixService->updateMatrixForAllUsers();
-        }
-
         // Buscar usuários já vinculados (direto ou por cargo obrigatório)
         $trainingUsersRepo = new TrainingUsersRepository();
         $this->data['vinculados'] = $trainingUsersRepo->getAllVinculadosPorTreinamento($id);
@@ -69,6 +60,10 @@ class LinkTrainingUsers
         ];
         $pageLayoutService = new PageLayoutService();
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
+        
+        // Adicionar configurações responsivas
+        $this->data['responsiveClasses'] = $responsiveClasses;
+        $this->data['paginationSettings'] = $paginationSettings;
 
         $loadView = new LoadViewService("adms/Views/trainings/linkTrainingUsers", $this->data);
         $loadView->loadView();

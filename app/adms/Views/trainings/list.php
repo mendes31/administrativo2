@@ -1,7 +1,7 @@
 <?php
 use App\adms\Helpers\FormatHelper;
 ?>
-<div class="container-fluid px-4">
+<div class="<?= $responsiveClasses['container'] ?? 'container-fluid px-4' ?>">
     <div class="mb-1 hstack gap-2">
         <h2 class="mt-3">Treinamentos</h2>
         <ol class="breadcrumb mb-3 mt-3 ms-auto">
@@ -24,20 +24,20 @@ use App\adms\Helpers\FormatHelper;
         </div>
         <div class="card-body">
             <?php include './app/adms/Views/partials/alerts.php'; ?>
-            <form method="GET" class="row g-2 mb-3 align-items-end">
-                <div class="col-md-3">
+            <form method="GET" class="<?= $responsiveClasses['filters'] ?? 'row g-2' ?> mb-3 align-items-end">
+                <div class="<?= $responsiveClasses['filter_cols'] ?? 'col-md-3' ?>">
                     <label for="nome" class="form-label mb-1">Nome</label>
                     <input type="text" name="nome" id="nome" class="form-control" value="<?= htmlspecialchars($_GET['nome'] ?? '') ?>">
                 </div>
-                <div class="col-md-3">
+                <div class="<?= $responsiveClasses['filter_cols'] ?? 'col-md-3' ?>">
                     <label for="codigo" class="form-label mb-1">Código</label>
                     <input type="text" name="codigo" id="codigo" class="form-control" value="<?= htmlspecialchars($_GET['codigo'] ?? '') ?>">
                 </div>
-                <div class="col-md-2">
+                <div class="<?= $responsiveClasses['filter_cols'] ?? 'col-md-2' ?>">
                     <label for="instrutor" class="form-label mb-1">Instrutor</label>
                     <input type="text" name="instrutor" class="form-control" placeholder="Digite parte do nome do instrutor" value="<?= htmlspecialchars($_GET['instrutor'] ?? '') ?>">
                 </div>
-                <div class="col-md-2">
+                <div class="<?= $responsiveClasses['filter_cols'] ?? 'col-md-2' ?>">
                     <label for="area_responsavel_id" class="form-label mb-1">Área Responsável</label>
                     <select name="area_responsavel_id" id="area_responsavel_id" class="form-select">
                         <option value="">Todas</option>
@@ -46,7 +46,7 @@ use App\adms\Helpers\FormatHelper;
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="<?= $responsiveClasses['filter_cols'] ?? 'col-md-2' ?>">
                     <label for="area_elaborador_id" class="form-label mb-1">Área Elaborador</label>
                     <select name="area_elaborador_id" id="area_elaborador_id" class="form-select">
                         <option value="">Todas</option>
@@ -55,7 +55,7 @@ use App\adms\Helpers\FormatHelper;
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="<?= $responsiveClasses['filter_cols'] ?? 'col-md-2' ?>">
                     <label for="tipo_obrigatoriedade" class="form-label mb-1">Tipo de Obrigatoriedade</label>
                     <select name="tipo_obrigatoriedade" id="tipo_obrigatoriedade" class="form-select">
                         <option value="">Todos</option>
@@ -67,21 +67,21 @@ use App\adms\Helpers\FormatHelper;
                         <option value="Estratégica" <?= (($_GET['tipo_obrigatoriedade'] ?? '') === 'Estratégica') ? 'selected' : '' ?>>Estratégica</option>
                     </select>
                 </div>
-                <div class="col-md-1">
+                <div class="<?= $responsiveClasses['filter_cols'] ?? 'col-md-1' ?>">
                     <select name="reciclagem" class="form-select">
                         <option value="">Reciclagem</option>
                         <option value="1" <?= (($_GET['reciclagem'] ?? '') === '1') ? 'selected' : '' ?>>Sim</option>
                         <option value="0" <?= (($_GET['reciclagem'] ?? '') === '0') ? 'selected' : '' ?>>Não</option>
                     </select>
                 </div>
-                <div class="col-md-1">
+                <div class="<?= $responsiveClasses['filter_cols'] ?? 'col-md-1' ?>">
                     <select name="tipo" class="form-select">
                         <option value="">Tipo</option>
                         <option value="Presencial" <?= (($_GET['tipo'] ?? '') === 'Presencial') ? 'selected' : '' ?>>Presencial</option>
                         <option value="Online" <?= (($_GET['tipo'] ?? '') === 'Online') ? 'selected' : '' ?>>Online</option>
                     </select>
                 </div>
-                <div class="col-md-1">
+                <div class="<?= $responsiveClasses['filter_cols'] ?? 'col-md-1' ?>">
                     <select name="ativo" class="form-select">
                         <option value="">Status</option>
                         <option value="1" <?= (($_GET['ativo'] ?? '') === '1') ? 'selected' : '' ?>>Ativo</option>
@@ -92,16 +92,16 @@ use App\adms\Helpers\FormatHelper;
                     <label for="per_page" class="form-label mb-1">Mostrar</label>
                     <div class="d-flex align-items-center">
                         <select name="per_page" id="per_page" class="form-select form-select-sm" style="min-width: 80px;" onchange="this.form.submit()">
-                            <?php foreach ([10, 20, 50, 100] as $opt): ?>
-                                <option value="<?= $opt ?>" <?= ($_GET['per_page'] ?? 10) == $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                            <?php foreach (($paginationSettings['options'] ?? [10, 20, 50, 100]) as $opt): ?>
+                                <option value="<?= $opt ?>" <?= ($_GET['per_page'] ?? ($paginationSettings['per_page'] ?? 10)) == $opt ? 'selected' : '' ?>><?= $opt ?></option>
                             <?php endforeach; ?>
                         </select>
                         <span class="form-label mb-1 ms-1">registros</span>
                     </div>
                 </div>
                 <div class="col-md-2 filtros-btns-row w-100 mt-2">
-                    <button type="submit" class="btn btn-primary btn-sm btn-filtros-mobile"><i class="fa fa-search"></i> Filtrar</button>
-                    <a href="<?php echo $_ENV['URL_ADM']; ?>list-trainings" class="btn btn-secondary btn-sm btn-filtros-mobile"><i class="fa fa-times"></i> Limpar Filtros</a>
+                    <button type="submit" class="btn btn-primary btn-sm btn-filtros-mobile" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;"><i class="fa fa-search"></i> Filtrar</button>
+                    <a href="<?php echo $_ENV['URL_ADM']; ?>list-trainings" class="btn btn-secondary btn-sm btn-filtros-mobile" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;"><i class="fa fa-times"></i> Limpar</a>
                 </div>
             </form>
             <!-- Tabela Desktop -->
@@ -132,8 +132,8 @@ use App\adms\Helpers\FormatHelper;
                                         <td style="text-align:left; padding-left:12px;">
                                             <div>
                                                 <strong><?php echo is_array($training['nome']) ? '' : htmlspecialchars($training['nome']); ?></strong>
-                                                <?php if (!empty($training['versao'])): ?>
-                                                    <br><small class="text-muted">v<?php echo is_array($training['versao']) ? '' : htmlspecialchars($training['versao']); ?></small>
+                                                <?php if (!empty($training['versao']) && !is_array($training['versao'])): ?>
+                                                    <br><small class="text-muted" style="background-color: #f8f9fa; padding: 2px 6px; border-radius: 3px; border: 1px solid #dee2e6;">v<?php echo htmlspecialchars($training['versao']); ?></small>
                                                 <?php endif; ?>
                                             </div>
                                         </td>

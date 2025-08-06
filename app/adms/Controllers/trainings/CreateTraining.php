@@ -8,6 +8,7 @@ use App\adms\Views\Services\LoadViewService;
 use App\adms\Helpers\CSRFHelper;
 use App\adms\Models\Repository\UsersRepository;
 use App\adms\Models\Repository\DepartmentsRepository;
+use App\adms\Helpers\ScreenResolutionHelper;
 
 class CreateTraining
 {
@@ -28,6 +29,11 @@ class CreateTraining
 
     private function viewCreateTraining(): void
     {
+        // Obter configurações responsivas
+        $resolution = ScreenResolutionHelper::getScreenResolution();
+        $responsiveClasses = ScreenResolutionHelper::getResponsiveClasses($resolution['category']);
+        $paginationSettings = ScreenResolutionHelper::getPaginationSettings($resolution['category']);
+        
         $usersRepo = new UsersRepository();
         $departmentsRepo = new DepartmentsRepository();
         $this->data['listUsers'] = $usersRepo->getAllUsersSelect();
@@ -39,12 +45,24 @@ class CreateTraining
         ];
         $pageLayoutService = new PageLayoutService();
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
+        
+        // Adicionar configurações responsivas
+        $this->data['responsiveClasses'] = $responsiveClasses;
+        $this->data['paginationSettings'] = $paginationSettings;
         $loadView = new LoadViewService('adms/Views/trainings/create', $this->data);
         $loadView->loadView();
     }
 
     private function addTraining(): void
     {
+        // Validação do prazo de treinamento
+        $prazoTreinamento = (int)($this->data['form']['prazo_treinamento'] ?? 0);
+        if ($prazoTreinamento <= 0) {
+            $this->data['errors'][] = 'O campo "Prazo de treinamento (dias)" é obrigatório e deve ser maior que 0.';
+            $this->viewCreateTraining();
+            return;
+        }
+        
         // Determinar tipo de instrutor e ajustar campos
         if (!empty($this->data['form']['instructor_user_id'])) {
             // Instrutor interno - buscar nome e e-mail do usuário

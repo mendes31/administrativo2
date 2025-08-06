@@ -61,6 +61,10 @@ class ApplyTraining
             exit;
         }
 
+        // Buscar vínculo do usuário com o treinamento para obter a data de criação
+        $trainingUsersRepo = new TrainingUsersRepository();
+        $this->data['trainingUser'] = $trainingUsersRepo->getByUserAndTraining($this->data['user_id'], $this->data['training_id']);
+
         // Buscar lista de usuários para select de instrutor interno
         $this->data['listUsers'] = $usersRepo->getAllUsersSelect();
 
@@ -84,6 +88,7 @@ class ApplyTraining
         // Determinar tipo de instrutor para preencher o select corretamente
         $this->data['form_instructor_type'] = '';
         $this->data['form_instructor_user_id'] = '';
+        
         if (!empty($this->data['application']['instrutor_nome']) && !empty($this->data['application']['instrutor_email'])) {
             // Verificar se é um usuário interno
             foreach ($this->data['listUsers'] as $user) {
@@ -97,6 +102,25 @@ class ApplyTraining
             // Se não encontrou como interno, é externo
             if (empty($this->data['form_instructor_type'])) {
                 $this->data['form_instructor_type'] = 'external';
+            }
+        } else {
+            // Se não é edição, preencher automaticamente com o instrutor do cadastro do treinamento
+            if (!$this->data['edit_id']) {
+                if (!empty($this->data['training']['instructor_user_id'])) {
+                    // Instrutor interno - buscar dados do usuário
+                    $instructorUser = $usersRepo->getUser($this->data['training']['instructor_user_id']);
+                    if ($instructorUser) {
+                        $this->data['form_instructor_type'] = 'internal';
+                        $this->data['form_instructor_user_id'] = $instructorUser['id'];
+                        $this->data['form_instrutor_nome'] = $instructorUser['name'];
+                        $this->data['form_instrutor_email'] = $instructorUser['email'];
+                    }
+                } elseif (!empty($this->data['training']['instructor_name'])) {
+                    // Instrutor externo
+                    $this->data['form_instructor_type'] = 'external';
+                    $this->data['form_instrutor_nome'] = $this->data['training']['instructor_name'];
+                    $this->data['form_instrutor_email'] = $this->data['training']['instructor_email'] ?? '';
+                }
             }
         }
 
@@ -149,6 +173,9 @@ class ApplyTraining
             $redirectUrl .= "&edit_id={$edit_id}";
         }
 
+        // Instanciar repositories
+        $trainingsRepo = new TrainingsRepository();
+
         // Validações básicas
         if (!$training_id || !$user_id) {
             $_SESSION['msg'] = "Dados obrigatórios não informados.";
@@ -167,15 +194,18 @@ class ApplyTraining
         }
         // Validação de data de avaliação
         if ($data_avaliacao) {
-            if ($data_realizacao && $data_avaliacao < $data_realizacao) {
-                $_SESSION['msg'] = "A Data de Avaliação não pode ser anterior à Data de Realização.";
+            // Data de avaliação não pode ser superior à data atual
+            if ($data_avaliacao > date('Y-m-d')) {
+                $_SESSION['msg'] = "Data de avaliação não pode ser superior à data atual.";
                 $_SESSION['msg_type'] = "danger";
                 saveFormSession();
                 header("Location: " . $redirectUrl);
                 exit;
             }
-            if ($data_avaliacao > date('Y-m-d')) {
-                $_SESSION['msg'] = "A Data de Avaliação não pode ser futura.";
+            
+            // Data de avaliação não pode ser menor que a data de realização
+            if ($data_realizacao && $data_avaliacao < $data_realizacao) {
+                $_SESSION['msg'] = "Data de avaliação não pode ser menor que a data de realização.";
                 $_SESSION['msg_type'] = "danger";
                 saveFormSession();
                 header("Location: " . $redirectUrl);
@@ -193,12 +223,29 @@ class ApplyTraining
         }
 
         // Validações de data
-        if ($data_realizacao && $data_realizacao > date('Y-m-d')) {
-            $_SESSION['msg'] = "Data de realização não pode ser futura.";
-            $_SESSION['msg_type'] = "danger";
-            saveFormSession();
-            header("Location: " . $redirectUrl);
-            exit;
+        if ($data_realizacao) {
+            // Data de realização não pode ser superior à data atual
+            if ($data_realizacao > date('Y-m-d')) {
+                $_SESSION['msg'] = "Data de realização não pode ser superior à data atual.";
+                $_SESSION['msg_type'] = "danger";
+                saveFormSession();
+                header("Location: " . $redirectUrl);
+                exit;
+            }
+            
+            // Data de realização não pode ser anterior à data de criação do vínculo
+            $trainingUsersRepo = new TrainingUsersRepository();
+            $trainingUser = $trainingUsersRepo->getByUserAndTraining($user_id, $training_id);
+            if ($trainingUser && !empty($trainingUser['created_at'])) {
+                $dataCriacaoVinculo = date('Y-m-d', strtotime($trainingUser['created_at']));
+                if ($data_realizacao < $dataCriacaoVinculo) {
+                    $_SESSION['msg'] = "Data de realização não pode ser anterior à data de criação do vínculo (" . date('d/m/Y', strtotime($dataCriacaoVinculo)) . ").";
+                    $_SESSION['msg_type'] = "danger";
+                    saveFormSession();
+                    header("Location: " . $redirectUrl);
+                    exit;
+                }
+            }
         }
 
         if ($data_agendada && $data_agendada < date('Y-m-d')) {

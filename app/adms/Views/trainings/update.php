@@ -44,7 +44,7 @@ if (!empty($this->data['training']['instructor_user_id'])) {
                 </div>
                 <div class="col-md-3">
                     <label for="prazo_treinamento" class="form-label">Prazo Treinamento (dias)</label>
-                    <input type="number" name="prazo_treinamento" class="form-control" id="prazo_treinamento" min="0" value="<?php echo $this->data['training']['prazo_treinamento'] ?? '0'; ?>" required>
+                    <input type="number" name="prazo_treinamento" class="form-control" id="prazo_treinamento" min="1" value="<?php echo $this->data['training']['prazo_treinamento'] ?? '1'; ?>" required>
                 </div>
                 <div class="col-md-3">
                     <label for="area_responsavel_id" class="form-label">Área Responsável</label>
@@ -203,6 +203,30 @@ if (!empty($this->data['training']['instructor_user_id'])) {
                         fillInstructorEmail();
                     }
                     toggleReciclagemPeriodo();
+                    
+                    // Validação do prazo de treinamento
+                    var prazoTreinamento = document.getElementById('prazo_treinamento');
+                    if (prazoTreinamento) {
+                        prazoTreinamento.addEventListener('input', function() {
+                            var value = parseInt(this.value);
+                            if (value <= 0) {
+                                this.setCustomValidity('O prazo de treinamento deve ser maior que 0.');
+                            } else {
+                                this.setCustomValidity('');
+                            }
+                        });
+                        
+                        // Validar no envio do formulário
+                        document.querySelector('form').addEventListener('submit', function(e) {
+                            var prazoValue = parseInt(prazoTreinamento.value);
+                            if (prazoValue <= 0) {
+                                e.preventDefault();
+                                alert('O campo "Prazo de treinamento (dias)" é obrigatório e deve ser maior que 0.');
+                                prazoTreinamento.focus();
+                                return false;
+                            }
+                        });
+                    }
                 });
                 </script>
                 <div class="col-12">

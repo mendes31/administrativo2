@@ -7,6 +7,7 @@ use App\adms\Models\Repository\UsersRepository;
 use App\adms\Models\Repository\TrainingsRepository;
 use App\adms\Controllers\Services\PageLayoutService;
 use App\adms\Views\Services\LoadViewService;
+use App\adms\Helpers\ScreenResolutionHelper;
 
 class CompletedTrainingsMatrix
 {
@@ -23,6 +24,11 @@ class CompletedTrainingsMatrix
 
     public function index(): void
     {
+        // Obter configurações responsivas
+        $resolution = ScreenResolutionHelper::getScreenResolution();
+        $responsiveClasses = ScreenResolutionHelper::getResponsiveClasses($resolution['category']);
+        $paginationSettings = ScreenResolutionHelper::getPaginationSettings($resolution['category']);
+        
         $filters = [
             'colaborador' => $_GET['colaborador'] ?? null,
             'treinamento' => $_GET['treinamento'] ?? null,
@@ -32,7 +38,13 @@ class CompletedTrainingsMatrix
             'order' => $_GET['order'] ?? null,
         ];
         $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
-        $perPage = isset($_GET['per_page']) && is_numeric($_GET['per_page']) ? (int)$_GET['per_page'] : 20;
+        
+        // Usar configuração responsiva para per_page
+        if (isset($_GET['per_page']) && in_array((int)$_GET['per_page'], $paginationSettings['options'])) {
+            $perPage = (int)$_GET['per_page'];
+        } else {
+            $perPage = $paginationSettings['per_page'];
+        }
         $matrixData = $this->trainingUsersRepo->getCompletedTrainingsMatrixPaginated($filters, $page, $perPage);
         $matrix = $matrixData['data'];
         $total = $matrixData['total'];
@@ -61,6 +73,10 @@ class CompletedTrainingsMatrix
         ];
         $pageLayout = new PageLayoutService();
         $data = $pageLayout->configurePageElements($data);
+        
+        // Adicionar configurações responsivas
+        $data['responsiveClasses'] = $responsiveClasses;
+        $data['paginationSettings'] = $paginationSettings;
         $loadView = new LoadViewService('adms/Views/trainings/completedTrainingsMatrix', $data);
         $loadView->loadView();
     }
@@ -69,25 +85,52 @@ class CompletedTrainingsMatrix
     {
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
+        
+        // Definir margens e alinhamento
+        $sheet->getPageMargins()->setLeft(1.5);
+        $sheet->getPageMargins()->setRight(1.5);
+        $sheet->getPageMargins()->setTop(1.5);
+        $sheet->getPageMargins()->setBottom(1.5);
+        
         // Cabeçalho
-        $headers = ['Colaborador', 'Treinamento', 'Código', 'Data Realização', 'Data Avaliação', 'Horas', 'Instrutor', 'Nota', 'Observações'];
+        $headers = ['Colaborador', 'Treinamento', 'Código', 'Versão', 'Data Realização', 'Data Avaliação', 'Horas', 'Instrutor', 'Nota', 'Observações'];
         $sheet->fromArray($headers, null, 'A1');
+        
+        // Aplicar estilo ao cabeçalho
+        $headerStyle = [
+            'font' => ['bold' => true],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'F0F0F0']
+            ]
+        ];
+        $sheet->getStyle('A1:J1')->applyFromArray($headerStyle);
+        
         // Dados
         $row = 2;
         foreach ($matrix as $item) {
             $sheet->setCellValue('A' . $row, $item['user_name']);
             $sheet->setCellValue('B' . $row, $item['training_name']);
             $sheet->setCellValue('C' . $row, $item['training_code']);
-            $sheet->setCellValue('D' . $row, $item['data_realizacao'] ? date('d/m/Y H:i', strtotime($item['data_realizacao'])) : '-');
-            $sheet->setCellValue('E' . $row, $item['data_avaliacao'] ? date('d/m/Y H:i', strtotime($item['data_avaliacao'])) : '-');
-            $sheet->setCellValue('F' . $row, $item['carga_horaria'] ? $item['carga_horaria'] . 'h' : '-');
-            $sheet->setCellValue('G' . $row, $item['instrutor_nome'] ?? '-');
-            $sheet->setCellValue('H' . $row, $item['nota'] ?? '-');
-            $sheet->setCellValue('I' . $row, $item['observacoes'] ?? '-');
+            $sheet->setCellValue('D' . $row, $item['training_version'] ?? '-');
+            $sheet->setCellValue('E' . $row, $item['data_realizacao'] ? date('d/m/Y', strtotime($item['data_realizacao'])) : '-');
+            $sheet->setCellValue('F' . $row, $item['data_avaliacao'] ? date('d/m/Y', strtotime($item['data_avaliacao'])) : '-');
+            $sheet->setCellValue('G' . $row, $item['carga_horaria'] ? substr($item['carga_horaria'], 0, 5) . 'h' : '-');
+            $sheet->setCellValue('H' . $row, $item['instrutor_nome'] ?? '-');
+            $sheet->setCellValue('I' . $row, $item['nota'] ?? '-');
+            $sheet->setCellValue('J' . $row, $item['observacoes'] ?? '-');
             $row++;
         }
+        
+        // Aplicar alinhamento à esquerda para todos os dados
+        $dataStyle = [
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT]
+        ];
+        $sheet->getStyle('A2:J' . ($row - 1))->applyFromArray($dataStyle);
+        
         // Ajustar largura das colunas
-        foreach (range('A', 'I') as $col) {
+        foreach (range('A', 'J') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
         // Download
@@ -101,29 +144,41 @@ class CompletedTrainingsMatrix
 
     private function exportPdf(array $matrix): void
     {
-        // Montar HTML da tabela
-        $html = '<h2 style="text-align:center;">Matriz de Treinamentos Realizados</h2>';
-        $html .= '<table border="1" cellpadding="5" cellspacing="0" width="100%" style="font-size:10px; border-collapse:collapse;">';
+        // Montar HTML da tabela com alinhamento à esquerda e recuo
+        $html = '<div style="margin: 20px; font-family: Arial, sans-serif;">';
+        $html .= '<h2 style="text-align:center; margin-bottom: 20px;">Matriz de Treinamentos Realizados</h2>';
+        $html .= '<table border="1" cellpadding="8" cellspacing="0" width="100%" style="font-size:10px; border-collapse:collapse; margin-left: 10px;">';
         $html .= '<thead><tr style="background:#f0f0f0;">';
-        $html .= '<th>Colaborador</th><th>Treinamento</th><th>Código</th><th>Data Realização</th><th>Data Avaliação</th><th>Horas</th><th>Instrutor</th><th>Nota</th><th>Observações</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Colaborador</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Treinamento</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Código</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Versão</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Data Realização</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Data Avaliação</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Horas</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Instrutor</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Nota</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Observações</th>';
         $html .= '</tr></thead><tbody>';
         foreach ($matrix as $item) {
             $html .= '<tr>';
-            $html .= '<td>' . htmlspecialchars($item['user_name']) . '</td>';
-            $html .= '<td>' . htmlspecialchars($item['training_name']) . '</td>';
-            $html .= '<td>' . htmlspecialchars($item['training_code']) . '</td>';
-            $html .= '<td>' . ($item['data_realizacao'] ? date('d/m/Y H:i', strtotime($item['data_realizacao'])) : '-') . '</td>';
-            $html .= '<td>' . ($item['data_avaliacao'] ? date('d/m/Y H:i', strtotime($item['data_avaliacao'])) : '-') . '</td>';
-            $html .= '<td>' . ($item['carga_horaria'] ? $item['carga_horaria'] . 'h' : '-') . '</td>';
-            $html .= '<td>' . htmlspecialchars($item['instrutor_nome'] ?? '-') . '</td>';
-            $html .= '<td>' . htmlspecialchars($item['nota'] ?? '-') . '</td>';
-            $html .= '<td>' . htmlspecialchars($item['observacoes'] ?? '-') . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . htmlspecialchars($item['user_name']) . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . htmlspecialchars($item['training_name']) . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . htmlspecialchars($item['training_code']) . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . htmlspecialchars($item['training_version'] ?? '-') . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . ($item['data_realizacao'] ? date('d/m/Y', strtotime($item['data_realizacao'])) : '-') . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . ($item['data_avaliacao'] ? date('d/m/Y', strtotime($item['data_avaliacao'])) : '-') . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . ($item['carga_horaria'] ? substr($item['carga_horaria'], 0, 5) . 'h' : '-') . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . htmlspecialchars($item['instrutor_nome'] ?? '-') . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . htmlspecialchars($item['nota'] ?? '-') . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . htmlspecialchars($item['observacoes'] ?? '-') . '</td>';
             $html .= '</tr>';
         }
         if (empty($matrix)) {
-            $html .= '<tr><td colspan="9" style="text-align:center; color:#888;">Nenhum treinamento realizado encontrado.</td></tr>';
+            $html .= '<tr><td colspan="10" style="text-align:center; color:#888; padding: 20px;">Nenhum treinamento realizado encontrado.</td></tr>';
         }
         $html .= '</tbody></table>';
+        $html .= '</div>';
 
         // Gerar PDF
         $dompdf = new \Dompdf\Dompdf();

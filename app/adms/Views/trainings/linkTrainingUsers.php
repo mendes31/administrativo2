@@ -112,15 +112,30 @@
 
     // Adicionar colaborador à lista
     document.getElementById('btn-adicionar-colaborador').onclick = function() {
+        console.log('Botão Adicionar clicado');
         var select = document.getElementById('select-colaborador');
         var userId = select.value;
         var userText = select.options[select.selectedIndex].text;
-        if (!userId) return;
+        console.log('User ID selecionado:', userId);
+        console.log('User Text selecionado:', userText);
+        
+        if (!userId) {
+            console.log('Nenhum usuário selecionado');
+            return;
+        }
+        
         // Evitar duplicidade
-        if (document.getElementById('user-row-' + userId)) return;
+        if (document.getElementById('user-row-' + userId)) {
+            console.log('Usuário já existe na lista');
+            return;
+        }
+        
         var parts = userText.match(/^(.*) \((.*)\)$/);
         var name = parts ? parts[1] : userText;
         var email = parts ? parts[2] : '';
+        console.log('Nome extraído:', name);
+        console.log('Email extraído:', email);
+        
         var tbody = document.querySelector('#lista-colaboradores tbody');
         var tr = document.createElement('tr');
         tr.id = 'user-row-' + userId;
@@ -128,6 +143,8 @@
                        '<td>' + email + '</td>' +
                        '<td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest(\'tr\').remove(); document.getElementById(\'hidden-user-' + userId + '\').remove();">Remover</button></td>';
         tbody.appendChild(tr);
+        console.log('Linha adicionada à tabela');
+        
         // Adicionar input hidden no form
         var hiddenDiv = document.getElementById('hidden-users');
         var input = document.createElement('input');
@@ -136,12 +153,54 @@
         input.value = userId;
         input.id = 'hidden-user-' + userId;
         hiddenDiv.appendChild(input);
+        console.log('Input hidden adicionado:', input.outerHTML);
+        
         // Limpar seleção do Select2
         $('#select-colaborador').val(null).trigger('change');
+        console.log('Select2 limpo');
+        
+        // Verificar inputs hidden existentes
+        var allHiddenInputs = document.querySelectorAll('input[name="user_ids[]"]');
+        console.log('Total de inputs hidden:', allHiddenInputs.length);
+        allHiddenInputs.forEach(function(input, index) {
+            console.log('Input ' + index + ':', input.value);
+        });
     };
 
     // Forçar submit dos formulários de remoção e adicionar logs de debug
     document.addEventListener('DOMContentLoaded', function() {
+        // Adicionar log de debug para o formulário principal
+        document.getElementById('form-vincular-colaboradores').addEventListener('submit', function(e) {
+            console.log('Formulário sendo enviado...');
+            
+            // Verificar se há inputs hidden com user_ids
+            var hiddenInputs = document.querySelectorAll('input[name="user_ids[]"]');
+            console.log('Inputs hidden encontrados:', hiddenInputs.length);
+            
+            var userIds = [];
+            hiddenInputs.forEach(function(input) {
+                userIds.push(input.value);
+                console.log('User ID encontrado:', input.value);
+            });
+            
+            console.log('Todos os User IDs:', userIds);
+            
+            // Se não há user_ids, prevenir envio
+            if (userIds.length === 0) {
+                e.preventDefault();
+                alert('Selecione pelo menos um colaborador antes de vincular.');
+                return false;
+            }
+            
+            console.log('Formulário será enviado com:', {
+                training_id: document.querySelector('input[name="training_id"]').value,
+                user_ids: userIds
+            });
+            
+            // Alert temporário para debug - REMOVIDO
+            // alert('Formulário sendo enviado com ' + userIds.length + ' usuário(s): ' + userIds.join(', '));
+        });
+        
         document.querySelectorAll('button[data-user-id]').forEach(function(button) {
             button.addEventListener('click', function(e) {
                 e.preventDefault();

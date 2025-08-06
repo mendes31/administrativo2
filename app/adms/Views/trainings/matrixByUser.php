@@ -15,13 +15,21 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
 
     <!-- Filtros -->
     <div class="card mb-4 border-light shadow">
-        <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros</h5>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-table me-2"></i>Todos os Vínculos de Treinamentos por Colaborador</h5>
+            <div>
+                <a href="<?= $_ENV['URL_ADM'] ?>matrix-by-user?<?= http_build_query(array_merge($_GET, ['export' => 'excel'])) ?>" class="btn btn-success btn-sm me-2">
+                    <i class="fas fa-file-excel me-1"></i>Exportar Excel
+                </a>
+                <a href="<?= $_ENV['URL_ADM'] ?>matrix-by-user?<?= http_build_query(array_merge($_GET, ['export' => 'pdf'])) ?>" class="btn btn-danger btn-sm">
+                    <i class="fas fa-file-pdf me-1"></i>Exportar PDF
+                </a>
+            </div>
         </div>
-        <div class="card-body">
-            <form method="GET" class="row g-3 align-items-end">
+        <div class="card-body pt-2">
+            <form method="GET" class="row g-3 align-items-end mb-0">
                 <div class="col-md-3">
-                    <label for="colaborador" class="form-label">Colaborador</label>
+                    <label for="colaborador" class="form-label mb-1">Colaborador</label>
                     <select name="colaborador" id="colaborador" class="form-select">
                         <option value="">Todos</option>
                         <?php foreach (($this->data['listUsers'] ?? []) as $user): ?>
@@ -30,7 +38,7 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="departamento" class="form-label">Departamento</label>
+                    <label for="departamento" class="form-label mb-1">Departamento</label>
                     <select name="departamento" id="departamento" class="form-select">
                         <option value="">Todos</option>
                         <?php foreach (($this->data['listDepartments'] ?? []) as $dep): ?>
@@ -38,8 +46,8 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label for="cargo" class="form-label">Cargo</label>
+                <div class="col-md-2">
+                    <label for="cargo" class="form-label mb-1">Cargo</label>
                     <select name="cargo" id="cargo" class="form-select">
                         <option value="">Todos</option>
                         <?php foreach (($this->data['listPositions'] ?? []) as $pos): ?>
@@ -47,8 +55,8 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label for="treinamento" class="form-label">Treinamento</label>
+                <div class="col-md-2">
+                    <label for="treinamento" class="form-label mb-1">Treinamento</label>
                     <select name="treinamento" id="treinamento" class="form-select">
                         <option value="">Todos</option>
                         <?php foreach (($this->data['listTrainings'] ?? []) as $trein): ?>
@@ -56,51 +64,45 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-12 d-flex gap-2 justify-content-between align-items-center">
-                    <div>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-search me-2"></i>Filtrar</button>
-                        <a href="<?= $_ENV['URL_ADM'] ?>matrix-by-user" class="btn btn-secondary"><i class="fas fa-times me-2"></i>Limpar</a>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div>
-                            <label for="per_page" class="mb-0">Mostrar</label>
-                            <select name="per_page" id="per_page" class="form-select form-select-sm d-inline-block w-auto ms-1" onchange="this.form.submit()">
-                                <?php foreach ([10, 20, 50, 100] as $opt): ?>
-                                    <option value="<?= $opt ?>" <?= ($this->data['per_page'] ?? 10) == $opt ? 'selected' : '' ?>><?= $opt ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <span class="ms-1">registros</span>
-                        </div>
-                        <div class="ms-3">
-                            <a href="<?= $_ENV['URL_ADM'] ?>matrix-by-user?<?= http_build_query(array_merge($_GET, ['export' => 'excel'])) ?>" class="btn btn-success btn-sm">
-                                <i class="fas fa-file-excel me-1"></i>Exportar Excel
-                            </a>
-                            <a href="<?= $_ENV['URL_ADM'] ?>matrix-by-user?<?= http_build_query(array_merge($_GET, ['export' => 'pdf'])) ?>" class="btn btn-danger btn-sm">
-                                <i class="fas fa-file-pdf me-1"></i>Exportar PDF
-                            </a>
-                        </div>
-                    </div>
+                <div class="col-md-2">
+                    <label for="tipo_vinculo" class="form-label mb-1">Tipo de Vínculo</label>
+                    <select name="tipo_vinculo" id="tipo_vinculo" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="individual" <?= ($this->data['filters']['tipo_vinculo'] ?? '') == 'individual' ? 'selected' : '' ?>>Individual</option>
+                        <option value="cargo" <?= ($this->data['filters']['tipo_vinculo'] ?? '') == 'cargo' ? 'selected' : '' ?>>Obrigatório por Cargo</option>
+                    </select>
+                </div>
+                                <div class="col-md-2 d-flex gap-2 align-items-end">
+                    <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;"><i class="fas fa-search"></i> Filtrar</button>
+                    <a href="<?= $_ENV['URL_ADM'] ?>matrix-by-user" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;"><i class="fas fa-times"></i> Limpar</a>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <label for="per_page" class="form-label mb-1 me-2">Exibir</label>
+                    <select name="per_page" id="per_page" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+                        <?php foreach ([10, 20, 50, 100] as $opt): ?>
+                            <option value="<?= $opt ?>" <?= ($this->data['per_page'] ?? 10) == $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span class="ms-2">por página</span>
                 </div>
             </form>
         </div>
     </div>
 
     <div class="card mb-4 border-light shadow">
-        <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-table me-2"></i>Treinamentos Obrigatórios por Colaborador</h5>
-        </div>
         <div class="card-body">
             <!-- Tabela Desktop -->
             <div class="table-responsive d-none d-md-block">
                 <table class="table table-striped table-hover" id="matrixByUserTable" style="table-layout: fixed; width: 100%;">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th class="col-nome">Nome</th>
                             <th>Departamento</th>
                             <th>Cargo</th>
-                            <th>Treinamento Obrigatório</th>
+                            <th>Treinamento</th>
                             <th>Código</th>
+                            <th>Versão</th>
+                            <th>Tipo de Vínculo</th>
                             <!-- <th>Reciclagem</th> -->
                             <!-- <th>Validade</th> -->
                         </tr>
@@ -109,7 +111,6 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                         <?php if (!empty($this->data['matrixByUser'])): ?>
                             <?php foreach ($this->data['matrixByUser'] as $item): ?>
                                 <tr>
-                                    <td><?= $item['id'] ?? $item['user_id'] ?? '-' ?></td>
                                     <td class="col-nome">
                                         <a href="<?= $_ENV['URL_ADM'] ?>training-history/<?= $item['user_id'] ?? $item['id'] ?>-<?= $item['training_id'] ?>" 
                                            class="text-decoration-none" title="Ver histórico de reciclagem">
@@ -125,6 +126,18 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                                         </a>
                                     </td>
                                     <td><?= htmlspecialchars($item['codigo'] ?? '') ?></td>
+                                    <td>
+                                        <span class="badge bg-secondary">v<?= htmlspecialchars($item['training_version'] ?? '-') ?></span>
+                                    </td>
+                                    <td>
+                                        <?php if (($item['tipo_vinculo'] ?? '') === 'individual'): ?>
+                                            <span class="badge bg-primary">Individual</span>
+                                        <?php elseif (($item['tipo_vinculo'] ?? '') === 'cargo'): ?>
+                                            <span class="badge bg-success">Obrigatório por Cargo</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-secondary">-</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <!-- <td>
                                         <?php if (($item['reciclagem'] ?? false) && ($item['reciclagem_periodo'] ?? false)): ?>
                                             <?= $item['reciclagem_periodo'] ?> meses
@@ -142,7 +155,7 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <tr><td colspan="6" class="text-center text-muted">Nenhum vínculo obrigatório encontrado.</td></tr>
+                            <tr><td colspan="7" class="text-center text-muted">Nenhum vínculo encontrado.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -157,9 +170,17 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h5 class="card-title mb-1"><b><?= htmlspecialchars($item['user_name'] ?? $item['name'] ?? '') ?></b></h5>
-                                        <div class="mb-1"><b>ID:</b> <?= htmlspecialchars($item['id'] ?? $item['user_id'] ?? '-') ?></div>
                                         <div class="mb-1"><b>Treinamento:</b> <?= htmlspecialchars($item['training_name'] ?? $item['treinamento_nome'] ?? '') ?></div>
-                                        <div class="mb-1"><b>Status:</b> <?= ($item['validade'] ?? false) ? '<span class=\'badge bg-success\'>Válido</span>' : '<span class=\'badge bg-secondary\'>-</span>' ?></div>
+                                        <div class="mb-1">
+                                            <b>Tipo:</b> 
+                                            <?php if (($item['tipo_vinculo'] ?? '') === 'individual'): ?>
+                                                <span class="badge bg-primary">Individual</span>
+                                            <?php elseif (($item['tipo_vinculo'] ?? '') === 'cargo'): ?>
+                                                <span class="badge bg-success">Obrigatório por Cargo</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-secondary">-</span>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                     <button class="btn btn-outline-primary btn-sm ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#cardMatrixDetails<?= $i ?>" aria-expanded="false" aria-controls="cardMatrixDetails<?= $i ?>">Ver mais</button>
                                 </div>
@@ -167,6 +188,7 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                                     <div><b>Departamento:</b> <?= htmlspecialchars($item['department'] ?? $item['department_nome'] ?? '') ?></div>
                                     <div><b>Cargo:</b> <?= htmlspecialchars($item['position'] ?? $item['cargo_nome'] ?? '') ?></div>
                                     <div><b>Código:</b> <?= htmlspecialchars($item['codigo'] ?? '') ?></div>
+                                    <div><b>Versão:</b> <span class="badge bg-secondary">v<?= htmlspecialchars($item['training_version'] ?? '-') ?></span></div>
                                     <!-- <div><b>Reciclagem:</b> <?php if (($item['reciclagem'] ?? false) && ($item['reciclagem_periodo'] ?? false)): ?><?= $item['reciclagem_periodo'] ?> meses<?php else: ?><span class="text-muted">Não exige</span><?php endif; ?></div>
                                     <div><b>Validade:</b> <?= htmlspecialchars($item['validade'] ?? '-') ?></div> -->
                                     <div class="mt-2">
@@ -177,7 +199,7 @@ if (!isset($this->data['matrixByUser']) || !is_array($this->data['matrixByUser']
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <div class="alert alert-danger" role="alert">Nenhum vínculo obrigatório encontrado.</div>
+                    <div class="alert alert-danger" role="alert">Nenhum vínculo encontrado.</div>
                 <?php endif; ?>
 
                 <!-- Paginação e informações abaixo dos cards no mobile -->

@@ -9,6 +9,7 @@ use App\adms\Models\Repository\PositionsRepository;
 use App\adms\Controllers\Services\PageLayoutService;
 use App\adms\Views\Services\LoadViewService;
 use App\adms\Helpers\GenerateLog;
+use App\adms\Helpers\ScreenResolutionHelper;
 
 class ViewTraining
 {
@@ -71,6 +72,11 @@ class ViewTraining
 
     private function loadView(): void
     {
+        // Obter configurações responsivas
+        $resolution = ScreenResolutionHelper::getScreenResolution();
+        $responsiveClasses = ScreenResolutionHelper::getResponsiveClasses($resolution['category']);
+        $paginationSettings = ScreenResolutionHelper::getPaginationSettings($resolution['category']);
+        
         $pageElements = [
             'title_head' => 'Visualizar Treinamento',
             'menu' => 'list-trainings',
@@ -78,6 +84,10 @@ class ViewTraining
         ];
         $pageLayoutService = new PageLayoutService();
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
+        
+        // Adicionar configurações responsivas
+        $this->data['responsiveClasses'] = $responsiveClasses;
+        $this->data['paginationSettings'] = $paginationSettings;
 
         $loadView = new LoadViewService('adms/Views/trainings/view', $this->data);
         $loadView->loadView();

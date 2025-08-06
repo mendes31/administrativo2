@@ -10,6 +10,7 @@ use App\adms\Models\Repository\DepartmentsRepository;
 use App\adms\Models\Repository\PositionsRepository;
 use App\adms\Controllers\Services\PageLayoutService;
 use App\adms\Views\Services\LoadViewService;
+use App\adms\Helpers\ScreenResolutionHelper;
 
 class TrainingDashboard
 {
@@ -32,6 +33,11 @@ class TrainingDashboard
 
     public function index(): void
     {
+        // Obter configurações responsivas
+        $resolution = ScreenResolutionHelper::getScreenResolution();
+        $responsiveClasses = ScreenResolutionHelper::getResponsiveClasses($resolution['category']);
+        $paginationSettings = ScreenResolutionHelper::getPaginationSettings($resolution['category']);
+        
         $data = [
             'title_head' => 'Dashboard de Treinamentos',
             'menu' => 'training-dashboard',
@@ -40,6 +46,10 @@ class TrainingDashboard
         $pageLayout = new PageLayoutService();
         $data = array_merge($data, $pageLayout->configurePageElements($data));
         $data['dashboard'] = $this->getDashboardData();
+        
+        // Adicionar configurações responsivas
+        $data['responsiveClasses'] = $responsiveClasses;
+        $data['paginationSettings'] = $paginationSettings;
         $loadView = new LoadViewService('adms/Views/trainings/trainingDashboard', $data);
         $loadView->loadView();
     }

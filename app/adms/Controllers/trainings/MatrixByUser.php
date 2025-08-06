@@ -7,6 +7,7 @@ use App\adms\Models\Repository\UsersRepository;
 use App\adms\Models\Repository\DepartmentsRepository;
 use App\adms\Models\Repository\PositionsRepository;
 use App\adms\Models\Repository\TrainingsRepository;
+use App\adms\Helpers\ScreenResolutionHelper;
 
 class MatrixByUser
 {
@@ -27,14 +28,26 @@ class MatrixByUser
 
     public function index(): void
     {
+        // Obter configurações responsivas
+        $resolution = ScreenResolutionHelper::getScreenResolution();
+        $responsiveClasses = ScreenResolutionHelper::getResponsiveClasses($resolution['category']);
+        $paginationSettings = ScreenResolutionHelper::getPaginationSettings($resolution['category']);
+        
         $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
-        $perPage = isset($_GET['per_page']) && in_array((int)$_GET['per_page'], [10, 20, 50, 100]) ? (int)$_GET['per_page'] : 10;
+        
+        // Usar configuração responsiva para per_page
+        if (isset($_GET['per_page']) && in_array((int)$_GET['per_page'], $paginationSettings['options'])) {
+            $perPage = (int)$_GET['per_page'];
+        } else {
+            $perPage = $paginationSettings['per_page'];
+        }
         $offset = ($page - 1) * $perPage;
         $filters = [
             'colaborador' => $_GET['colaborador'] ?? null,
             'departamento' => $_GET['departamento'] ?? null,
             'cargo' => $_GET['cargo'] ?? null,
             'treinamento' => $_GET['treinamento'] ?? null,
+            'tipo_vinculo' => $_GET['tipo_vinculo'] ?? null,
         ];
         
         $matrixByUser = [];
@@ -96,6 +109,11 @@ class MatrixByUser
         
         $pageLayout = new \App\adms\Controllers\Services\PageLayoutService();
         $data = $pageLayout->configurePageElements($data);
+        
+        // Adicionar configurações responsivas
+        $data['responsiveClasses'] = $responsiveClasses;
+        $data['paginationSettings'] = $paginationSettings;
+        
         $loadView = new \App\adms\Views\Services\LoadViewService('adms/Views/trainings/matrixByUser', $data);
         $loadView->loadView();
     }
@@ -105,24 +123,48 @@ class MatrixByUser
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         
+        // Configurar margens da página
+        $sheet->getPageMargins()->setLeft(1.5);
+        $sheet->getPageMargins()->setRight(1.5);
+        $sheet->getPageMargins()->setTop(1.5);
+        $sheet->getPageMargins()->setBottom(1.5);
+        
         // Cabeçalho
-        $headers = ['ID', 'Nome', 'Departamento', 'Cargo', 'Treinamento Obrigatório', 'Código'];
+        $headers = ['Nome', 'Departamento', 'Cargo', 'Treinamento', 'Código', 'Versão', 'Tipo de Vínculo'];
         $sheet->fromArray($headers, null, 'A1');
+        
+        // Aplicar estilo ao cabeçalho
+        $headerStyle = [
+            'font' => ['bold' => true],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'F0F0F0']
+            ]
+        ];
+        $sheet->getStyle('A1:G1')->applyFromArray($headerStyle);
         
         // Dados
         $row = 2;
         foreach ($matrix as $item) {
-            $sheet->setCellValue('A' . $row, $item['id'] ?? $item['user_id'] ?? '-');
-            $sheet->setCellValue('B' . $row, $item['user_name'] ?? $item['name'] ?? '');
-            $sheet->setCellValue('C' . $row, $item['department'] ?? $item['department_nome'] ?? '');
-            $sheet->setCellValue('D' . $row, $item['position'] ?? $item['cargo_nome'] ?? '');
-            $sheet->setCellValue('E' . $row, $item['training_name'] ?? $item['treinamento_nome'] ?? '');
-            $sheet->setCellValue('F' . $row, $item['codigo'] ?? '');
+            $sheet->setCellValue('A' . $row, $item['user_name'] ?? $item['name'] ?? '');
+            $sheet->setCellValue('B' . $row, $item['department'] ?? $item['department_nome'] ?? '');
+            $sheet->setCellValue('C' . $row, $item['position'] ?? $item['cargo_nome'] ?? '');
+            $sheet->setCellValue('D' . $row, $item['training_name'] ?? $item['treinamento_nome'] ?? '');
+            $sheet->setCellValue('E' . $row, $item['codigo'] ?? '');
+            $sheet->setCellValue('F' . $row, $item['training_version'] ?? '-');
+            $sheet->setCellValue('G' . $row, ($item['tipo_vinculo'] ?? '') === 'individual' ? 'Individual' : 'Obrigatório por Cargo');
             $row++;
         }
         
+        // Aplicar estilo aos dados (alinhamento à esquerda)
+        $dataStyle = [
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT]
+        ];
+        $sheet->getStyle('A2:G' . ($row - 1))->applyFromArray($dataStyle);
+        
         // Ajustar largura das colunas
-        foreach (range('A', 'F') as $col) {
+        foreach (range('A', 'G') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
         
@@ -137,29 +179,37 @@ class MatrixByUser
 
     private function exportPdf(array $matrix): void
     {
-        // Montar HTML da tabela
-        $html = '<h2 style="text-align:center;">Matriz de Treinamentos por Colaborador</h2>';
-        $html .= '<table border="1" cellpadding="5" cellspacing="0" width="100%" style="font-size:10px; border-collapse:collapse;">';
+        // Montar HTML da tabela com margens e alinhamento à esquerda
+        $html = '<div style="margin: 20px; font-family: Arial, sans-serif;">';
+        $html .= '<h2 style="text-align:center; margin-bottom: 20px;">Matriz de Treinamentos por Colaborador</h2>';
+        $html .= '<table border="1" cellpadding="8" cellspacing="0" width="100%" style="font-size:10px; border-collapse:collapse; margin-left: 10px;">';
         $html .= '<thead><tr style="background:#f0f0f0;">';
-        $html .= '<th>ID</th><th>Nome</th><th>Departamento</th><th>Cargo</th><th>Treinamento Obrigatório</th><th>Código</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Nome</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Departamento</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Cargo</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Treinamento</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Código</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Versão</th>';
+        $html .= '<th style="text-align:left; padding-left: 10px;">Tipo de Vínculo</th>';
         $html .= '</tr></thead><tbody>';
         
         foreach ($matrix as $item) {
             $html .= '<tr>';
-            $html .= '<td>' . htmlspecialchars($item['id'] ?? $item['user_id'] ?? '-') . '</td>';
-            $html .= '<td>' . htmlspecialchars($item['user_name'] ?? $item['name'] ?? '') . '</td>';
-            $html .= '<td>' . htmlspecialchars($item['department'] ?? $item['department_nome'] ?? '') . '</td>';
-            $html .= '<td>' . htmlspecialchars($item['position'] ?? $item['cargo_nome'] ?? '') . '</td>';
-            $html .= '<td>' . htmlspecialchars($item['training_name'] ?? $item['treinamento_nome'] ?? '') . '</td>';
-            $html .= '<td>' . htmlspecialchars($item['codigo'] ?? '') . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . htmlspecialchars($item['user_name'] ?? $item['name'] ?? '') . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . htmlspecialchars($item['department'] ?? $item['department_nome'] ?? '') . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . htmlspecialchars($item['position'] ?? $item['cargo_nome'] ?? '') . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . htmlspecialchars($item['training_name'] ?? $item['treinamento_nome'] ?? '') . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . htmlspecialchars($item['codigo'] ?? '') . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . htmlspecialchars($item['training_version'] ?? '-') . '</td>';
+            $html .= '<td style="text-align:left; padding-left: 10px;">' . (($item['tipo_vinculo'] ?? '') === 'individual' ? 'Individual' : 'Obrigatório por Cargo') . '</td>';
             $html .= '</tr>';
         }
         
         if (empty($matrix)) {
-            $html .= '<tr><td colspan="6" style="text-align:center; color:#888;">Nenhum vínculo obrigatório encontrado.</td></tr>';
+            $html .= '<tr><td colspan="7" style="text-align:center; color:#888; padding-left: 10px;">Nenhum vínculo encontrado.</td></tr>';
         }
         
-        $html .= '</tbody></table>';
+        $html .= '</tbody></table></div>';
 
         // Gerar PDF
         $dompdf = new \Dompdf\Dompdf();

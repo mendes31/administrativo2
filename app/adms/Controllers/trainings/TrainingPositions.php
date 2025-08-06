@@ -27,11 +27,39 @@ class TrainingPositions
         $obrigatorio = $_POST['obrigatorio'] ?? [];
         $reciclagem = $_POST['reciclagem'] ?? [];
         
+        // Buscar vínculos existentes ANTES da alteração
         $trainingPositionsRepo = new TrainingPositionsRepository();
+        $existingLinks = $trainingPositionsRepo->getPositionsByTraining($trainingId);
+        $existingObrigatorios = array_column($existingLinks, 'adms_position_id');
+        
         $result = $trainingPositionsRepo->saveTrainingPositions($trainingId, $obrigatorio, $reciclagem);
         
         if ($result) {
             $_SESSION['success'] = 'Vínculos atualizados com sucesso!';
+            
+            // Identificar cargos que foram DESVINCULADOS (estavam obrigatórios e agora não estão)
+            $cargosDesvinculados = array_diff($existingObrigatorios, array_keys($obrigatorio));
+            
+            // Remover vínculos de usuários dos cargos desvinculados
+            if (!empty($cargosDesvinculados)) {
+                $trainingUsersRepo = new \App\adms\Models\Repository\TrainingUsersRepository();
+                foreach ($cargosDesvinculados as $cargoId) {
+                    $trainingUsersRepo->removeActiveLinksByCargoAndTraining($cargoId, $trainingId);
+                    
+                    // Log da ação
+                    \App\adms\Helpers\GenerateLog::generateLog(
+                        "info", 
+                        "Cargo desvinculado do treinamento - vínculos removidos", 
+                        [
+                            'training_id' => $trainingId,
+                            'position_id' => $cargoId,
+                            'admin_user_id' => $_SESSION['user_id'] ?? 0,
+                            'action' => 'remove_cargo_links'
+                        ]
+                    );
+                }
+            }
+            
             // Buscar todos os cargos obrigatórios do treinamento (não só os recém-marcados)
             $allObrigatorios = $trainingPositionsRepo->getPositionIdsByTraining($trainingId);
             $usersRepo = new \App\adms\Models\Repository\UsersRepository();

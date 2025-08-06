@@ -357,6 +357,17 @@ class LoadPageAdm
      */
     private function loadMetodo(): void
     {
+        // Rota especial para detecção de resolução de tela
+        if ($this->urlController === 'ScreenResolution') {
+            $controller = new \App\adms\Controllers\Services\ScreenResolutionController();
+            if (!empty($this->urlParameter) && $this->urlParameter === 'set') {
+                $controller->setScreenResolution();
+            } else {
+                $controller->getScreenResolution();
+            }
+            return;
+        }
+
         // Instanciar a classe da pagina que deve ser carregada
         $classLoad = new $this->classLoad();
 

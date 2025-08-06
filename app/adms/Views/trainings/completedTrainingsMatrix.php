@@ -34,58 +34,70 @@ $performanceFilter = $_GET['performance'] ?? '';
             <li class="breadcrumb-item active">Matriz de Treinamentos Realizados</li>
         </ol>
     </div>
-    <div class="row mb-4 g-3">
+    <div class="row mb-4">
         <div class="col-md-2">
-            <div class="card border-primary h-100">
-                <div class="card-body text-center py-3">
-                    <div class="fs-2 text-primary"><i class="fas fa-users"></i></div>
-                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['total_colaboradores'] ?? 0 ?></div>
-                    <div class="text-muted">Total Colaboradores Treinados</div>
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <h3 class="text-primary">
+                        <i class="fas fa-users"></i>
+                        <?= number_format($this->data['summary']['total_colaboradores'] ?? 0) ?>
+                    </h3>
+                    <p class="card-text">Total Colaboradores Treinados</p>
                 </div>
             </div>
         </div>
         <div class="col-md-2">
-            <div class="card border-info h-100">
-                <div class="card-body text-center py-3">
-                    <div class="fs-2 text-info"><i class="fas fa-graduation-cap"></i></div>
-                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['total_treinamentos'] ?? 0 ?></div>
-                    <div class="text-muted">Total de Treinamentos</div>
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h3 class="text-info">
+                        <i class="fas fa-graduation-cap"></i>
+                        <?= number_format($this->data['summary']['total_treinamentos'] ?? 0) ?>
+                    </h3>
+                    <p class="card-text">Total de Treinamentos</p>
                 </div>
             </div>
         </div>
         <div class="col-md-2">
-            <div class="card border-success h-100">
-                <div class="card-body text-center py-3">
-                    <div class="fs-2 text-success"><i class="fas fa-check-circle"></i></div>
-                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['total_aprovados'] ?? 0 ?></div>
-                    <div class="text-muted">Total Treinamentos Aprovados</div>
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h3 class="text-success">
+                        <i class="fas fa-check-circle"></i>
+                        <?= number_format($this->data['summary']['total_aprovados'] ?? 0) ?>
+                    </h3>
+                    <p class="card-text">Total Treinamentos Aprovados</p>
                 </div>
             </div>
         </div>
         <div class="col-md-2">
-            <div class="card border-danger h-100">
-                <div class="card-body text-center py-3">
-                    <div class="fs-2 text-danger"><i class="fas fa-times-circle"></i></div>
-                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['total_reprovados'] ?? 0 ?></div>
-                    <div class="text-muted">Total Treinamentos Reprovados</div>
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <h3 class="text-danger">
+                        <i class="fas fa-times-circle"></i>
+                        <?= number_format($this->data['summary']['total_reprovados'] ?? 0) ?>
+                    </h3>
+                    <p class="card-text">Total Treinamentos Reprovados</p>
                 </div>
             </div>
         </div>
         <div class="col-md-2">
-            <div class="card border-warning h-100">
-                <div class="card-body text-center py-3">
-                    <div class="fs-2 text-warning"><i class="fas fa-star"></i></div>
-                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['media_nota'] ?? 0 ?></div>
-                    <div class="text-muted">Média Nota Geral</div>
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h3 class="text-warning">
+                        <i class="fas fa-star"></i>
+                        <?= number_format($this->data['summary']['media_nota'] ?? 0) ?>
+                    </h3>
+                    <p class="card-text">Média Nota Geral</p>
                 </div>
             </div>
         </div>
         <div class="col-md-2">
-            <div class="card border-secondary h-100">
-                <div class="card-body text-center py-3">
-                    <div class="fs-2 text-secondary"><i class="fas fa-clock"></i></div>
-                    <div class="fw-bold fs-4 mb-1"><?= $this->data['summary']['total_horas'] ?? 0 ?></div>
-                    <div class="text-muted">Total de Horas</div>
+            <div class="card border-secondary">
+                <div class="card-body text-center">
+                    <h3 class="text-secondary">
+                        <i class="fas fa-clock"></i>
+                        <?= $this->data['summary']['total_horas'] ?? 0 ?>
+                    </h3>
+                    <p class="card-text">Total de Horas</p>
                 </div>
             </div>
         </div>
@@ -154,8 +166,8 @@ $performanceFilter = $_GET['performance'] ?? '';
                     </select>
                 </div>
                 <div class="col-md-2 d-flex gap-2 align-items-end">
-                    <button type="submit" class="btn btn-primary btn-lg px-4"><i class="fas fa-search me-2"></i>Filtrar</button>
-                    <a href="<?= $_ENV['URL_ADM'] ?>completed-trainings-matrix" class="btn btn-secondary btn-lg px-4"><i class="fas fa-times me-2"></i>Limpar</a>
+                    <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;"><i class="fas fa-search"></i> Filtrar</button>
+                    <a href="<?= $_ENV['URL_ADM'] ?>completed-trainings-matrix" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;"><i class="fas fa-times"></i> Limpar</a>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <label for="per_page" class="form-label mb-1 me-2">Exibir</label>
@@ -217,25 +229,32 @@ $performanceFilter = $_GET['performance'] ?? '';
                     ?>
                         <tr>
                             <td><?= htmlspecialchars($item['user_name']) ?></td>
-                            <td><?= htmlspecialchars($item['training_name']) ?></td>
+                            <td>
+                                <div>
+                                    <strong><?= htmlspecialchars($item['training_name']) ?></strong>
+                                    <?php if (!empty($item['training_version'])): ?>
+                                        <br><small class="text-muted" style="background-color: #f8f9fa; padding: 2px 6px; border-radius: 3px; border: 1px solid #dee2e6;">v<?= htmlspecialchars($item['training_version']) ?></small>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
                             <td><?= htmlspecialchars($item['training_code']) ?></td>
                             <td>
                                 <?php if (!empty($item['data_realizacao'])): ?>
-                                    <?= (new DateTime($item['data_realizacao']))->format('d/m/Y H:i') ?>
+                                    <?= (new DateTime($item['data_realizacao']))->format('d/m/Y') ?>
                                 <?php else: ?>
                                     -
                                 <?php endif; ?>
                             </td>
                             <td>
                                 <?php if (!empty($item['data_avaliacao'])): ?>
-                                    <?= (new DateTime($item['data_avaliacao']))->format('d/m/Y H:i') ?>
+                                    <?= (new DateTime($item['data_avaliacao']))->format('d/m/Y') ?>
                                 <?php else: ?>
                                     -
                                 <?php endif; ?>
                             </td>
                             <td>
                                 <?php if (!empty($item['carga_horaria'])): ?>
-                                    <?= $item['carga_horaria'] ?>h
+                                    <?= substr($item['carga_horaria'], 0, 5) ?>h
                                 <?php else: ?>
                                     -
                                 <?php endif; ?>
@@ -282,14 +301,15 @@ $performanceFilter = $_GET['performance'] ?? '';
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div class="flex-grow-1">
-                                <h6 class="card-title mb-1"><strong><?= htmlspecialchars($item['training_name']) ?></strong></h6>
+                                <h6 class="card-title mb-1">
+                                    <strong><?= htmlspecialchars($item['training_name']) ?></strong>
+                                    <?php if (!empty($item['training_version'])): ?>
+                                        <br><small class="text-muted" style="background-color: #f8f9fa; padding: 2px 6px; border-radius: 3px; border: 1px solid #dee2e6;">v<?= htmlspecialchars($item['training_version']) ?></small>
+                                    <?php endif; ?>
+                                </h6>
                                 <div class="mb-1">
                                     <small class="text-muted">Colaborador:</small><br>
                                     <strong><?= htmlspecialchars($item['user_name']) ?></strong>
-                                </div>
-                                <div class="mb-2">
-                                    <small class="text-muted">Status:</small><br>
-                                    <span class="badge <?= $performance['class'] ?>"><?= $performance['label'] ?></span>
                                 </div>
                             </div>
                             <button class="btn btn-outline-primary btn-sm ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#cardDetails<?= $item['user_id'] . '_' . $item['training_id'] ?>" aria-expanded="false" aria-controls="cardDetails<?= $item['user_id'] . '_' . $item['training_id'] ?>">
@@ -312,10 +332,21 @@ $performanceFilter = $_GET['performance'] ?? '';
                             
                             <div class="row g-2 mb-2">
                                 <div class="col-6">
+                                    <small class="text-muted">Aproveitamento:</small><br>
+                                    <span class="badge <?= $performance['class'] ?>"><?= $performance['label'] ?></span>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Observações:</small><br>
+                                    <strong><?= htmlspecialchars($item['observacoes'] ?? '-') ?></strong>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
                                     <small class="text-muted">Data Realização:</small><br>
                                     <strong>
                                         <?php if (!empty($item['data_realizacao'])): ?>
-                                            <?= (new DateTime($item['data_realizacao']))->format('d/m/Y H:i') ?>
+                                            <?= (new DateTime($item['data_realizacao']))->format('d/m/Y') ?>
                                         <?php else: ?>
                                             -
                                         <?php endif; ?>
@@ -325,7 +356,7 @@ $performanceFilter = $_GET['performance'] ?? '';
                                     <small class="text-muted">Data Avaliação:</small><br>
                                     <strong>
                                         <?php if (!empty($item['data_avaliacao'])): ?>
-                                            <?= (new DateTime($item['data_avaliacao']))->format('d/m/Y H:i') ?>
+                                            <?= (new DateTime($item['data_avaliacao']))->format('d/m/Y') ?>
                                         <?php else: ?>
                                             -
                                         <?php endif; ?>
@@ -338,7 +369,7 @@ $performanceFilter = $_GET['performance'] ?? '';
                                     <small class="text-muted">Horas:</small><br>
                                     <strong>
                                         <?php if (!empty($item['carga_horaria'])): ?>
-                                            <?= $item['carga_horaria'] ?>h
+                                            <?= substr($item['carga_horaria'], 0, 5) ?>h
                                         <?php else: ?>
                                             -
                                         <?php endif; ?>

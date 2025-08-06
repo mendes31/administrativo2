@@ -132,7 +132,7 @@ class UpdateUser
      */
     private function editUser(): void 
     {
-        // Instanciar a classe validar os dados do formulario
+        // Instanciar a classe validar os dados do formulário
         $validationUser = new ValidationUserRakitService();
         $this->data['errors'] = $validationUser->validate($this->data['form']);
 
@@ -142,6 +142,12 @@ class UpdateUser
             $this->viewUser();
             return;
         }
+
+        // Capturar dados antigos para verificar mudanças
+        $userUpdate = new UsersRepository();
+        $userAntigo = $userUpdate->getUser($this->data['form']['id']);
+        $statusAnterior = $userAntigo['status'] ?? 'Ativo';
+        $cargoAnterior = $userAntigo['user_position_id'] ?? null;
 
         // Instanciar Repository para editar o usuário
         $form = $this->data['form'];
@@ -165,7 +171,6 @@ class UpdateUser
         $form['senha_nunca_expira'] = isset($form['senha_nunca_expira']) && $form['senha_nunca_expira'] === 'Sim' ? 'Sim' : 'Não';
         $form['modificar_senha_proximo_logon'] = isset($form['modificar_senha_proximo_logon']) && $form['modificar_senha_proximo_logon'] === 'Sim' ? 'Sim' : 'Não';
         $this->data['form'] = $form;
-        $userUpdate = new UsersRepository();
         $result = $userUpdate->updateUser($this->data['form']);
 
         // Forçar logout se admin inativar ou bloquear o usuário
@@ -180,12 +185,76 @@ class UpdateUser
         // Acessa o IF se o repository retornou TRUE
         if($result){
             $matrixService = new \App\adms\Controllers\trainings\TrainingMatrixService();
-            $matrixService->updateMatrixForUser($this->data['form']['id']);
+            
+            // Verificar mudanças de status do usuário
+            $statusNovo = $form['status'];
+            
+            if ($statusAnterior === 'Ativo' && $statusNovo === 'Inativo') {
+                // Usuário foi inativado - remover vínculos ativos
+                $trainingUsersRepo = new \App\adms\Models\Repository\TrainingUsersRepository();
+                $trainingUsersRepo->removeActiveLinksByUser($form['id']);
+                
+                // Log da ação
+                \App\adms\Helpers\GenerateLog::generateLog(
+                    "info", 
+                    "Usuário inativado - vínculos removidos", 
+                    [
+                        'user_id' => $form['id'],
+                        'user_name' => $userAntigo['name'] ?? '',
+                        'admin_user_id' => $_SESSION['user_id'] ?? 0
+                    ]
+                );
+            } elseif ($statusAnterior === 'Inativo' && $statusNovo === 'Ativo') {
+                // Usuário foi reativado - recriar vínculos necessários
+                $results = $matrixService->recreateLinksForReactivatedUser($form['id']);
+                
+                // Log da ação
+                \App\adms\Helpers\GenerateLog::generateLog(
+                    "info", 
+                    "Usuário reativado - vínculos recriados", 
+                    [
+                        'user_id' => $form['id'],
+                        'user_name' => $userAntigo['name'] ?? '',
+                        'admin_user_id' => $_SESSION['user_id'] ?? 0,
+                        'trainings_added' => $results['trainings_added'],
+                        'trainings_skipped' => $results['trainings_skipped'],
+                        'reciclagem_added' => $results['reciclagem_added']
+                    ]
+                );
+            } else {
+                // Verificar se o cargo foi alterado
+                $cargoNovo = $form['user_position_id'] ?? null;
+                
+                if ($cargoAnterior !== $cargoNovo) {
+                    // Cargo foi alterado - verificar e corrigir vínculos
+                    $results = $matrixService->checkAndFixUserLinks($form['id']);
+                    
+                    // Log da ação
+                    \App\adms\Helpers\GenerateLog::generateLog(
+                        "info", 
+                        "Cargo do usuário alterado - vínculos corrigidos", 
+                        [
+                            'user_id' => $form['id'],
+                            'user_name' => $userAntigo['name'] ?? '',
+                            'cargo_anterior' => $cargoAnterior,
+                            'cargo_novo' => $cargoNovo,
+                            'admin_user_id' => $_SESSION['user_id'] ?? 0,
+                            'converted_to_cargo' => $results['converted_to_cargo'],
+                            'kept_individual' => $results['kept_individual'],
+                            'no_changes' => $results['no_changes']
+                        ]
+                    );
+                } else {
+                    // Atualização normal - atualizar matriz
+                    $matrixService->updateMatrixForUser($form['id']);
+                }
+            }
+            
             // Criar a mensagem de sucesso
             $_SESSION['success'] = "Usuário editado com suscesso!";
 
             // Redirecionar o usuário para a pagina view - visualizar usuario
-            header("Location: {$_ENV['URL_ADM']}view-user/{$this->data['form']['id']}");
+            header("Location: {$_ENV['URL_ADM']}view-user/{$form['id']}");
             return;
         }else {
             // Criar a mensagem de erro
