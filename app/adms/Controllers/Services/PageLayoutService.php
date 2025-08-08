@@ -83,6 +83,21 @@ class PageLayoutService
             'ListLgpdInventory',
             'ListLgpdDataMapping',
             'LgpdDashboard',
+            'LgpdAipd',
+            'LgpdAipdCreate',
+            'LgpdAipdEdit',
+            'LgpdAipdView',
+            'LgpdAipdDelete',
+            'LgpdAipdSuggest',
+                    'LgpdAipdTemplateSaude',
+'LgpdAipdTemplateFinanceiro',
+'LgpdAipdTemplateEcommerce',
+'LgpdAipdTemplateEducacao',
+'LgpdAipdTemplateRh',
+'LgpdAipdTemplateMarketing',
+'LgpdAipdTemplateTelecom',
+'LgpdAipdTemplateLogistica',
+'LgpdAipdTemplateJuridico',
 
             // Adicione aqui outras permissões de páginas/submenus que possam existir no futuro
         ];

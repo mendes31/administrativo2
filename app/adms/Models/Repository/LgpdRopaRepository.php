@@ -459,4 +459,18 @@ class LgpdRopaRepository extends DbConnection
         
         return ($result['max_code'] ?? 0) + 1;
     }
+
+    /**
+     * Recupera todas as ROPAs para uso em formulários (select).
+     *
+     * @return array Lista de ROPAs para select
+     */
+    public function getAllRopaForSelect(): array
+    {
+        $sql = 'SELECT id, codigo, atividade FROM lgpd_ropa WHERE status = "Ativo" ORDER BY codigo ASC';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 } 

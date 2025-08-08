@@ -593,4 +593,18 @@ class UsersRepository extends DbConnection
         $stmt->execute();
         return (int) $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
     }
+
+    /**
+     * Recupera todos os usuários para uso em formulários (select).
+     *
+     * @return array Lista de usuários para select
+     */
+    public function getAllUsersForSelect(): array
+    {
+        $sql = 'SELECT id, name, email FROM adms_users ORDER BY name ASC';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

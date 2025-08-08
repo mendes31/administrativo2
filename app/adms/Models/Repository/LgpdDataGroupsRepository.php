@@ -301,4 +301,18 @@ class LgpdDataGroupsRepository extends DbConnection
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Recupera todos os grupos de dados para uso em formulários (select).
+     *
+     * @return array Lista de grupos de dados para select
+     */
+    public function getAllDataGroupsForSelect(): array
+    {
+        $sql = 'SELECT id, name, category, is_sensitive FROM lgpd_data_groups ORDER BY name ASC';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
