@@ -98,9 +98,23 @@ class PageLayoutService
 'LgpdAipdTemplateTelecom',
 'LgpdAipdTemplateLogistica',
 'LgpdAipdTemplateJuridico',
+'LgpdConsentimentos',
+'LgpdConsentimentosCreate',
+'LgpdConsentimentosEdit',
+'LgpdConsentimentosView',
+'LgpdConsentimentosDelete',
+'LgpdConsentimentoColeta',
+        'LgpdConsentimentoColetaProcessar',
+        'LgpdConsentimentoEmail', 'LgpdConsentimentoEmailProcessar',
 
             // Adicione aqui outras permissões de páginas/submenus que possam existir no futuro
         ];
+
+        // Verificar se o usuário está logado
+        if (!isset($_SESSION['user_id'])) {
+            // Para páginas públicas sem usuário logado, retornar apenas os dados básicos
+            return array_merge($data, ['menuPermission' => []]);
+        }
 
         // Verificar se o usuário tem o nível de acesso Super Administrador.
         // Nível de acesso Super Administrador tem acesso a todos os botões, não precisa validar as permissões no banco de dados

@@ -339,19 +339,25 @@ $menus = [
                 'permission' => 'LgpdDashboard'
             ],
             [
+                'label' => 'Consentimentos',
+                'url' => $_ENV['URL_ADM'] . 'lgpd-consentimentos',
+                'permission' => 'LgpdConsentimentos'
+            ],
+            [
                 'label' => 'Inventário',
                 'url' => $_ENV['URL_ADM'] . 'lgpd-inventory',
                 'permission' => 'ListLgpdInventory'
+            ],
+           
+            [
+                'label' => 'ROPA',
+                'url' => $_ENV['URL_ADM'] . 'lgpd-ropa',
+                'permission' => 'ListLgpdRopa'
             ],
             [
                 'label' => 'Data Mapping',
                 'url' => $_ENV['URL_ADM'] . 'lgpd-data-mapping',
                 'permission' => 'ListLgpdDataMapping'
-            ],
-            [
-                'label' => 'ROPA',
-                'url' => $_ENV['URL_ADM'] . 'lgpd-ropa',
-                'permission' => 'ListLgpdRopa'
             ],
             [
                 'label' => 'Relatório Integrado',
@@ -393,20 +399,11 @@ $menus = [
                 'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-suggest',
                 'permission' => 'LgpdAipdSuggest'
             ],
+           
             [
                 'label' => 'Templates AIPD',
                 'icon' => 'fa-solid fa-file-lines',
                 'submenu' => [
-                    [
-                        'label' => 'Template - Setor de Saúde',
-                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-saude',
-                        'permission' => 'LgpdAipdTemplateSaude'
-                    ],
-                    [
-                        'label' => 'Template - Setor Financeiro',
-                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-financeiro',
-                        'permission' => 'LgpdAipdTemplateFinanceiro'
-                    ],
                     [
                         'label' => 'Template - E-commerce',
                         'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-ecommerce',
@@ -418,33 +415,46 @@ $menus = [
                         'permission' => 'LgpdAipdTemplateEducacao'
                     ],
                     [
-                        'label' => 'Template - RH',
-                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-rh',
-                        'permission' => 'LgpdAipdTemplateRh'
+                        'label' => 'Template - Financeiro',
+                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-financeiro',
+                        'permission' => 'LgpdAipdTemplateFinanceiro'
+                    ],       
+                    
+                    [
+                        'label' => 'Template - Jurídico',
+                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-juridico',
+                        'icon' => 'fas fa-balance-scale',
+                        'permission' => 'LgpdAipdTemplateJuridico'
+                    ],
+                    [
+                        'label' => 'Template - Logística',
+                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-logistica',
+                        'icon' => 'fas fa-truck',
+                        'permission' => 'LgpdAipdTemplateLogistica'
                     ],
                     [
                         'label' => 'Template - Marketing',
                         'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-marketing',
                         'permission' => 'LgpdAipdTemplateMarketing'
                     ],
-                                         [
+                    [
+                        'label' => 'Template - RH',
+                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-rh',
+                        'permission' => 'LgpdAipdTemplateRh'
+                    ],
+                    [
+                        'label' => 'Template - Saúde',
+                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-saude',
+                        'permission' => 'LgpdAipdTemplateSaude'
+                    ],
+                    [
                          'label' => 'Template - Telecomunicações',
                          'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-telecom',
                          'icon' => 'fas fa-broadcast-tower',
                          'permission' => 'LgpdAipdTemplateTelecom'
                      ],
-                     [
-                         'label' => 'Template - Logística',
-                         'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-logistica',
-                         'icon' => 'fas fa-truck',
-                         'permission' => 'LgpdAipdTemplateLogistica'
-                     ],
-                     [
-                         'label' => 'Template - Jurídico',
-                         'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-juridico',
-                         'icon' => 'fas fa-balance-scale',
-                         'permission' => 'LgpdAipdTemplateJuridico'
-                     ]
+                     
+                     
                 ]
             ]
         ]

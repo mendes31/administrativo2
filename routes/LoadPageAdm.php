@@ -100,6 +100,8 @@ class LoadPageAdm
         "LgpdRopaCreateFromInventory", "LgpdDataMappingCreateFromRopa", "LgpdWorkflowReport",
         "LgpdAipd", "LgpdAipdCreate", "LgpdAipdEdit", "LgpdAipdView", "LgpdAipdDelete", "LgpdAipdSuggest",
         "LgpdAipdTemplateSaude", "LgpdAipdTemplateFinanceiro", "LgpdAipdTemplateEcommerce", "LgpdAipdTemplateEducacao", "LgpdAipdTemplateRh", "LgpdAipdTemplateMarketing", "LgpdAipdTemplateTelecom", "LgpdAipdTemplateLogistica", "LgpdAipdTemplateJuridico",
+        "LgpdConsentimentos", "LgpdConsentimentosCreate", "LgpdConsentimentosEdit", "LgpdConsentimentosView", "LgpdConsentimentosDelete",
+        "LgpdConsentimentoColeta", "LgpdConsentimentoColetaProcessar", "LgpdConsentimentoEmail", "LgpdConsentimentoEmailProcessar",
         "LgpdAipd", "LgpdAipdCreate", "LgpdAipdEdit", "LgpdAipdView", "LgpdAipdDelete", "LgpdAipdSuggest"
     ];
 
