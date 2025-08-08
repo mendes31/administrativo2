@@ -32,7 +32,23 @@ class LgpdAipdView
             exit;
         }
 
-        $this->data['aipd'] = $aipd;
+        // Mapear campos da tabela para os campos esperados pela view
+        $this->data['aipd'] = [
+            'id' => $aipd['id'],
+            'nome' => $aipd['titulo'],
+            'status' => $aipd['status'],
+            'departamento_nome' => $aipd['departamento_nome'],
+            'responsavel_nome' => $aipd['responsavel_nome'],
+            'data_inicio' => $aipd['data_inicio'],
+            'data_fim' => $aipd['data_conclusao'], // Mapear data_conclusao para data_fim
+            'created' => $aipd['created_at'], // Mapear created_at para created
+            'modified' => $aipd['updated_at'], // Mapear updated_at para modified
+            'descricao' => $aipd['descricao'],
+            'objetivo' => $aipd['observacoes'], // Usar observacoes como objetivo
+            'escopo' => $aipd['descricao'], // Usar descricao como escopo
+            'metodologia' => $aipd['observacoes'], // Usar observacoes como metodologia
+            'observacoes' => $aipd['observacoes']
+        ];
         $this->data['data_groups'] = $repo->getDataGroupsByAipdId($id);
 
         $pageElements = [

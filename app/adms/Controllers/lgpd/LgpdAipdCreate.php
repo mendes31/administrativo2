@@ -26,8 +26,26 @@ class LgpdAipdCreate
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->data['form'] = $_POST;
             
+            // Mapear campos do formulário para os campos da tabela
+            $createData = [
+                'titulo' => $_POST['titulo'],
+                'departamento_id' => $_POST['departamento_id'],
+                'responsavel_id' => $_POST['responsavel_id'],
+                'ropa_id' => $_POST['ropa_id'] ?? null,
+                'data_inicio' => $_POST['data_inicio'],
+                'data_conclusao' => $_POST['data_fim_prevista'] ?? null, // Mapear data_fim_prevista para data_conclusao
+                'nivel_risco' => $_POST['nivel_risco'],
+                'descricao' => $_POST['objetivo'] . "\n\nEscopo: " . $_POST['escopo'] . "\n\nMetodologia: " . ($_POST['metodologia'] ?? ''),
+                'observacoes' => "Riscos: " . ($_POST['riscos_identificados'] ?? '') . "\n\nMedidas: " . ($_POST['medidas_mitigacao'] ?? '') . "\n\nConclusões: " . ($_POST['conclusoes'] ?? '') . "\n\nRecomendações: " . ($_POST['recomendacoes'] ?? '') . "\n\nObservações: " . ($_POST['observacoes'] ?? '')
+            ];
+            
+            // Adicionar grupos de dados se selecionados
+            if (!empty($_POST['data_groups']) && is_array($_POST['data_groups'])) {
+                $createData['data_groups'] = $_POST['data_groups'];
+            }
+            
             $repo = new LgpdAipdRepository();
-            $result = $repo->create($this->data['form']);
+            $result = $repo->create($createData);
             
             if ($result) {
                 $_SESSION['success'] = "AIPD cadastrada com sucesso!";

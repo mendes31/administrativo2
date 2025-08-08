@@ -36,13 +36,37 @@ class LgpdAipdEdit
             exit;
         }
 
-        $this->data['aipd'] = $aipd;
-        $this->data['form'] = $aipd;
+        // Mapear campos da tabela para os campos esperados pela view
+        $this->data['form'] = [
+            'nome' => $aipd['titulo'],
+            'departamento_id' => $aipd['departamento_id'],
+            'responsavel_id' => $aipd['responsavel_id'],
+            'status' => $aipd['status'],
+            'data_inicio' => $aipd['data_inicio'],
+            'data_fim' => $aipd['data_conclusao'], // Mapear data_conclusao para data_fim
+            'descricao' => $aipd['descricao'],
+            'objetivo' => $aipd['observacoes'], // Usar observacoes como objetivo
+            'escopo' => $aipd['descricao'], // Usar descricao como escopo
+            'metodologia' => $aipd['observacoes'], // Usar observacoes como metodologia
+            'observacoes' => $aipd['observacoes']
+        ];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->data['form'] = $_POST;
             
-            $result = $repo->update($id, $this->data['form']);
+            // Mapear campos do formulário para os campos da tabela
+            $updateData = [
+                'titulo' => $_POST['nome'],
+                'departamento_id' => $_POST['departamento_id'],
+                'responsavel_id' => $_POST['responsavel_id'],
+                'status' => $_POST['status'],
+                'data_inicio' => $_POST['data_inicio'],
+                'data_conclusao' => $_POST['data_fim'], // Mapear data_fim para data_conclusao
+                'descricao' => $_POST['descricao'],
+                'observacoes' => $_POST['observacoes']
+            ];
+            
+            $result = $repo->update($id, $updateData);
             
             if ($result) {
                 $_SESSION['success'] = "AIPD editada com sucesso!";

@@ -175,9 +175,9 @@ class LgpdAipdRepository extends DbConnection
             $data['codigo'] = $this->generateUniqueCode('AIPD');
             
             $sql = 'INSERT INTO lgpd_aipd (codigo, titulo, descricao, ropa_id, departamento_id, responsavel_id, 
-                                          data_inicio, nivel_risco, necessita_anpd, observacoes, created_at) 
+                                          data_inicio, data_conclusao, nivel_risco, necessita_anpd, observacoes, created_at) 
                     VALUES (:codigo, :titulo, :descricao, :ropa_id, :departamento_id, :responsavel_id, 
-                           :data_inicio, :nivel_risco, :necessita_anpd, :observacoes, NOW())';
+                           :data_inicio, :data_conclusao, :nivel_risco, :necessita_anpd, :observacoes, NOW())';
             
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->bindValue(':codigo', $data['codigo']);
@@ -187,7 +187,8 @@ class LgpdAipdRepository extends DbConnection
             $stmt->bindValue(':departamento_id', $data['departamento_id'], PDO::PARAM_INT);
             $stmt->bindValue(':responsavel_id', $data['responsavel_id'] ?? null, PDO::PARAM_INT);
             $stmt->bindValue(':data_inicio', $data['data_inicio']);
-            $stmt->bindValue(':nivel_risco', $data['nivel_risco']);
+            $stmt->bindValue(':data_conclusao', $data['data_conclusao'] ?? null);
+            $stmt->bindValue(':nivel_risco', $data['nivel_risco'] ?? 'Médio');
             $stmt->bindValue(':necessita_anpd', $data['necessita_anpd'] ?? false, PDO::PARAM_BOOL);
             $stmt->bindValue(':observacoes', $data['observacoes'] ?? null);
             
@@ -222,9 +223,9 @@ class LgpdAipdRepository extends DbConnection
             
             $sql = 'UPDATE lgpd_aipd SET titulo = :titulo, descricao = :descricao, ropa_id = :ropa_id, 
                                           departamento_id = :departamento_id, responsavel_id = :responsavel_id, 
-                                          data_inicio = :data_inicio, nivel_risco = :nivel_risco, 
-                                          necessita_anpd = :necessita_anpd, observacoes = :observacoes, 
-                                          updated_at = NOW() 
+                                          data_inicio = :data_inicio, data_conclusao = :data_conclusao, 
+                                          nivel_risco = :nivel_risco, necessita_anpd = :necessita_anpd, 
+                                          observacoes = :observacoes, updated_at = NOW() 
                     WHERE id = :id';
             
             $stmt = $this->getConnection()->prepare($sql);
@@ -235,7 +236,8 @@ class LgpdAipdRepository extends DbConnection
             $stmt->bindValue(':departamento_id', $data['departamento_id'], PDO::PARAM_INT);
             $stmt->bindValue(':responsavel_id', $data['responsavel_id'] ?? null, PDO::PARAM_INT);
             $stmt->bindValue(':data_inicio', $data['data_inicio']);
-            $stmt->bindValue(':nivel_risco', $data['nivel_risco']);
+            $stmt->bindValue(':data_conclusao', $data['data_conclusao'] ?? null);
+            $stmt->bindValue(':nivel_risco', $data['nivel_risco'] ?? 'Médio');
             $stmt->bindValue(':necessita_anpd', $data['necessita_anpd'] ?? false, PDO::PARAM_BOOL);
             $stmt->bindValue(':observacoes', $data['observacoes'] ?? null);
             
