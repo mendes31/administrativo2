@@ -106,6 +106,17 @@ class PageLayoutService
 'LgpdConsentimentoColeta',
         'LgpdConsentimentoColetaProcessar',
         'LgpdConsentimentoEmail', 'LgpdConsentimentoEmailProcessar',
+            'LgpdTia',
+            'LgpdTiaCreate',
+            'LgpdTiaEdit',
+            'LgpdTiaView',
+            'LgpdTiaDelete',
+            'LgpdTiaDashboard',
+            'LgpdTiaTemplate',
+            'LgpdTiaTemplates',
+            'LgpdTiaExportPdf',
+            'LgpdTiaExportPdfView',
+            'LgpdTiaExportPdfList',
 
             // Adicione aqui outras permissões de páginas/submenus que possam existir no futuro
         ];

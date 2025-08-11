@@ -395,6 +395,11 @@ $menus = [
                 'permission' => 'LgpdAipd'
             ],
             [
+                'label' => 'TIA',
+                'url' => $_ENV['URL_ADM'] . 'lgpd-tia',
+                'permission' => 'LgpdTia'
+            ],
+            [
                 'label' => 'Sugestões AIPD',
                 'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-suggest',
                 'permission' => 'LgpdAipdSuggest'

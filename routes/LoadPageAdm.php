@@ -102,7 +102,7 @@ class LoadPageAdm
         "LgpdAipdTemplateSaude", "LgpdAipdTemplateFinanceiro", "LgpdAipdTemplateEcommerce", "LgpdAipdTemplateEducacao", "LgpdAipdTemplateRh", "LgpdAipdTemplateMarketing", "LgpdAipdTemplateTelecom", "LgpdAipdTemplateLogistica", "LgpdAipdTemplateJuridico",
         "LgpdConsentimentos", "LgpdConsentimentosCreate", "LgpdConsentimentosEdit", "LgpdConsentimentosView", "LgpdConsentimentosDelete",
         "LgpdConsentimentoColeta", "LgpdConsentimentoColetaProcessar", "LgpdConsentimentoEmail", "LgpdConsentimentoEmailProcessar",
-        "LgpdAipd", "LgpdAipdCreate", "LgpdAipdEdit", "LgpdAipdView", "LgpdAipdDelete", "LgpdAipdSuggest"
+        "LgpdTia", "LgpdTiaCreate", "LgpdTiaEdit", "LgpdTiaView", "LgpdTiaDelete", "LgpdTiaDashboard", "LgpdTiaTemplateFinanceiro", "LgpdTiaTemplateMarketing", "LgpdTiaTemplateRh", "LgpdTiaTemplateTi", "LgpdTiaTemplates", "LgpdTiaExportPdf", "LgpdTiaExportPdfList", "LgpdTiaExportPdfView"
     ];
 
     /** @var array $listDirectory Recebe a lista de diretórios com as controllers */
