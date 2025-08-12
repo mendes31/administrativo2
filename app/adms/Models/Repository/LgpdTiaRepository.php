@@ -381,17 +381,42 @@ class LgpdTiaRepository extends DbConnection
         try {
             $estatisticas = [];
             
+            // Total geral
+            $query = "SELECT COUNT(*) as total FROM lgpd_tia";
+            $stmt = $this->getConnection()->prepare($query);
+            $stmt->execute();
+            $estatisticas['total'] = $stmt->fetchColumn();
+            
             // Total por status
             $query = "SELECT status, COUNT(*) as total FROM lgpd_tia GROUP BY status";
             $stmt = $this->getConnection()->prepare($query);
             $stmt->execute();
             $estatisticas['por_status'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
+            // Totais específicos por status
+            $query = "SELECT 
+                        COUNT(CASE WHEN status = 'Concluído' THEN 1 END) as concluidos,
+                        COUNT(CASE WHEN status = 'Em Andamento' THEN 1 END) as em_andamento,
+                        COUNT(CASE WHEN status = 'Aprovado' THEN 1 END) as aprovados
+                      FROM lgpd_tia";
+            $stmt = $this->getConnection()->prepare($query);
+            $stmt->execute();
+            $statusCounts = $stmt->fetch(PDO::FETCH_ASSOC);
+            $estatisticas['concluidos'] = $statusCounts['concluidos'] ?? 0;
+            $estatisticas['em_andamento'] = $statusCounts['em_andamento'] ?? 0;
+            $estatisticas['aprovados'] = $statusCounts['aprovados'] ?? 0;
+            
             // Total por resultado
             $query = "SELECT resultado, COUNT(*) as total FROM lgpd_tia GROUP BY resultado";
             $stmt = $this->getConnection()->prepare($query);
             $stmt->execute();
             $estatisticas['por_resultado'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Total que necessitam AIPD
+            $query = "SELECT COUNT(*) as total FROM lgpd_tia WHERE resultado = 'Necessita AIPD'";
+            $stmt = $this->getConnection()->prepare($query);
+            $stmt->execute();
+            $estatisticas['necessitam_aipd'] = $stmt->fetchColumn();
             
             // Total por departamento
             $query = "SELECT d.name as departamento, COUNT(*) as total 

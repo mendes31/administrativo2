@@ -142,11 +142,11 @@ class LgpdTiaDashboard
     {
         try {
             $query = "SELECT 
+                        t.id,
                         t.codigo,
                         t.titulo,
                         t.resultado,
                         t.status,
-                        t.created_at,
                         d.name as departamento_nome
                       FROM lgpd_tia t
                       JOIN adms_departments d ON t.departamento_id = d.id
@@ -172,6 +172,7 @@ class LgpdTiaDashboard
     {
         try {
             $query = "SELECT 
+                        t.id,
                         t.codigo,
                         t.titulo,
                         t.departamento_id,
