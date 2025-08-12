@@ -7,6 +7,7 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $map = [
     'lgpd-tia-templates'      => 'LgpdTiaTemplates',
     'lgpd-tia-export-pdf'     => 'LgpdTiaExportPdf',
+    'lgpd-tia-export-pdf-view'=> 'LgpdTiaExportPdfView',
     'lgpd-tia-export-pdf-list'=> 'LgpdTiaExportPdfList',
 ];
 

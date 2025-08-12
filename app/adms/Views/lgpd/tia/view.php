@@ -35,7 +35,7 @@ $data_groups = $this->data['data_groups'];
                     <small class="text-muted">Informações completas do teste de impacto às atividades</small>
                 </div>
                 <div>
-                    <a href="<?php echo $_ENV['URL_ADM']; ?>lgpd-tia-export-pdf/<?php echo $tia['id']; ?>" class="btn btn-danger me-2">
+                    <a href="<?php echo $_ENV['URL_ADM']; ?>lgpd-tia-export-pdf-view/<?php echo $tia['id']; ?>" class="btn btn-danger me-2">
                         <i class="fas fa-file-pdf me-2"></i>Exportar PDF
                     </a>
                     <?php if (in_array('LgpdTiaEdit', $this->data['menuPermission'])): ?>

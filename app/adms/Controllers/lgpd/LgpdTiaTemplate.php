@@ -32,34 +32,108 @@ class LgpdTiaTemplate
 
     /**
      * Método principal para exibir templates de TIA.
+     * Este método detecta automaticamente qual template foi solicitado baseado na URL.
      *
      * @return void
      */
     public function index(): void
     {
         try {
-            // Carregar departamentos disponíveis
-            $this->data['departamentos'] = $this->deptRepo->getAllDepartmentsSelect();
+            // Detectar qual template foi solicitado baseado na URL
+            $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+            $templateType = $this->detectTemplateType($requestUri);
             
-            // Configurar elementos da página
-            $pageElements = [
-                'title_head' => 'Templates de TIA por Setor',
-                'menu' => 'LgpdTiaTemplate',
-                'buttonPermission' => ['LgpdTia', 'LgpdTiaCreate'],
-            ];
+            if ($templateType) {
+                // Rotear para o template específico
+                $this->routeToTemplate($templateType);
+                return;
+            }
             
-            $pageLayoutService = new PageLayoutService();
-            $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
-
-            // Carregar a VIEW
-            $loadView = new LoadViewService("adms/Views/lgpd/tia/templates", $this->data);
-            $loadView->loadView();
+            // Se não for um template específico, mostrar a página principal de seleção
+            $this->showTemplatesList();
+            
         } catch (Exception $e) {
             error_log("Erro no controller LgpdTiaTemplate: " . $e->getMessage());
             $_SESSION['error'] = "Erro ao carregar templates de TIA!";
             header("Location: " . $_ENV['URL_ADM'] . "lgpd-dashboard");
             exit;
         }
+    }
+    
+    /**
+     * Detecta o tipo de template baseado na URL.
+     *
+     * @param string $requestUri
+     * @return string|null
+     */
+    private function detectTemplateType(string $requestUri): ?string
+    {
+        if (strpos($requestUri, 'lgpd-tia-template-rh') !== false) {
+            return 'rh';
+        }
+        if (strpos($requestUri, 'lgpd-tia-template-marketing') !== false) {
+            return 'marketing';
+        }
+        if (strpos($requestUri, 'lgpd-tia-template-financeiro') !== false) {
+            return 'financeiro';
+        }
+        if (strpos($requestUri, 'lgpd-tia-template-ti') !== false) {
+            return 'ti';
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Roteia para o template específico.
+     *
+     * @param string $templateType
+     * @return void
+     */
+    private function routeToTemplate(string $templateType): void
+    {
+        switch ($templateType) {
+            case 'rh':
+                $this->templateRh();
+                break;
+            case 'marketing':
+                $this->templateMarketing();
+                break;
+            case 'financeiro':
+                $this->templateFinanceiro();
+                break;
+            case 'ti':
+                $this->templateTi();
+                break;
+            default:
+                $this->showTemplatesList();
+                break;
+        }
+    }
+    
+    /**
+     * Mostra a lista de templates disponíveis.
+     *
+     * @return void
+     */
+    private function showTemplatesList(): void
+    {
+        // Carregar departamentos disponíveis
+        $this->data['departamentos'] = $this->deptRepo->getAllDepartmentsSelect();
+        
+        // Configurar elementos da página
+        $pageElements = [
+            'title_head' => 'Templates de TIA por Setor',
+            'menu' => 'LgpdTiaTemplate',
+            'buttonPermission' => ['LgpdTia', 'LgpdTiaCreate'],
+        ];
+        
+        $pageLayoutService = new PageLayoutService();
+        $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
+
+        // Carregar a VIEW
+        $loadView = new LoadViewService("adms/Views/lgpd/tia/templates", $this->data);
+        $loadView->loadView();
     }
 
     /**

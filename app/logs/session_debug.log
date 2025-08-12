@@ -103,3 +103,5 @@
 2025-08-07 10:28:41 - [login] INICIO - session_id: b409gudmiivgaviurff0a6qu53 - {"csrf_tokens":[]}
 2025-08-07 10:28:48 - [login] INICIO - session_id: b409gudmiivgaviurff0a6qu53 - {"csrf_tokens":[]}
 2025-08-07 10:28:48 - [login] SALVOU SESSION NO BANCO: 5dghjpq4pc33lfvd3bikeih3im - $_SESSION: {"user_id":1,"user_name":"Manager","user_email":"manager@tiaraju.com.br","user_username":"manager","user_image":"users\/1\/user_687feaf14b4ad.jpg","user_department":"Tecnologia da Informa\u00e7\u00e3o","user_position":"Lider","session_id":"5dghjpq4pc33lfvd3bikeih3im"}
+2025-08-11 18:50:03 - [login] INICIO - session_id: m20v7afvgh3om06ac3n1509geb - {"csrf_tokens":[]}
+2025-08-11 18:50:04 - [login] SALVOU SESSION NO BANCO: bmfc4oi7sbtg1bhs5er4vu4e21 - $_SESSION: {"user_id":1,"user_name":"Manager","user_email":"manager@tiaraju.com.br","user_username":"manager","user_image":"users\/1\/user_687feaf14b4ad.jpg","user_department":"Tecnologia da Informa\u00e7\u00e3o","user_position":"Lider","session_id":"bmfc4oi7sbtg1bhs5er4vu4e21"}
