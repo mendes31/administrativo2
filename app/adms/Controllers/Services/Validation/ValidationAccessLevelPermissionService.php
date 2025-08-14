@@ -36,26 +36,27 @@ class ValidationAccessLevelPermissionService
         // Instanciar a classe Validator para validar o formulário
         $validator = new Validator();
 
-        // Log de debug - verificar se accessLevelPage existe e seu tipo
-        if (isset($data['accessLevelPage'])) {
-            error_log('accessLevelPage existe: ' . json_encode($data['accessLevelPage']));
-            error_log('Tipo de accessLevelPage: ' . gettype($data['accessLevelPage']));
-            error_log('is_array(accessLevelPage): ' . (is_array($data['accessLevelPage']) ? 'true' : 'false'));
+        // Log de debug - verificar se permissions existe e seu tipo
+        if (isset($data['permissions'])) {
+            error_log('permissions existe: ' . json_encode($data['permissions']));
+            error_log('Tipo de permissions: ' . gettype($data['permissions']));
+            error_log('is_array(permissions): ' . (is_array($data['permissions']) ? 'true' : 'false'));
         } else {
-            error_log('accessLevelPage NÃO existe nos dados');
+            error_log('permissions NÃO existe nos dados');
         }
 
         // Definir as regras de validação
         $validation = $validator->make($data, [
             'adms_access_level_id' => 'required|integer',
-            'accessLevelPage' => 'required', // Remover validação de array por enquanto
+            'permissions' => 'required|array', // Agora espera um array 'permissions'
         ]);
 
         // Definir mensagens personalizadas
         $validation->setMessages([
             'adms_access_level_id:required' => 'Dados inválidos.',
             'adms_access_level_id:integer' => 'Dados inválidos.',
-            'accessLevelPage:required' => 'Dados de permissões são obrigatórios.',
+            'permissions:required' => 'Dados de permissões são obrigatórios.',
+            'permissions:array' => 'Formato de permissões inválido.',
         ]);
 
         // Validar os dados

@@ -147,18 +147,30 @@ class AccessLevelsPagesRepository extends DbConnection
      * Atualiza as permissões de páginas associadas a um nível de acesso.
      *
      * COMPORTAMENTO CORRIGIDO:
-     * - ADICIONA novas permissões marcadas no formulário
-     * - ATUALIZA permissões existentes que estavam bloqueadas
-     * - MANTÉM permissões existentes que não foram alteradas
-     * - NÃO remove permissões automaticamente (apenas adiciona/atualiza)
+     * - Processa TODAS as permissões enviadas com seus valores (0 ou 1)
+     * - ADICIONA novas permissões se não existirem
+     * - ATUALIZA permissões existentes com novos valores
+     * - Cada checkbox desmarcado envia valor 0, cada checkbox marcado envia valor 1
      *
      * @param array $data Dados contendo as permissões de páginas a serem atualizadas.
      * @return bool Retorna `true` se a operação foi bem-sucedida, ou `false` em caso de erro.
      */
     public function updateAccessLevelPages(array $data): bool
     {
-        // Log de debug
+        // Log de debug detalhado
+        error_log('=== UPDATEACCESSLEVELPAGES INICIADO ===');
+        error_log('Timestamp: ' . date('Y-m-d H:i:s'));
         error_log('updateAccessLevelPages chamado com dados: ' . json_encode($data));
+        
+        // Log específico para desktop vs mobile
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'não definido';
+        error_log('User-Agent no repositório: ' . $userAgent);
+        
+        if (strpos($userAgent, 'Mobile') !== false || strpos($userAgent, 'Android') !== false || strpos($userAgent, 'iPhone') !== false) {
+            error_log('🔍 REPOSITÓRIO: REQUISIÇÃO IDENTIFICADA COMO MOBILE');
+        } else {
+            error_log('🔍 REPOSITÓRIO: REQUISIÇÃO IDENTIFICADA COMO DESKTOP');
+        }
 
         if ($data['adms_access_level_id'] == 1) {
             // Gerar log de erro
@@ -174,40 +186,40 @@ class AccessLevelsPagesRepository extends DbConnection
             // Marca o ponto inicial de uma transação SQL
             $this->getConnection()->beginTransaction();
 
-            // Criar o elemento accessLevelPage no array quando não vem nível de acesso do formulário
-            $data['accessLevelPage'] = $data['accessLevelPage'] ?? [];
+            // Criar o elemento permissions no array quando não vem do formulário
+            $data['permissions'] = $data['permissions'] ?? [];
             
-            // Garantir que accessLevelPage seja sempre um array
-            if (!is_array($data['accessLevelPage'])) {
-                error_log('accessLevelPage não é um array, convertendo...');
-                if (is_string($data['accessLevelPage'])) {
+            // Garantir que permissions seja sempre um array
+            if (!is_array($data['permissions'])) {
+                error_log('permissions não é um array, convertendo...');
+                if (is_string($data['permissions'])) {
                     // Se for string, tentar decodificar JSON
-                    $decoded = json_decode($data['accessLevelPage'], true);
+                    $decoded = json_decode($data['permissions'], true);
                     if (json_last_error() === JSON_ERROR_NONE) {
-                        $data['accessLevelPage'] = $decoded;
+                        $data['permissions'] = $decoded;
                     } else {
-                        // Se não for JSON válido, tentar separar por vírgulas
-                        $data['accessLevelPage'] = array_filter(array_map('trim', explode(',', $data['accessLevelPage'])));
-                        error_log('String convertida para array por vírgulas: ' . json_encode($data['accessLevelPage']));
+                        // Se não for JSON válido, criar array vazio
+                        $data['permissions'] = [];
+                        error_log('String não é JSON válido, criando array vazio');
                     }
                 } else {
                     // Se for outro tipo, criar array vazio
-                    $data['accessLevelPage'] = [];
+                    $data['permissions'] = [];
                 }
             }
             
             // Verificar se ainda não é um array válido
-            if (!is_array($data['accessLevelPage']) || empty($data['accessLevelPage'])) {
-                error_log('accessLevelPage ainda não é um array válido após conversão');
-                $data['accessLevelPage'] = [];
+            if (!is_array($data['permissions'])) {
+                error_log('permissions ainda não é um array válido após conversão');
+                $data['permissions'] = [];
             }
             
             // Log de debug
-            error_log('accessLevelPage após processamento: ' . json_encode($data['accessLevelPage']));
-            error_log('Tipo final de accessLevelPage: ' . gettype($data['accessLevelPage']));
-            error_log('É array? ' . (is_array($data['accessLevelPage']) ? 'Sim' : 'Não'));
-            error_log('Tamanho: ' . count($data['accessLevelPage']));
-            error_log('Primeiros 5 elementos: ' . json_encode(array_slice($data['accessLevelPage'], 0, 5)));
+            error_log('permissions após processamento: ' . json_encode($data['permissions']));
+            error_log('Tipo final de permissions: ' . gettype($data['permissions']));
+            error_log('permissions é array? ' . (is_array($data['permissions']) ? 'Sim' : 'Não'));
+            error_log('Tamanho permissions: ' . count($data['permissions']));
+            error_log('Primeiros 5 elementos permissions: ' . json_encode(array_slice($data['permissions'], 0, 5, true)));
 
             // Recuperar todas as páginas cadastradas para o nível de acesso
             $resultAccessLevelsPages = $this->getPagesAccessLevelsArray((int) $data['adms_access_level_id']);
@@ -223,84 +235,82 @@ class AccessLevelsPagesRepository extends DbConnection
             // Log de debug
             error_log('Páginas com permissão no BD: ' . json_encode($resultAccessLevelsPagesPermissions));
 
-            // Percorrer o array com as páginas que devem ser liberadas para o usuário
-            foreach ($data['accessLevelPage'] as $accessLevelPage) {
+            // Processar todas as permissões com seus valores (0 ou 1)
+            foreach ($data['permissions'] as $pageId => $permissionValue) {
                 // Validar se o ID da página é válido
-                if (empty($accessLevelPage) || !is_numeric($accessLevelPage)) {
-                    error_log('ID de página inválido ignorado: ' . $accessLevelPage);
+                if (empty($pageId) || !is_numeric($pageId)) {
+                    error_log('ID de página inválido ignorado: ' . $pageId);
                     continue;
                 }
                 
                 // Converter para inteiro
-                $pageId = (int) $accessLevelPage;
-                error_log('Processando página ID: ' . $pageId);
+                $pageId = (int) $pageId;
+                $permissionValue = (int) $permissionValue; // 0 ou 1
+                
+                error_log('Processando página ID: ' . $pageId . ' com permissão: ' . $permissionValue);
 
                 // Verificar se a página não está cadastrada para o nível de acesso
                 if (!in_array($pageId, $resultAccessLevelsPages)) {
-
                     // QUERY para cadastrar página para o nível de acesso
                     $sql = 'INSERT INTO adms_access_levels_pages (permission, adms_access_level_id, adms_page_id, created_at) VALUES (:permission, :adms_access_level_id, :adms_page_id, :created_at)';
-
-                    // Preparar a QUERY
                     $stmt = $this->getConnection()->prepare($sql);
-
-                    // Substituir os parâmetros da QUERY pelos valores
-                    $stmt->bindValue(':permission', 1, PDO::PARAM_INT);
+                    $stmt->bindValue(':permission', $permissionValue, PDO::PARAM_INT);
                     $stmt->bindValue(':adms_access_level_id', $data['adms_access_level_id'], PDO::PARAM_INT);
                     $stmt->bindValue(':adms_page_id', $pageId, PDO::PARAM_INT);
                     $stmt->bindValue(':created_at', date("Y-m-d H:i:s"));
-
-                    // Executar a QUERY
                     $stmt->execute();
-                    
-                    // Log de debug
-                    error_log('Página inserida: ' . $pageId);
-                } elseif (!in_array($pageId, $resultAccessLevelsPagesPermissions)) { // Verificar se a página está cadastrada no BD, mas não está liberada o nível de acesso
-
+                    error_log('Página inserida: ' . $pageId . ' com permissão: ' . $permissionValue);
+                } else {
                     // QUERY para atualizar página para o nível de acesso
-                    $sql = 'UPDATE adms_access_levels_pages 
-                            SET permission = :permission, updated_at = :updated_at
-                            WHERE adms_access_level_id = :adms_access_level_id 
-                            AND adms_page_id = :adms_page_id';
-
-                    // Preparar a QUERY
+                    $sql = 'UPDATE adms_access_levels_pages SET permission = :permission, updated_at = :updated_at WHERE adms_access_level_id = :adms_access_level_id AND adms_page_id = :adms_page_id';
                     $stmt = $this->getConnection()->prepare($sql);
-
-                    // Substituir os parâmetros da QUERY pelos valores 
-                    $stmt->bindValue(':permission', 1, PDO::PARAM_INT);
+                    $stmt->bindValue(':permission', $permissionValue, PDO::PARAM_INT);
                     $stmt->bindValue(':updated_at', date("Y-m-d H:i:s"));
                     $stmt->bindValue(':adms_access_level_id', $data['adms_access_level_id'], PDO::PARAM_INT);
                     $stmt->bindValue(':adms_page_id', $pageId, PDO::PARAM_INT);
-
-                    // Executar a QUERY
+                    
+                    // Log detalhado da query
+                    error_log('🔍 EXECUTANDO UPDATE:');
+                    error_log('   SQL: ' . $sql);
+                    error_log('   Parâmetros: permission=' . $permissionValue . ', updated_at=' . date("Y-m-d H:i:s") . ', adms_access_level_id=' . $data['adms_access_level_id'] . ', pageId=' . $pageId);
+                    
                     $stmt->execute();
                     
-                    // Log de debug
-                    error_log('Página atualizada: ' . $pageId);
-
-                    // Usar array_diff para remover o valor
-                    $resultAccessLevelsPagesPermissions = array_diff($resultAccessLevelsPagesPermissions, [$pageId]);
-                } elseif (in_array($pageId, $resultAccessLevelsPagesPermissions)) { // Verificar se no banco de dados o registro indica que o usuário tem permissão de acessar a página, no formulário mantém a permissão de acesso a página
-
-                    // Usar array_diff para remover o valor
-                    $resultAccessLevelsPagesPermissions = array_diff($resultAccessLevelsPagesPermissions, [$pageId]);
+                    // Verificar se o UPDATE realmente alterou alguma linha
+                    $rowCount = $stmt->rowCount();
+                    error_log('   Linhas afetadas pelo UPDATE: ' . $rowCount);
                     
-                    // Log de debug
-                    error_log('Página mantida: ' . $pageId);
+                    if ($rowCount === 0) {
+                        error_log('   ⚠️ ATENÇÃO: UPDATE não alterou nenhuma linha!');
+                        // Verificar o valor atual no banco
+                        $sqlCheck = "SELECT permission FROM adms_access_levels_pages WHERE adms_access_level_id = :adms_access_level_id AND adms_page_id = :pageId LIMIT 1";
+                        $stmtCheck = $this->getConnection()->prepare($sqlCheck);
+                        $stmtCheck->bindParam(':adms_access_level_id', $data['adms_access_level_id']);
+                        $stmtCheck->bindParam(':pageId', $pageId);
+                        $stmtCheck->execute();
+                        $currentValue = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+                        error_log('   Valor atual no banco: ' . ($currentValue ? $currentValue['permission'] : 'não encontrado'));
+                    }
+                    
+                    error_log('Página atualizada: ' . $pageId . ' com permissão: ' . $permissionValue);
+                    
+                    // Remover da lista de permissões ativas se foi processada
+                    if (in_array($pageId, $resultAccessLevelsPagesPermissions)) {
+                        $resultAccessLevelsPagesPermissions = array_diff($resultAccessLevelsPagesPermissions, [$pageId]);
+                    }
                 }
             }
 
-            // IMPORTANTE: NÃO remover permissões existentes automaticamente
-            // O sistema deve apenas ADICIONAR novas permissões, não revogar as existentes
-            // Se uma permissão não está no formulário, ela deve ser mantida como está
+            // IMPORTANTE: Todas as permissões foram processadas
+            // O sistema agora processa cada permissão individualmente com seu valor (0 ou 1)
             
             if ($resultAccessLevelsPagesPermissions) {
-                error_log('ATENÇÃO: ' . count($resultAccessLevelsPagesPermissions) . ' permissões existentes NÃO serão removidas automaticamente');
-                error_log('Páginas que permanecerão com permissão: ' . json_encode($resultAccessLevelsPagesPermissions));
+                error_log('ATENÇÃO: ' . count($resultAccessLevelsPagesPermissions) . ' permissões existentes não foram processadas');
+                error_log('Páginas não processadas: ' . json_encode($resultAccessLevelsPagesPermissions));
                 
-                // Log das permissões que serão mantidas
+                // Log das permissões que não foram processadas
                 foreach ($resultAccessLevelsPagesPermissions as $pageId) {
-                    error_log('Permissão MANTIDA para página: ' . $pageId);
+                    error_log('Permissão NÃO PROCESSADA para página: ' . $pageId);
                 }
             }
 
@@ -309,13 +319,40 @@ class AccessLevelsPagesRepository extends DbConnection
             
             // Log de debug
             error_log('updateAccessLevelPages concluído com sucesso');
-            error_log('Total de páginas processadas: ' . count($data['accessLevelPage']));
+            error_log('Total de páginas processadas: ' . count($data['permissions']));
             error_log('Permissões salvas para o nível de acesso: ' . $data['adms_access_level_id']);
+            
+            // Log detalhado da verificação
+            error_log('=== VERIFICAÇÃO APÓS SALVAMENTO ===');
             
             // Verificar se as permissões foram realmente salvas
             $verificacao = $this->getPagesAccessLevelsArray((int) $data['adms_access_level_id'], true);
             error_log('Verificação após salvamento - Páginas com permissão: ' . json_encode($verificacao));
             error_log('Total de páginas com permissão após salvamento: ' . count($verificacao));
+            
+            // Verificação adicional: consultar diretamente o banco
+            $sqlVerificacao = "SELECT adms_page_id, permission FROM adms_access_levels_pages WHERE adms_access_level_id = :adms_access_level_id ORDER BY adms_page_id LIMIT 10";
+            $stmtVerificacao = $this->getConnection()->prepare($sqlVerificacao);
+            $stmtVerificacao->bindParam(':adms_access_level_id', $data['adms_access_level_id']);
+            $stmtVerificacao->execute();
+            $verificacaoDireta = $stmtVerificacao->fetchAll(PDO::FETCH_ASSOC);
+            error_log('Verificação direta no banco (primeiras 10): ' . json_encode($verificacaoDireta));
+            
+            // Verificar se há permissões com valor 0
+            $sqlVerificacao0 = "SELECT COUNT(*) as total FROM adms_access_levels_pages WHERE adms_access_level_id = :adms_access_level_id AND permission = 0";
+            $stmtVerificacao0 = $this->getConnection()->prepare($sqlVerificacao0);
+            $stmtVerificacao0->bindParam(':adms_access_level_id', $data['adms_access_level_id']);
+            $stmtVerificacao0->execute();
+            $total0 = $stmtVerificacao0->fetch(PDO::FETCH_ASSOC);
+            error_log('Total de permissões com valor 0: ' . $total0['total']);
+            
+            // Verificar se há permissões com valor 1
+            $sqlVerificacao1 = "SELECT COUNT(*) as total FROM adms_access_levels_pages WHERE adms_access_level_id = :adms_access_level_id AND permission = 1";
+            $stmtVerificacao1 = $this->getConnection()->prepare($sqlVerificacao1);
+            $stmtVerificacao1->bindParam(':adms_access_level_id', $data['adms_access_level_id']);
+            $stmtVerificacao1->execute();
+            $total1 = $stmtVerificacao1->fetch(PDO::FETCH_ASSOC);
+            error_log('Total de permissões com valor 1: ' . $total1['total']);
 
             return true;
         } catch (Exception $e) {

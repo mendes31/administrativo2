@@ -257,7 +257,7 @@ file_put_contents('caminho_do_log', 'session_id: ' . session_id() . ' - ' . json
 
     <!-- JavaScript específico para página de permissões -->
     <?php if (strpos($this->view, 'permission/list.php') !== false): ?>
-    <script src="<?php echo $_ENV['URL_ADM']; ?>public/adms/js/permission-list.js"></script>
+    <script src="<?php echo $_ENV['URL_ADM']; ?>public/adms/js/permission-list.js?v=<?php echo time(); ?>"></script>
     <?php endif; ?>
 
     <!-- Bootstrap Bundle com Popper.js -->

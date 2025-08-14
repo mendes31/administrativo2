@@ -109,8 +109,35 @@ class ListAccessLevelsPermissions
 
     private function editAccessLevelPermissions(bool $isAjax): void 
     {
-        // Log de debug
-        error_log('editAccessLevelPermissions chamado com dados: ' . json_encode($this->data['form']));
+        // Log de debug detalhado
+        error_log('=== EDITACCESSLEVELPERMISSIONS INICIADO ===');
+        error_log('Timestamp: ' . date('Y-m-d H:i:s'));
+        error_log('É AJAX? ' . ($isAjax ? 'SIM' : 'NÃO'));
+        error_log('Dados do formulário: ' . json_encode($this->data['form']));
+        
+        // Log específico para desktop vs mobile
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'não definido';
+        error_log('User-Agent: ' . $userAgent);
+        
+        if (strpos($userAgent, 'Mobile') !== false || strpos($userAgent, 'Android') !== false || strpos($userAgent, 'iPhone') !== false) {
+            error_log('🔍 REQUISIÇÃO IDENTIFICADA COMO MOBILE');
+        } else {
+            error_log('🔍 REQUISIÇÃO IDENTIFICADA COMO DESKTOP');
+        }
+        
+        // Log detalhado das permissões
+        if (isset($this->data['form']['permissions']) && is_array($this->data['form']['permissions'])) {
+            error_log('Total de permissões recebidas: ' . count($this->data['form']['permissions']));
+            error_log('Permissões autorizadas (1): ' . count(array_filter($this->data['form']['permissions'], function($v) { return $v == '1'; })));
+            error_log('Permissões revogadas (0): ' . count(array_filter($this->data['form']['permissions'], function($v) { return $v == '0'; })));
+            
+            // Log das primeiras 5 permissões para debug
+            $firstPermissions = array_slice($this->data['form']['permissions'], 0, 5, true);
+            error_log('Primeiras 5 permissões: ' . json_encode($firstPermissions));
+        } else {
+            error_log('❌ ERRO: Campo permissions não encontrado ou não é array');
+            error_log('Tipo de permissions: ' . gettype($this->data['form']['permissions'] ?? 'não definido'));
+        }
         
         // Validar os dados do formulário 
         $validationAccessLevelPermissions = new ValidationAccessLevelPermissionService();
