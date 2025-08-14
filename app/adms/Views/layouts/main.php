@@ -25,6 +25,8 @@ file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
     FILE_APPEND
 );
 
+
+
 // Verificar se há erros fatais
 $error = error_get_last();
 if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
@@ -173,6 +175,11 @@ file_put_contents('caminho_do_log', 'session_id: ' . session_id() . ' - ' . json
     <!-- Sistema Responsivo para Diferentes Resoluções -->
     <link rel="stylesheet" href="<?php echo $_ENV['URL_ADM']; ?>public/adms/css/responsive-screens.css">
 
+    <!-- CSS específico para página de permissões -->
+    <?php if (strpos($this->view, 'permission/list.php') !== false): ?>
+    <link rel="stylesheet" href="<?php echo $_ENV['URL_ADM']; ?>public/adms/css/permission-list.css">
+    <?php endif; ?>
+
     <!-- JQ por CDN -->
     <!-- <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script> -->
 
@@ -246,7 +253,12 @@ file_put_contents('caminho_do_log', 'session_id: ' . session_id() . ' - ' . json
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js"></script>
     
     <!-- Sistema Responsivo para Diferentes Resoluções -->
-    <script src="<?php echo $_ENV['URL_ADM'] ?>public/adms/js/screen-resolution.js"></script>
+    <script src="<?php echo $_ENV['URL_ADM']; ?>public/adms/js/screen-resolution.js"></script>
+
+    <!-- JavaScript específico para página de permissões -->
+    <?php if (strpos($this->view, 'permission/list.php') !== false): ?>
+    <script src="<?php echo $_ENV['URL_ADM']; ?>public/adms/js/permission-list.js"></script>
+    <?php endif; ?>
 
     <!-- Bootstrap Bundle com Popper.js -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->

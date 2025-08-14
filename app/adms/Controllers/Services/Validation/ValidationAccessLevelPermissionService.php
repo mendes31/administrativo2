@@ -27,21 +27,35 @@ class ValidationAccessLevelPermissionService
 
     public function validate(array $data): array
     {
+        // Log de debug
+        error_log('ValidationAccessLevelPermissionService::validate chamado com dados: ' . json_encode($data));
+        
         // Criar o array para receber as mensagens de erro
         $errors = [];
 
         // Instanciar a classe Validator para validar o formulário
         $validator = new Validator();
 
+        // Log de debug - verificar se accessLevelPage existe e seu tipo
+        if (isset($data['accessLevelPage'])) {
+            error_log('accessLevelPage existe: ' . json_encode($data['accessLevelPage']));
+            error_log('Tipo de accessLevelPage: ' . gettype($data['accessLevelPage']));
+            error_log('is_array(accessLevelPage): ' . (is_array($data['accessLevelPage']) ? 'true' : 'false'));
+        } else {
+            error_log('accessLevelPage NÃO existe nos dados');
+        }
+
         // Definir as regras de validação
         $validation = $validator->make($data, [
             'adms_access_level_id' => 'required|integer',
+            'accessLevelPage' => 'required', // Remover validação de array por enquanto
         ]);
 
         // Definir mensagens personalizadas
         $validation->setMessages([
             'adms_access_level_id:required' => 'Dados inválidos.',
             'adms_access_level_id:integer' => 'Dados inválidos.',
+            'accessLevelPage:required' => 'Dados de permissões são obrigatórios.',
         ]);
 
         // Validar os dados
@@ -51,12 +65,20 @@ class ValidationAccessLevelPermissionService
         if ($validation->fails()) {
             // Recuperar os erros 
             $arrayErrors = $validation->errors();
+            
+            // Log de debug - verificar erros de validação
+            error_log('Validação falhou. Erros: ' . json_encode($arrayErrors->firstOfAll()));
 
             // Percorrer o array de erros e armazenar a primeira mensagem de erro para cada campo validado
             foreach ($arrayErrors->firstOfAll() as $key => $message) {
                 $errors[$key] = $message;
             }
+        } else {
+            error_log('Validação passou com sucesso');
         }
+
+        // Log de debug - erros finais
+        error_log('Erros retornados: ' . json_encode($errors));
 
         // Retornar o array de erros, se houver
         return $errors;

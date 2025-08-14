@@ -389,6 +389,11 @@ class AddAdmsPages extends AbstractSeed
             ['name'=> 'Visualizar RIPD', 'controller' => 'LgpdRipdView', 'controller_url' => 'lgpd-ripd-view', 'directory' => 'lgpd', 'obs' => 'Página para visualizar Relatório de Impacto à Proteção de Dados (RIPD).', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
             ['name'=> 'Excluir RIPD', 'controller' => 'LgpdRipdDelete', 'controller_url' => 'lgpd-ripd-delete', 'directory' => 'lgpd', 'obs' => 'Página para excluir Relatório de Impacto à Proteção de Dados (RIPD).', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
             ['name'=> 'Dashboard RIPD', 'controller' => 'LgpdRipdDashboard', 'controller_url' => 'lgpd-ripd-dashboard', 'directory' => 'lgpd', 'obs' => 'Dashboard com estatísticas e métricas dos Relatórios de Impacto à Proteção de Dados (RIPD).', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
+            
+            // ===== GRUPO 31: LGPD - RIPD - EXPORTAÇÃO PDF =====
+            ['name'=> 'Exportar RIPD PDF', 'controller' => 'LgpdRipdExportPdf', 'controller_url' => 'lgpd-ripd-export-pdf', 'directory' => 'lgpd', 'obs' => 'Exportação de relatório RIPD individual para PDF.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
+            ['name'=> 'Exportar Lista RIPD PDF', 'controller' => 'LgpdRipdExportPdfList', 'controller_url' => 'lgpd-ripd-export-pdf-list', 'directory' => 'lgpd', 'obs' => 'Exportação da lista completa de relatórios RIPD para PDF.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
+            ['name'=> 'Visualizar RIPD PDF', 'controller' => 'LgpdRipdExportPdfView', 'controller_url' => 'lgpd-ripd-export-pdf-view', 'directory' => 'lgpd', 'obs' => 'Visualização de relatório RIPD em formato PDF.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
         ];
 
         // Percorrer o array com dados que devem ser validados antes de cadastrar

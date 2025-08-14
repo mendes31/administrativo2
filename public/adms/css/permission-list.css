@@ -1,0 +1,476 @@
+/* Estilos para a página de permissões */
+
+/* Container fixo superior - AJUSTADO para funcionar dentro do card */
+.sticky-top-container {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    background-color: #ffffff !important;
+    border-bottom: 2px solid #dee2e6 !important;
+    padding: 15px 0 !important;
+    margin-bottom: 0 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    width: 100% !important;
+    border-radius: 0.375rem 0.375rem 0 0 !important;
+}
+
+/* Remover margem superior do container principal */
+.container-fluid {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Cabeçalho fixo simples - removido pois agora cada grupo tem seu próprio cabeçalho */
+.table thead {
+    display: none !important;
+}
+
+/* Cabeçalho da tabela para cada grupo */
+.group-table-header {
+    background-color: #495057 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid #343a40 !important;
+}
+
+.group-table-header th {
+    background-color: #495057 !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid #343a40 !important;
+    padding: 8px 12px !important;
+    font-size: 0.85rem !important;
+    text-align: left !important;
+    vertical-align: middle !important;
+}
+
+/* Ajustar o corpo da tabela */
+.table tbody {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.table {
+    margin-bottom: 0;
+    width: 100% !important;
+    table-layout: fixed !important;
+}
+
+/* Cabeçalho do grupo com comportamento CONSISTENTE (sempre igual) */
+.group-header {
+    background-color: #f8f9fa !important;
+    border-bottom: 2px solid #dee2e6 !important;
+    border-top: 1px solid #dee2e6 !important;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.group-header:hover {
+    background-color: #e9ecef !important;
+}
+
+/* Estilo específico para o cabeçalho do grupo - SEMPRE IGUAL */
+.group-header td[colspan] {
+    background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border-left: 3px solid #0d6efd !important;
+    padding: 8px 16px !important;
+    height: 40px !important;
+    vertical-align: middle !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Garantir que a linha do grupo mantenha sua largura completa */
+.group-header {
+    width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.group-header td {
+    width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Forçar largura completa para todas as linhas da tabela */
+.table tr {
+    width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.table td, .table th {
+    box-sizing: border-box !important;
+}
+
+/* Nome do grupo em destaque */
+.group-name {
+    color: #0d6efd !important;
+    font-weight: 700 !important;
+    text-align: left !important;
+    display: inline-block !important;
+    font-size: 1rem !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+    margin-right: 0 !important;
+    min-width: 120px !important;
+    flex-shrink: 0 !important;
+}
+
+/* Ícone de toggle - comportamento consistente */
+.toggle-icon {
+    transition: transform 0.2s !important;
+    margin-right: 0 !important;
+    color: #6c757d !important;
+    font-size: 0.9rem !important;
+    width: 16px !important;
+    text-align: center !important;
+    flex-shrink: 0 !important;
+}
+
+/* Rotação do ícone apenas quando colapsado */
+.group-header.collapsed .toggle-icon {
+    transform: rotate(-90deg) !important;
+}
+
+/* Estado expandido - ícone para baixo */
+.group-header:not(.collapsed) .toggle-icon {
+    transform: rotate(0deg) !important;
+}
+
+/* Contadores */
+.group-counter {
+    display: inline-block !important;
+    margin: 0 !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    padding: 3px 6px !important;
+    background-color: #ffffff !important;
+    border-radius: 4px !important;
+    border: 1px solid #dee2e6 !important;
+    flex-shrink: 0 !important;
+    min-width: 40px !important;
+    text-align: center !important;
+}
+
+.group-counter.total {
+    color: #6c757d !important;
+    background-color: #f8f9fa !important;
+    min-width: 60px !important;
+}
+
+.group-counter.allowed {
+    color: #198754 !important;
+    background-color: #d1e7dd !important;
+}
+
+.group-counter.denied {
+    color: #dc3545 !important;
+    background-color: #f8d7da !important;
+}
+
+/* Botões do grupo */
+.group-header .btn {
+    font-size: 0.75rem !important;
+    padding: 4px 10px !important;
+    margin-left: 0 !important;
+    border-radius: 4px !important;
+    font-weight: 500 !important;
+    min-width: 70px !important;
+    flex-shrink: 0 !important;
+    height: 28px !important;
+}
+
+/* Distribuição dos elementos usando flexbox */
+.group-header td .toggle-icon { order: 1 !important; flex: 0 0 auto !important; }
+.group-header td .group-name { order: 2 !important; flex: 0 0 auto !important; }
+.group-header td .group-counter.total { order: 3 !important; flex: 0 0 auto !important; }
+.group-header td .group-counter.allowed { order: 4 !important; flex: 0 0 auto !important; }
+.group-header td .group-counter.denied { order: 5 !important; flex: 0 0 auto !important; }
+.group-header td .btn:first-of-type { order: 6 !important; flex: 0 0 auto !important; }
+.group-header td .btn:last-of-type { order: 7 !important; flex: 0 0 auto !important; }
+
+/* Espaçamento entre elementos */
+.group-header td > * {
+    margin-right: 8px !important;
+}
+
+.group-header td > *:last-child {
+    margin-right: 0 !important;
+}
+
+/* LARGURAS DAS COLUNAS REDUZIDAS para trazer informações mais à esquerda */
+.table th:nth-child(1) { width: 8%; }  /* Liberado (toggle switch) */
+.table th:nth-child(2) { width: 5%; }  /* Página (ID pequeno) */
+.table th:nth-child(3) { width: 39%; } /* Nome (suporte ao nome da página) */
+.table th:nth-child(4) { width: 40%; } /* Observação (suporte ao conteúdo) */
+.table th:nth-child(5) { width: 8%; }  /* Pública/Privada (suficiente para badge) */
+
+/* Alinhamento do texto - TODOS à esquerda */
+.table th:nth-child(1),
+.table th:nth-child(2),
+.table th:nth-child(3),
+.table th:nth-child(4),
+.table th:nth-child(5) {
+    text-align: left !important;
+}
+
+.table td:nth-child(1),
+.table td:nth-child(2),
+.table td:nth-child(3),
+.table td:nth-child(4),
+.table td:nth-child(5) {
+    text-align: left !important;
+}
+
+/* Linhas de conteúdo individuais */
+.group-content-row {
+    background-color: #ffffff;
+    border-left: 1px solid #dee2e6;
+}
+
+.group-content-row:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.group-content-row:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+.group-content-row td {
+    padding: 4px 8px !important;
+    height: 32px !important;
+    font-size: 0.8rem !important;
+    vertical-align: middle !important;
+    border-left: 1px solid #dee2e6;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+.group-content-row td:first-child {
+    border-left: 2px solid #dee2e6;
+}
+
+/* Toggle switch com tamanho reduzido */
+.form-switch {
+    justify-content: flex-start !important;
+    height: 20px !important;
+}
+
+.form-switch .form-check-input {
+    width: 2rem;
+    height: 1rem;
+    margin-left: 0;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
+    background-position: left center;
+    border-radius: 1rem;
+    transition: background-position .15s ease-in-out;
+}
+
+.form-switch .form-check-input:checked {
+    background-color: #198754;
+    border-color: #198754;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+    background-position: right center;
+}
+
+.form-switch .form-check-input:focus {
+    border-color: rgba(0, 0, 0, 0.25);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25);
+}
+
+/* Estilos para badges */
+.badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+}
+
+/* Estilos para mensagens de informação */
+.info-message {
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+/* Responsividade para mobile */
+@media (max-width: 768px) {
+    .sticky-top-container {
+        padding: 10px 0 !important;
+        position: sticky !important;
+    }
+    
+    .sticky-top-container .row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .sticky-top-container .col-md-4 {
+        width: 100% !important;
+        text-align: center !important;
+    }
+    
+    .group-header td[colspan] {
+        flex-direction: column !important;
+        gap: 8px !important;
+        height: auto !important;
+        padding: 12px 16px !important;
+    }
+    
+    .group-header .btn {
+        min-width: 60px !important;
+        font-size: 0.7rem !important;
+    }
+    
+    .group-counter {
+        min-width: 35px !important;
+        font-size: 0.7rem !important;
+    }
+    
+    .group-name {
+        min-width: 100px !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* Estilos para visualização mobile com cards */
+.group-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.group-card-header {
+    background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 2px solid #dee2e6;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 1rem;
+}
+
+.group-card-header:hover {
+    background: linear-gradient(90deg, #e9ecef 0%, #dee2e6 100%);
+}
+
+.group-card-header .toggle-icon {
+    transition: transform 0.2s;
+    color: #6c757d;
+    font-size: 0.9rem;
+    width: 16px;
+    text-align: center;
+}
+
+.group-card.collapsed .toggle-icon {
+    transform: rotate(-90deg);
+}
+
+.group-card.expanded .toggle-icon {
+    transform: rotate(0deg);
+}
+
+.group-card-header .group-name {
+    color: #0d6efd;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.group-card-header .badge {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.group-card-content {
+    padding: 1rem;
+    background-color: #ffffff;
+}
+
+.permission-item {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef !important;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.permission-item:hover {
+    border-color: #0d6efd !important;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15);
+}
+
+.permission-item .form-check {
+    margin: 0;
+}
+
+.permission-item .form-check-label {
+    font-weight: 500;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.permission-details {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.permission-details strong {
+    color: #495057;
+}
+
+.permission-details .mb-1 {
+    margin-bottom: 0.5rem !important;
+}
+
+.permission-details .mb-1:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Responsividade adicional para mobile */
+@media (max-width: 576px) {
+    .group-card-header {
+        padding: 0.75rem;
+    }
+    
+    .group-card-content {
+        padding: 0.75rem;
+    }
+    
+    .permission-item {
+        padding: 0.75rem !important;
+    }
+    
+    .group-card-header .btn {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.5rem;
+        min-width: 50px;
+    }
+    
+    .group-card-header .badge {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+    }
+    
+    .group-card-header .group-name {
+        font-size: 1rem;
+    }
+    
+    .permission-details {
+        font-size: 0.8rem;
+    }
+    
+    .permission-item .form-check-label {
+        font-size: 0.85rem;
+    }
+}

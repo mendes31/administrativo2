@@ -43,7 +43,7 @@ class LgpdRopa
 
         $pageElements = [
             'title_head' => 'Registro de Atividades de Tratamento (ROPA)',
-            'menu' => 'ListLgpdRopa',
+            'menu' => 'lgpd-ropa',
             'buttonPermission' => ['ListLgpdRopa', 'CreateLgpdRopa', 'EditLgpdRopa', 'ViewLgpdRopa', 'DeleteLgpdRopa'],
         ];
         $pageLayoutService = new PageLayoutService();

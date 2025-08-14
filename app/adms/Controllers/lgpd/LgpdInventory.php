@@ -46,7 +46,7 @@ class LgpdInventory
         
         $pageElements = [
             'title_head' => 'Inventário de Dados Pessoais',
-            'menu' => 'ListLgpdInventory',
+            'menu' => 'lgpd-inventory',
             'buttonPermission' => ['ListLgpdInventory', 'LgpdInventoryCreate', 'LgpdInventoryEdit', 'LgpdInventoryView', 'LgpdInventoryDelete'],
         ];
         $pageLayoutService = new PageLayoutService();

@@ -48,8 +48,8 @@ class LgpdDataMapping
         $this->data['pagination'] = $pagination;
         
         $pageElements = [
-            'title_head' => 'Data Mapping - Mapeamento de Dados',
-            'menu' => 'ListLgpdDataMapping',
+            'title_head' => 'Data Mapping LGPD',
+            'menu' => 'lgpd-data-mapping',
             'buttonPermission' => ['ListLgpdDataMapping', 'LgpdDataMappingCreate', 'LgpdDataMappingEdit', 'LgpdDataMappingView', 'LgpdDataMappingDelete'],
         ];
         $pageLayoutService = new PageLayoutService();

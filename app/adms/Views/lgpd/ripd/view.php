@@ -50,6 +50,9 @@ if (isset($this->data['ripd'])) {
                     ?>
                     <span class="badge <?= $statusClass ?> fs-6"><?= $status ?? '' ?></span>
                     <div class="mt-2">
+                        <a href="<?= $_ENV['URL_ADM'] ?>lgpd-ripd-export-pdf/<?= $id ?? '' ?>" class="btn btn-info btn-sm me-2" target="_blank">
+                            <i class="fas fa-file-pdf me-1"></i>Exportar PDF
+                        </a>
                         <a href="<?= $_ENV['URL_ADM'] ?>lgpd-ripd-edit/<?= $id ?? '' ?>" class="btn btn-warning btn-sm me-2">
                             <i class="fas fa-edit me-1"></i>Editar
                         </a>

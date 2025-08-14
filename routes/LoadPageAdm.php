@@ -99,7 +99,7 @@ class LoadPageAdm
         "LgpdDataMapping", "LgpdDataMappingCreate", "LgpdDataMappingEdit", "LgpdDataMappingView", "LgpdDataMappingDelete",
         "LgpdRopaCreateFromInventory", "LgpdDataMappingCreateFromRopa", "LgpdWorkflowReport",
         "LgpdAipd", "LgpdAipdCreate", "LgpdAipdEdit", "LgpdAipdView", "LgpdAipdDelete", "LgpdAipdSuggest",
-        "LgpdRipd", "LgpdRipdCreate", "LgpdRipdEdit", "LgpdRipdView", "LgpdRipdDelete", "LgpdRipdDashboard",
+        "LgpdRipd", "LgpdRipdCreate", "LgpdRipdEdit", "LgpdRipdView", "LgpdRipdDelete", "LgpdRipdDashboard", "LgpdRipdExportPdf", "LgpdRipdExportPdfList", "LgpdRipdExportPdfView",
         "LgpdAipdTemplateSaude", "LgpdAipdTemplateFinanceiro", "LgpdAipdTemplateEcommerce", "LgpdAipdTemplateEducacao", "LgpdAipdTemplateRh", "LgpdAipdTemplateMarketing", "LgpdAipdTemplateTelecom", "LgpdAipdTemplateLogistica", "LgpdAipdTemplateJuridico",
         "LgpdConsentimentos", "LgpdConsentimentosCreate", "LgpdConsentimentosEdit", "LgpdConsentimentosView", "LgpdConsentimentosDelete",
         "LgpdConsentimentoColeta", "LgpdConsentimentoColetaProcessar", "LgpdConsentimentoEmail", "LgpdConsentimentoEmailProcessar",

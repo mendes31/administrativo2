@@ -346,18 +346,18 @@ $menus = [
             [
                 'label' => 'Inventário',
                 'url' => $_ENV['URL_ADM'] . 'lgpd-inventory',
-                'permission' => 'ListLgpdInventory'
+                'permission' => 'LgpdInventory'
             ],
            
             [
                 'label' => 'ROPA',
                 'url' => $_ENV['URL_ADM'] . 'lgpd-ropa',
-                'permission' => 'ListLgpdRopa'
+                'permission' => 'LgpdRopa'
             ],
             [
                 'label' => 'Data Mapping',
                 'url' => $_ENV['URL_ADM'] . 'lgpd-data-mapping',
-                'permission' => 'ListLgpdDataMapping'
+                'permission' => 'LgpdDataMapping'
             ],
             [
                 'label' => 'Relatório Integrado',
@@ -367,27 +367,27 @@ $menus = [
             [
                 'label' => 'Categorias de Titulares',
                 'url' => $_ENV['URL_ADM'] . 'lgpd-categorias-titulares',
-                'permission' => 'ListLgpdCategoriasTitulares'
+                'permission' => 'LgpdCategoriasTitulares'
             ],
             [
                 'label' => 'Finalidades',
                 'url' => $_ENV['URL_ADM'] . 'lgpd-finalidades',
-                'permission' => 'ListLgpdFinalidades'
+                'permission' => 'LgpdFinalidades'
             ],
             [
                 'label' => 'Bases Legais',
                 'url' => $_ENV['URL_ADM'] . 'lgpd-bases-legais',
-                'permission' => 'ListLgpdBasesLegais'
+                'permission' => 'LgpdBasesLegais'
             ],
             [
                 'label' => 'Tipos de Dados',
                 'url' => $_ENV['URL_ADM'] . 'lgpd-tipos-dados',
-                'permission' => 'ListLgpdTiposDados'
+                'permission' => 'LgpdTiposDados'
             ],
             [
                 'label' => 'Classificações de Dados',
                 'url' => $_ENV['URL_ADM'] . 'lgpd-classificacoes-dados',
-                'permission' => 'ListLgpdClassificacoesDados'
+                'permission' => 'LgpdClassificacoesDados'
             ],
             [
                 'label' => 'AIPD',
@@ -527,77 +527,51 @@ $paginasPermissions = ['ListGroupsPages', 'ListPackages', 'ListPages'];
 if (!function_exists('hasPermittedSubmenu')) {
     function hasPermittedSubmenu($submenu, $menuPermission) {
         foreach ($submenu as $item) {
+            // Verifica se o item tem permissão e se está nas permissões do usuário
             if (isset($item['permission']) && in_array($item['permission'], $menuPermission)) {
                 return true;
             }
             // Verifica submenus aninhados recursivamente
-            if (isset($item['submenu']) && hasPermittedSubmenu($item['submenu'], $menuPermission)) {
-                return true;
+            if (isset($item['submenu']) && is_array($item['submenu'])) {
+                if (hasPermittedSubmenu($item['submenu'], $menuPermission)) {
+                    return true;
+                }
             }
         }
         return false;
     }
 }
 
-// Debug temporário para testar a função hasPermittedSubmenu
-$testSubmenu = [
-    [
-        'label' => 'Grupos de Páginas',
-        'url' => $_ENV['URL_ADM'] . 'list-groups-pages',
-        'permission' => 'ListGroupsPages'
-    ],
-    [
-        'label' => 'Pacotes',
-        'url' => $_ENV['URL_ADM'] . 'list-packages',
-        'permission' => 'ListPackages'
-    ],
-    [
-        'label' => 'Páginas',
-        'url' => $_ENV['URL_ADM'] . 'list-pages',
-        'permission' => 'ListPages'
-    ],
-];
-
-// $testResult = hasPermittedSubmenu($testSubmenu, $this->data['menuPermission']);
-// echo '<!-- DEBUG: hasPermittedSubmenu para Páginas = ' . ($testResult ? 'true' : 'false') . ' -->';
-
-// echo "</pre>";
-// ?>
+// Função para contar submenus permitidos
+if (!function_exists('countPermittedSubmenus')) {
+    function countPermittedSubmenus($submenu, $menuPermission) {
+        $count = 0;
+        foreach ($submenu as $item) {
+            if (isset($item['permission']) && in_array($item['permission'], $menuPermission)) {
+                $count++;
+            }
+            // Verifica submenus aninhados recursivamente
+            if (isset($item['submenu']) && is_array($item['submenu'])) {
+                $count += countPermittedSubmenus($item['submenu'], $menuPermission);
+            }
+        }
+        return $count;
+    }
+}
+?>
 
 <div id="layoutSidenav_nav">
     <nav class="sb-sidenav accordion sb-sidenav-five" id="sidenavAccordion">
         <div class="sb-sidenav-menu">
             <div class="nav">
                 <?php
-                // Função para verificar se há pelo menos um submenu permitido
-                if (!function_exists('hasPermittedSubmenu')) {
-                    function hasPermittedSubmenu($submenu, $menuPermission) {
-                        foreach ($submenu as $item) {
-                            if (isset($item['permission']) && in_array($item['permission'], $menuPermission)) {
-                                return true;
-                            }
-                            // Verifica submenus aninhados recursivamente
-                            if (isset($item['submenu']) && hasPermittedSubmenu($item['submenu'], $menuPermission)) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-                }
+
                 // Função recursiva para renderizar submenus aninhados
                 if (!function_exists('renderMenu')) {
                     function renderMenu($menus, $menuPermission, $menuAtivo = null, $nivel = 0, $parentId = 'sidenavAccordion') {
                         foreach ($menus as $index => $menu) {
                             $hasSubmenu = !empty($menu['submenu']);
                             $hasPermitted = isset($menu['permission']) ? in_array($menu['permission'], $menuPermission) : false;
-                            
-                            // Debug temporário para o submenu Páginas
-                            if (isset($menu['label']) && $menu['label'] === 'Páginas') {
-                                echo '<!-- DEBUG: Processando submenu Páginas -->';
-                                echo '<!-- DEBUG: hasSubmenu = ' . ($hasSubmenu ? 'true' : 'false') . ' -->';
-                                echo '<!-- DEBUG: hasPermitted = ' . ($hasPermitted ? 'true' : 'false') . ' -->';
-                                echo '<!-- DEBUG: menuPermission = ' . implode(', ', $menuPermission) . ' -->';
-                            }
                             
                             if ($hasSubmenu) {
                                 // Verifica se há pelo menos um submenu permitido
@@ -609,14 +583,42 @@ $testSubmenu = [
                                     return isset($submenu['permission']) && in_array($submenu['permission'], $menuPermission);
                                 });
                                 
-                                // Debug temporário para o submenu Páginas
-                                if (isset($menu['label']) && $menu['label'] === 'Páginas') {
-                                    echo '<!-- DEBUG: permittedSubmenus count = ' . count($permittedSubmenus) . ' -->';
-                                    foreach ($menu['submenu'] as $submenu) {
-                                        echo '<!-- DEBUG: Submenu ' . $submenu['label'] . ' - permission: ' . $submenu['permission'] . ' - hasPermission: ' . (in_array($submenu['permission'], $menuPermission) ? 'true' : 'false') . ' -->';
+                                // Verifica também se há submenus diretos permitidos
+                                $directPermittedSubmenus = array_filter($menu['submenu'], function($submenu) use ($menuPermission) {
+                                    return isset($submenu['permission']) && in_array($submenu['permission'], $menuPermission);
+                                });
+                                
+                                // Se não há submenus diretos permitidos, verifica se há submenus aninhados permitidos
+                                if (count($directPermittedSubmenus) == 0) {
+                                    $nestedPermittedSubmenus = array_filter($menu['submenu'], function($submenu) use ($menuPermission) {
+                                        return isset($submenu['submenu']) && hasPermittedSubmenu($submenu['submenu'], $menuPermission);
+                                    });
+                                    if (count($nestedPermittedSubmenus) > 0) {
+                                        $permittedSubmenus = $nestedPermittedSubmenus;
+                                    }
+                                } else {
+                                    $permittedSubmenus = $directPermittedSubmenus;
+                                }
+                                
+                                // Para o menu LGPD, sempre mostrar se houver pelo menos uma permissão
+                                if (isset($menu['label']) && $menu['label'] === 'LGPD') {
+                                    $totalPermitted = countPermittedSubmenus($menu['submenu'], $menuPermission);
+                                    if ($totalPermitted > 0) {
+                                        $permittedSubmenus = $menu['submenu']; // Mostra todos os submenus
                                     }
                                 }
                                 
+                                // Para outros menus com submenus aninhados, verifica se há pelo menos um permitido
+                                if (count($permittedSubmenus) == 0) {
+                                    foreach ($menu['submenu'] as $submenu) {
+                                        if (isset($submenu['submenu']) && hasPermittedSubmenu($submenu['submenu'], $menuPermission)) {
+                                            $permittedSubmenus = [$submenu];
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                // IMPORTANTE: Se há pelo menos um submenu permitido, mostra o menu principal
                                 if (count($permittedSubmenus) > 0) {
                                     // Gera um id único para cada submenu
                                     $submenuId = 'collapse' . md5(($menu['label'] ?? 'submenu') . $nivel . $index);

@@ -29,15 +29,25 @@ class ListAccessLevelsPermissions
         // Receber os dados do formulário
         $this->data['form'] = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
+        // Verificar se é uma requisição AJAX
+        $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
         // Validar o CSRF token e a existência do ID do nível de acesso
         if (
             isset($this->data['form']['csrf_token']) &&
             CSRFHelper::validateCSRFToken('form_update_access_level_permissions', $this->data['form']['csrf_token'])
         ) {
             // Editar o nível de acesso
-            $this->editAccessLevelPermissions();
+            $this->editAccessLevelPermissions($isAjax);
 
         } else {
+            // Se for AJAX, retornar erro em JSON
+            if ($isAjax) {
+                $this->returnJsonResponse(false, 'Token CSRF inválido ou não encontrado');
+                return;
+            }
+            
             // Carregar a visualização para edição do nível de acesso
             $this->viewAccessLevelPermissions();
         }
@@ -68,6 +78,14 @@ class ListAccessLevelsPermissions
         $listAccessLevelsPages = new AccessLevelsPagesRepository();
         $this->data['accessLevelsPages'] = $listAccessLevelsPages->getPagesAccessLevelsArray($this->id, true);
         
+        // Log de debug
+        error_log('View carregada - Total de páginas: ' . count($this->data['pages']));
+        error_log('View carregada - Total de permissões: ' . count($this->data['accessLevelsPages']));
+        error_log('View carregada - Permissões: ' . json_encode($this->data['accessLevelsPages']));
+        
+        // Gerar token CSRF para o formulário
+        $this->data['csrf_token'] = CSRFHelper::generateCSRFToken('form_update_access_level_permissions');
+        
         // Definir o título da página, ativar o item de menu, apresentar ou ocultar botão
         $pageElements = [
             'title_head' => 'Editar Permissão do Nível de Acesso',
@@ -89,14 +107,21 @@ class ListAccessLevelsPermissions
         $loadView->loadView();
     }
 
-    private function editAccessLevelPermissions(): void 
+    private function editAccessLevelPermissions(bool $isAjax): void 
     {
+        // Log de debug
+        error_log('editAccessLevelPermissions chamado com dados: ' . json_encode($this->data['form']));
+        
         // Validar os dados do formulário 
         $validationAccessLevelPermissions = new ValidationAccessLevelPermissionService();
         $this->data['errors'] = $validationAccessLevelPermissions->validate($this->data['form']);
 
-        // Se houver erros de validação, recarregar a visualização
+        // Se houver erros de validação
         if(!empty($this->data['errors'])){
+            if ($isAjax) {
+                $this->returnJsonResponse(false, 'Erro de validação: ' . implode(', ', $this->data['errors']));
+                return;
+            }
             $this->viewAccessLevelPermissions();
             return;
         }
@@ -107,13 +132,30 @@ class ListAccessLevelsPermissions
 
         // Verifica o resultado da atualização
         if($result){
+            if ($isAjax) {
+                // Log de debug
+                error_log('Permissões salvas com sucesso via AJAX');
+                $this->returnJsonResponse(true, 'Permissões do nível de acesso editadas com sucesso!');
+                return;
+            }
             $_SESSION['success'] = "Permissões do nível de acesso editadas com sucesso!";
             header("Location: {$_ENV['URL_ADM']}list-access-levels-permissions/{$this->data['form']['adms_access_level_id']}");
         }else{
+            if ($isAjax) {
+                error_log('Falha ao salvar permissões via AJAX');
+                $this->returnJsonResponse(false, 'Permissões do nível de acesso não editadas!');
+                return;
+            }
             $this->data['errors'][] = "Permissões do nível de acesso não editadas!";
             $this->viewAccessLevelPermissions();
         }
     }
 
+    private function returnJsonResponse(bool $success, string $message): void
+    {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => $success, 'message' => $message]);
+        exit;
+    }
 
 }

@@ -3,6 +3,29 @@
  * Adapta automaticamente o layout baseado na resolução do dispositivo
  */
 
+// Verificar se já foi inicializado para evitar execução dupla
+if (window.screenResolutionManagerInitialized) {
+    // Script já foi executado, não fazer nada
+} else {
+    // Marcar como inicializado
+    window.screenResolutionManagerInitialized = true;
+    
+    // Função de inicialização
+    function initializeScreenResolutionManager() {
+        // Inicializar quando o DOM estiver pronto
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                window.screenResolutionManager = new ScreenResolutionManager();
+            });
+        } else {
+            window.screenResolutionManager = new ScreenResolutionManager();
+        }
+    }
+
+    // Chamar a função de inicialização
+    initializeScreenResolutionManager();
+}
+
 class ScreenResolutionManager {
     constructor() {
         this.resolution = null;
@@ -45,18 +68,27 @@ class ScreenResolutionManager {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            // Verificar se a resposta é válida antes de tentar fazer JSON
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.success) {
+            if (data && data.success) {
                 this.resolution = data.resolution;
                 this.classes = data.classes;
                 this.pagination = data.pagination;
                 this.applyResponsiveClasses();
                 this.updatePaginationOptions();
+            } else {
+                console.warn('Resposta inválida do servidor para screen-resolution');
+                this.applyDefaultClasses();
             }
         })
         .catch(error => {
-            console.warn('Erro ao detectar resolução:', error);
+            console.warn('Erro ao detectar resolução (usando classes padrão):', error.message);
             this.applyDefaultClasses();
         });
     }
@@ -283,11 +315,6 @@ class ScreenResolutionManager {
         };
     }
 }
-
-// Inicializar quando o DOM estiver pronto
-document.addEventListener('DOMContentLoaded', () => {
-    window.screenResolutionManager = new ScreenResolutionManager();
-});
 
 // Exportar para uso global
 window.ScreenResolutionManager = ScreenResolutionManager; 

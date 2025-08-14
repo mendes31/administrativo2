@@ -19,6 +19,9 @@ use App\adms\Helpers\CSRFHelper;
                 Relatórios de Impacto à Proteção de Dados (RIPD)
             </h5>
             <div>
+                <a href="<?= $_ENV['URL_ADM'] ?>lgpd-ripd-export-pdf-list" class="btn btn-warning btn-sm me-2" target="_blank">
+                    <i class="fas fa-file-pdf me-1"></i>Exportar Lista PDF
+                </a>
                 <a href="<?= $_ENV['URL_ADM'] ?>lgpd-ripd-dashboard" class="btn btn-info btn-sm me-2">
                     <i class="fas fa-chart-bar me-1"></i>Dashboard
                 </a>

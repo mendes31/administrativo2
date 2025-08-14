@@ -28,6 +28,9 @@ if (isset($this->data['estatisticas'])) {
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-chart-bar me-2"></i>Dashboard RIPD</h2>
         <div>
+            <a href="<?= $_ENV['URL_ADM'] ?>lgpd-ripd-export-pdf-list" class="btn btn-info me-2" target="_blank">
+                <i class="fas fa-file-pdf me-1"></i>Exportar Lista PDF
+            </a>
             <a href="<?= $_ENV['URL_ADM'] ?>lgpd-ripd" class="btn btn-primary me-2">
                 <i class="fas fa-list me-1"></i>Listar RIPDs
             </a>
