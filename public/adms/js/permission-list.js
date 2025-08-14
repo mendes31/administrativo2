@@ -176,38 +176,19 @@ function updateGroupCounters(groupId) {
     
     const revokedCount = totalCount - authorizedCount;
     
-    // Atualizar elementos de contador com a nova estrutura
+    // Atualizar elementos de contador
     const totalElement = groupHeader.querySelector('.group-counters .bg-secondary');
     const authorizedElement = groupHeader.querySelector('.group-counters .bg-success');
     const revokedElement = groupHeader.querySelector('.group-counters .bg-danger');
     
-    console.log('🔍 Elementos encontrados:');
-    console.log('- totalElement:', totalElement);
-    console.log('- authorizedElement:', authorizedElement);
-    console.log('- revokedElement:', revokedElement);
-    
-    // Debug: verificar todas as células do cabeçalho
-    const cells = groupHeader.querySelectorAll('td');
-    console.log('📋 Células do cabeçalho:', cells.length);
-    cells.forEach((cell, index) => {
-        console.log(`- Célula ${index + 1}:`, cell.innerHTML.trim());
-    });
-    
-    if (totalElement) {
-        totalElement.textContent = `Total: ${totalCount}`;
-        console.log('✅ Total atualizado:', totalCount);
-    }
-    if (authorizedElement) {
-        authorizedElement.textContent = `Autorizadas: ${authorizedCount}`;
-        console.log('✅ Autorizadas atualizadas:', authorizedCount);
-    }
-    if (revokedElement) {
-        revokedElement.textContent = `Revogadas: ${revokedCount}`;
-        console.log('✅ Revogadas atualizadas:', revokedCount);
-    }
+    if (totalElement) totalElement.textContent = `Total: ${totalCount}`;
+    if (authorizedElement) authorizedElement.textContent = `Autorizadas: ${authorizedCount}`;
+    if (revokedElement) revokedElement.textContent = `Revogadas: ${revokedCount}`;
     
     console.log(`📊 Grupo ${groupId}: ${totalCount} total, ${authorizedCount} autorizadas, ${revokedCount} revogadas`);
 }
+
+
 
 // ===== FUNÇÕES DE FILTRO =====
 
