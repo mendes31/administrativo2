@@ -43,7 +43,7 @@ use App\adms\Helpers\CSRFHelper;
             include './app/adms/Views/partials/alerts.php';
             ?>
 
-            <form action="" method="POST" class="row g-3" enctype="multipart/form-data">
+            <form action="<?php echo $_ENV['URL_ADM']; ?>update-user-image/<?php echo $this->data['form']['id'] ?? ''; ?>" method="POST" class="row g-3" enctype="multipart/form-data">
 
                 <!-- Token CSRF para segurança -->
                 <input type="hidden" name="csrf_token" value="<?php echo CSRFHelper::generateCSRFToken('form_update_user_image'); ?>">
@@ -54,7 +54,7 @@ use App\adms\Helpers\CSRFHelper;
                 <!-- Campo de Upload de Imagem -->
                 <div class="col-12">
                     <label class="form-label">Imagem</label>
-                    <input type="file" name="new_image" class="form-control" id="new_image"
+                    <input type="file" name="image" class="form-control" id="image"
                         accept="image/png, image/jpeg, image/jpg" aria-describedby="fileHelp">
                     <small id="fileHelp" class="form-text text-muted">Formatos permitidos: PNG, JPG, JPEG.</small>
                 </div>
@@ -79,10 +79,10 @@ use App\adms\Helpers\CSRFHelper;
 
 <!-- Script para exibir preview da imagem e habilitar o botão -->
 <script>
-    document.getElementById('new_image').addEventListener('change', function(event) {
+    document.getElementById('image').addEventListener('change', function(event) {
         const file = event.target.files[0];
         const preview = document.getElementById('image_preview');
-        const uploadBtn = document.getElementById('upload_btn');
+        const submitBtn = document.querySelector('button[type="submit"]');
 
         if (file) {
             const reader = new FileReader();
@@ -91,10 +91,10 @@ use App\adms\Helpers\CSRFHelper;
                 preview.classList.remove('d-none');
             };
             reader.readAsDataURL(file);
-            uploadBtn.removeAttribute('disabled');
+            submitBtn.removeAttribute('disabled');
         } else {
             preview.classList.add('d-none');
-            uploadBtn.setAttribute('disabled', 'true');
+            submitBtn.setAttribute('disabled', 'true');
         }
     });
 </script>

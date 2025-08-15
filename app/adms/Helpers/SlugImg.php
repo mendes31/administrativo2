@@ -30,7 +30,7 @@ class SlugImg
 
         $this->format['a'] = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜüÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿRr"!@#$%&*()_-+={[}]?;:,\\\'<>°ºª';
         $this->format['b'] = 'aaaaaaaceeeeiiiidnoooooouuuuuybsaaaaaaaceeeeiiiidnoooooouuuyybyRr-----------------------------------------------------------------------------------------------';
-        $this->text = strtr(utf8_decode($this->text), utf8_decode($this->format['a']), $this->format['b']);
+        $this->text = strtr(mb_convert_encoding($this->text, 'ISO-8859-1', 'UTF-8'), mb_convert_encoding($this->format['a'], 'ISO-8859-1', 'UTF-8'), mb_convert_encoding($this->format['b'], 'ISO-8859-1', 'UTF-8'));
         $this->text = str_replace(" ", "-", $this->text);
         $this->text = str_replace(array('-----', '----', '---', '--'), '-', $this->text);
         $this->text = strtolower($this->text);

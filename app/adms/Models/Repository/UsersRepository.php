@@ -67,7 +67,7 @@ class UsersRepository extends DbConnection
                 INNER JOIN adms_departments dep ON usr.user_department_id = dep.id
                 INNER JOIN adms_positions pos ON usr.user_position_id = pos.id 
                 ' . $whereSql . '
-                ORDER BY usr.id DESC
+                ORDER BY usr.name ASC
                 LIMIT :limit OFFSET :offset';
         $stmt = $this->getConnection()->prepare($sql);
         foreach ($params as $key => $value) {
@@ -233,6 +233,9 @@ class UsersRepository extends DbConnection
     public function updateUser(array $data): bool
     {
         try {
+            // Debug: verificar dados recebidos
+            error_log("DEBUG updateUser - Dados recebidos: " . print_r($data, true));
+            
             // Captura os dados antigos antes da alteração
             $dadosAntes = $this->getUser($data['id']);
 
@@ -250,8 +253,30 @@ class UsersRepository extends DbConnection
             if (isset($data['modificar_senha_proximo_logon'])) {
                 $sql .= ', modificar_senha_proximo_logon = :modificar_senha_proximo_logon';
             }
-            if (!empty($data['image'])) {
-                $sql .= ', image = :image';
+            if (!empty($data['image']) && is_array($data['image'])) {
+                error_log("DEBUG updateUser - Processando imagem: " . print_r($data['image'], true));
+                
+                // Processar upload da nova imagem
+                if ($this->upload($data, $data['image'])) {
+                    error_log("DEBUG updateUser - Upload realizado com sucesso");
+                    
+                    // Deletar imagem antiga se existir
+                    $this->deleteImage($data);
+                    error_log("DEBUG updateUser - Imagem antiga deletada");
+                    
+                    // Obter nome da nova imagem
+                    $slugImg = new \App\adms\Helpers\SlugImg();
+                    $nameImgFormatad = $slugImg->slug($data['image']['name']);
+                    error_log("DEBUG updateUser - Nome da nova imagem: " . $nameImgFormatad);
+                    
+                    $sql .= ', image = :image';
+                    $data['image'] = $nameImgFormatad;
+                } else {
+                    error_log("DEBUG updateUser - Falha no upload da imagem");
+                    return false;
+                }
+            } else {
+                error_log("DEBUG updateUser - Sem imagem para processar ou não é array");
             }
             if (!empty($data['data_nascimento'])) {
                 $sql .= ', data_nascimento = :data_nascimento';
@@ -279,7 +304,7 @@ class UsersRepository extends DbConnection
             if (isset($data['modificar_senha_proximo_logon'])) {
                 $stmt->bindValue(':modificar_senha_proximo_logon', $data['modificar_senha_proximo_logon'], PDO::PARAM_STR);
             }
-            if (!empty($data['image'])) {
+            if (!empty($data['image']) && !is_array($data['image'])) {
                 $stmt->bindValue(':image', $data['image'], PDO::PARAM_STR);
             }
             if (!empty($data['data_nascimento'])) {
@@ -323,79 +348,270 @@ class UsersRepository extends DbConnection
     }
 
     /**
-     * Atualizar os dados de um usuário existente.
+     * Atualizar imagem do usuário pelo botão "Editar Imagem" (UpdateUserImage).
      *
-     * Este método atualiza as informações de um usuário existente. Se a senha for fornecida, ela também será atualizada.
-     * Em caso de erro, um log é gerado.
+     * Este método é usado especificamente para o botão "Editar Imagem" na view do usuário.
+     * Ele processa o upload da nova imagem e remove a antiga.
      *
-     * @param array $data Dados atualizados do usuário, incluindo `id`, `name`, `email`, `username`, e opcionalmente `password`.
-     * @return bool `true` se a atualização foi bem-sucedida ou `false` em caso de erro.
+     * @param array $data Dados contendo o ID do usuário e a nova imagem.
+     * @return bool `true` se a imagem foi atualizada com sucesso ou `false` em caso de erro.
      */
     public function updateUserImage(array $data): bool
     {
-        $this->dataImage = $data['new_image'];
-        unset($data['new_image']);
+        try {
+            // Debug: verificar dados recebidos
+            error_log("DEBUG updateUserImage - Dados recebidos: " . print_r($data, true));
+            
+            // Captura os dados antigos antes da alteração
+            $dadosAntes = $this->getUser($data['id']);
+            error_log("DEBUG updateUserImage - Dados antigos: " . print_r($dadosAntes, true));
+            
+            // Verificar se há imagem para processar
+            if (!isset($data['image']) || empty($data['image']['name'])) {
+                error_log("DEBUG updateUserImage - Imagem não encontrada ou vazia");
+                $this->data['errors'][] = "Erro: Necessário selecionar uma imagem válida!";
+                return false;
+            }
+            
+            // Validar tipo de imagem
+            $valExtImg = new ValExtImg();
+            $valExtImg->validateExtImg($data['image']['type']);
+            error_log("DEBUG updateUserImage - Validação da imagem: " . ($valExtImg->getResult() ? 'SUCESSO' : 'FALHOU'));
+            
+            if (!$valExtImg->getResult()) {
+                error_log("DEBUG updateUserImage - Formato de imagem não suportado: " . $data['image']['type']);
+                $this->data['errors'][] = "Erro: Formato de imagem não suportado! Use JPG, PNG ou GIF.";
+                return false;
+            }
+            
+            // Processar upload da nova imagem
+            error_log("DEBUG updateUserImage - Iniciando upload...");
+            if ($this->upload($data, $data['image'])) {
+                error_log("DEBUG updateUserImage - Upload realizado com sucesso");
+                // Atualizar banco com nova imagem
+                $slugImg = new SlugImg();
+                $nameImgFormatad = $slugImg->slug($data['image']['name']);
+                
+                $sql = 'UPDATE adms_users SET image = :image, updated_at = :updated_at WHERE id = :id';
+                $stmt = $this->getConnection()->prepare($sql);
+                $stmt->bindValue(':image', $nameImgFormatad, PDO::PARAM_STR);
+                $stmt->bindValue(':updated_at', date("Y-m-d H:i:s"));
+                $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
+                
+                $result = $stmt->execute();
+                
+                if ($result) {
+                    // SÓ deletar a imagem antiga DEPOIS de salvar no banco com sucesso
+                    $this->deleteImage($data);
+                    
+                    // Log de alteração
+                    $dadosDepois = [
+                        'id' => $data['id'],
+                        'image' => $nameImgFormatad,
+                        'updated_at' => date("Y-m-d H:i:s")
+                    ];
+                    
+                    \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
+                        'adms_users',
+                        $data['id'],
+                        $_SESSION['user_id'] ?? 0,
+                        'update_user_image',
+                        $dadosAntes ?: [],
+                        $dadosDepois
+                    );
+                    
+                    return true;
+                }
+            }
+            
+            return false;
+        } catch (Exception $e) {
+            GenerateLog::generateLog("error", "Imagem do usuário não foi atualizada.", ['id' => $data['id'], 'error' => $e->getMessage()]);
+            return false;
+        }
+    }
 
-        $valExtImg = new ValExtImg();
-        $valExtImg->validateExtImg($this->dataImage['type']);
-        var_dump($valExtImg);
+    /**
+     * Atualizar apenas a imagem do perfil do usuário logado.
+     *
+     * Este método é específico para o perfil do usuário, atualizando apenas o caminho da imagem
+     * no banco de dados. É mais simples que updateUserImage() usado por administradores.
+     *
+     * @param array $data Dados contendo o ID do usuário e o caminho da nova imagem.
+     * @return bool `true` se a imagem foi atualizada com sucesso ou `false` em caso de erro.
+     */
+    public function updateUserProfileImage(array $data): bool
+    {
+        try {
+            // Captura os dados antigos antes da alteração
+            $dadosAntes = $this->getUser($data['id']);
 
-        if ((!empty($this->dataImage['name'])) and ($valExtImg->getResult())) {
+            // SEMPRE deletar a imagem antiga antes de atualizar
+            $this->deleteImage($data);
 
-            if ($this->upload($data, $this->dataImage)) {
-                // Chama deleteImage() para remover a imagem antiga antes de retornar true
+            // QUERY para atualizar apenas a imagem do usuário
+            $sql = 'UPDATE adms_users SET image = :image, updated_at = :updated_at WHERE id = :id';
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->bindValue(':image', $data['image'], PDO::PARAM_STR);
+            $stmt->bindValue(':updated_at', date("Y-m-d H:i:s"));
+            $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
+            
+            $result = $stmt->execute();
+            
+            // Se atualização bem-sucedida, registra o log de alteração
+            if ($result) {
+                $dadosDepois = [
+                    'id' => $data['id'],
+                    'image' => $data['image'],
+                    'updated_at' => date("Y-m-d H:i:s")
+                ];
+                
+                \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
+                    'adms_users',
+                    $data['id'],
+                    $_SESSION['user_id'] ?? 0,
+                    'update_profile_image',
+                    $dadosAntes ?: [],
+                    $dadosDepois
+                );
+            }
+            
+            return $result;
+        } catch (Exception $e) {
+            GenerateLog::generateLog("error", "Imagem do perfil não foi atualizada.", ['id' => $data['id'], 'error' => $e->getMessage()]);
+            return false;
+        }
+    }
+    
+    /**
+     * Atualizar imagem do usuário na edição geral (UpdateUser).
+     * 
+     * Este método é usado quando o administrador edita um usuário e altera a imagem.
+     * Ele processa o upload da nova imagem e remove a antiga.
+     *
+     * @param array $data Dados contendo o ID do usuário e a nova imagem.
+     * @return bool `true` se a imagem foi atualizada com sucesso ou `false` em caso de erro.
+     */
+    public function updateUserGeneralImage(array $data): bool
+    {
+        try {
+            // Captura os dados antigos antes da alteração
+            $dadosAntes = $this->getUser($data['id']);
+            
+            // Verificar se há imagem para processar
+            if (!isset($data['image']) || empty($data['image']['name'])) {
+                // Se não há imagem, definir como icon_user.png
+                $data['image'] = 'users/icon_user.png';
+                
+                // Deletar imagem antiga se existir
                 $this->deleteImage($data);
-
-                $directory = "app/adms/image/users/" . $data['id'] . "/";
-
-                // Usar try e catch para gerenciar exceção/erro
-                try { // Permanece no try se não houver nenhum erro
-
-                    // QUERY para atualizar o usuário
-                    $sql = 'UPDATE adms_users SET image = :image, updated_at = :updated_at WHERE id = :id';
-
-                    // Preparar a QUERY
-                    $stmt = $this->getConnection()->prepare($sql);
-
+                
+                // Atualizar banco para icon_user.png
+                $sql = 'UPDATE adms_users SET image = :image, updated_at = :updated_at WHERE id = :id';
+                $stmt = $this->getConnection()->prepare($sql);
+                $stmt->bindValue(':image', $data['image'], PDO::PARAM_STR);
+                $stmt->bindValue(':updated_at', date("Y-m-d H:i:s"));
+                $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
+                
+                $result = $stmt->execute();
+            } else {
+                // Processar upload da nova imagem
+                if ($this->upload($data, $data['image'])) {
+                    // Deletar imagem antiga
+                    $this->deleteImage($data);
+                    
+                    // Atualizar banco com nova imagem
                     $slugImg = new SlugImg();
-                    $nameImgFormatad =  $slugImg->slug($this->dataImage['name']);
-
-                    // Substituir os links da QUERY pelo valor
+                    $nameImgFormatad = $slugImg->slug($data['image']['name']);
+                    
+                    $sql = 'UPDATE adms_users SET image = :image, updated_at = :updated_at WHERE id = :id';
+                    $stmt = $this->getConnection()->prepare($sql);
                     $stmt->bindValue(':image', $nameImgFormatad, PDO::PARAM_STR);
                     $stmt->bindValue(':updated_at', date("Y-m-d H:i:s"));
                     $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
-
-
-                    // Executar a QUERY SQL
-                    $stmt->execute();
-
-
-
-                    return true; // Retorna verdadeiro se a atualização for bem-sucedida
-
-
-                } catch (Exception $e) { // Acessa o catch quando houver erro no try
-
-                    // Chamar o método para salvar o log
-                    GenerateLog::generateLog("error", "Imagem do Usuário não editada.", [
-                        'id' => $data['id'],
-                        'error' => $e->getMessage()
-                    ]);
-
+                    
+                    $result = $stmt->execute();
+                } else {
                     return false;
                 }
-            } else {
-                // Criar a mensagem de erro
-                $this->data['errors'][] = "Usuário não editado, Upload da imagem falhou!";
             }
-        } else {
-            // Criar a mensagem de erro
-            $this->data['errors'][] = "Erro: Necessário selecionar uma imagem JPEG ou PNG!";
-      
-            return false; // Retorna falso se a função upload falhar
+            
+            // Se atualização bem-sucedida, registra o log de alteração
+            if ($result) {
+                $dadosDepois = [
+                    'id' => $data['id'],
+                    'image' => $data['image'],
+                    'updated_at' => date("Y-m-d H:i:s")
+                ];
+                
+                \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
+                    'adms_users',
+                    $data['id'],
+                    $_SESSION['user_id'] ?? 0,
+                    'update_user_general_image',
+                    $dadosAntes ?: [],
+                    $dadosDepois
+                );
+            }
+            
+            return $result;
+        } catch (Exception $e) {
+            GenerateLog::generateLog("error", "Imagem do usuário não foi atualizada na edição geral.", ['id' => $data['id'], 'error' => $e->getMessage()]);
+            return false;
         }
-        return false; // Retorna falso se a função upload falhar
-
+    }
+    
+    /**
+     * Remover imagem do usuário (definir como icon_user.png).
+     * 
+     * Este método é usado para remover a imagem do usuário, definindo-a como icon_user.png
+     * e removendo o arquivo físico da pasta.
+     *
+     * @param array $data Dados contendo o ID do usuário.
+     * @return bool `true` se a imagem foi removida com sucesso ou `false` em caso de erro.
+     */
+    public function removeUserImage(array $data): bool
+    {
+        try {
+            // Captura os dados antigos antes da alteração
+            $dadosAntes = $this->getUser($data['id']);
+            
+            // Deletar imagem antiga se existir
+            $this->deleteImage($data);
+            
+            // Atualizar banco para icon_user.png
+            $sql = 'UPDATE adms_users SET image = :image, updated_at = :updated_at WHERE id = :id';
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->bindValue(':image', 'users/icon_user.png', PDO::PARAM_STR);
+            $stmt->bindValue(':updated_at', date("Y-m-d H:i:s"));
+            $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
+            
+            $result = $stmt->execute();
+            
+            // Se atualização bem-sucedida, registra o log de alteração
+            if ($result) {
+                $dadosDepois = [
+                    'id' => $data['id'],
+                    'image' => 'users/icon_user.png',
+                    'updated_at' => date("Y-m-d H:i:s")
+                ];
+                
+                \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
+                    'adms_users',
+                    $data['id'],
+                    $_SESSION['user_id'] ?? 0,
+                    'remove_user_image',
+                    $dadosAntes ?: [],
+                    $dadosDepois
+                );
+            }
+            
+            return $result;
+        } catch (Exception $e) {
+            GenerateLog::generateLog("error", "Imagem do usuário não foi removida.", ['id' => $data['id'], 'error' => $e->getMessage()]);
+            return false;
+        }
     }
 
     /**
@@ -406,15 +622,20 @@ class UsersRepository extends DbConnection
      */
     private function upload(array $data, array $dataImage): bool
     {
+        // Validação de segurança
+        if (!is_array($dataImage) || !isset($dataImage['name']) || !isset($dataImage['tmp_name'])) {
+            return false;
+        }
+        
         $slugImg = new SlugImg();
-        $this->nameImg =  $slugImg->slug($dataImage['name']);
+        $this->nameImg = $slugImg->slug($dataImage['name']);
 
-        $directory = "app/adms/image/users/" . $data['id'] . "/";
+        $directory = "public/adms/uploads/users/" . $data['id'] . "/";
 
         $uploadImgRes = new Upload();
-        $uploadImgRes->upload($directory, $this->dataImage['tmp_name'], $this->nameImg, 300, 300);
+        $result = $uploadImgRes->upload($directory, $dataImage['tmp_name'], $this->nameImg, 300, 300);
 
-        if ($uploadImgRes) {
+        if ($result && $uploadImgRes->getResult()) {
             return true;
         }
         return false;
@@ -429,7 +650,6 @@ class UsersRepository extends DbConnection
     {
         // Garante que o ID do usuário foi passado corretamente
         if (!isset($data['id']) || empty($data['id'])) {
-            $this->data['errors'][] = "Erro: ID do usuário não informado!";
             return false;
         }
 
@@ -438,30 +658,71 @@ class UsersRepository extends DbConnection
 
         // Verifique se o usuário existe
         if (!$user) {
-            $this->data['errors'][] = "Erro: Usuário não encontrado!";
             return false;
         }
 
-        // Verifique se a imagem antiga existe e se é diferente da nova
-        if (!empty($user['image']) && $user['image'] !== $this->nameImg) {
-            $this->delImg = "app/adms/image/users/" . $data['id'] . "/" . $user['image'];
-
+        // SEMPRE tentar deletar a imagem antiga se existir
+        if (!empty($user['image'])) {
+            $oldImagePath = "public/adms/uploads/users/" . $data['id'] . "/" . $user['image'];
+            
             // Verifica se o arquivo realmente existe antes de tentar excluir
-            if (file_exists($this->delImg)) {
-                // Tentar excluir a imagem
-                if (unlink($this->delImg)) {
-                    return true; // Excluído com sucesso
-                } else {
-                    $this->data['errors'][] = "Aviso: Não foi possível excluir a imagem antiga.";
-                    return false; // Não foi possível excluir
+            if (file_exists($oldImagePath)) {
+                // Tentar excluir a imagem antiga
+                if (unlink($oldImagePath)) {
+                    // Log de sucesso (opcional)
+                    return true;
                 }
-            } else {
-                $this->data['errors'][] = "Erro: Arquivo não encontrado para exclusão!";
-                return false; // Arquivo não encontrado
             }
-        } else {
-            $this->data['errors'][] = "Erro: Nenhuma imagem encontrada para exclusão ou a imagem é a mesma!";
-            return false; // Nenhuma imagem ou mesma imagem
+        }
+        
+        // Limpar diretório de imagens antigas não referenciadas
+        $this->cleanUserImageDirectory($data['id']);
+        
+        // Retorna true mesmo se não houver imagem para deletar
+        return true;
+    }
+    
+    /**
+     * Limpa o diretório de imagens do usuário, removendo arquivos não referenciados no banco
+     * @param int $userId ID do usuário
+     * @return void
+     */
+    private function cleanUserImageDirectory(int $userId): void
+    {
+        $userDir = "public/adms/uploads/users/" . $userId . "/";
+        
+        if (!is_dir($userDir)) {
+            return;
+        }
+        
+        // Obter dados do usuário para saber qual imagem está ativa
+        $user = $this->getUser($userId);
+        $activeImage = $user['image'] ?? null;
+        
+        // Listar todos os arquivos no diretório
+        $files = glob($userDir . "*");
+        
+        foreach ($files as $file) {
+            $fileName = basename($file);
+            
+            // Não deletar o diretório ou arquivos especiais
+            if (is_dir($file) || $fileName === '.' || $fileName === '..') {
+                continue;
+            }
+            
+            // Não deletar a imagem ativa no banco
+            if ($activeImage && $fileName === $activeImage) {
+                continue;
+            }
+            
+            // Deletar arquivos antigos não referenciados
+            if (unlink($file)) {
+                // Log opcional de limpeza
+                GenerateLog::generateLog("info", "Imagem antiga removida durante limpeza.", [
+                    'user_id' => $userId,
+                    'file' => $fileName
+                ]);
+            }
         }
     }
 
@@ -607,4 +868,71 @@ class UsersRepository extends DbConnection
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Atualizar o perfil do usuário (dados pessoais).
+     *
+     * Este método atualiza as informações pessoais do usuário, incluindo nome, email, data de nascimento e imagem.
+     * Não permite alterar senha, status ou outras configurações administrativas.
+     *
+     * @param array $data Dados do usuário a ser atualizado.
+     * @return bool `true` se o usuário foi atualizado com sucesso ou `false` em caso de erro.
+     */
+    public function updateUserProfile(array $data): bool
+    {
+        try {
+            // Captura os dados antigos antes da alteração
+            $dadosAntes = $this->getUser($data['id']);
+
+            // QUERY para atualizar o perfil do usuário
+            $sql = 'UPDATE adms_users SET name = :name, email = :email, data_nascimento = :data_nascimento, updated_at = :updated_at';
+            
+            if (!empty($data['image'])) {
+                $sql .= ', image = :image';
+            }
+            
+            $sql .= ' WHERE id = :id';
+            
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->bindValue(':name', $data['name'], PDO::PARAM_STR);
+            $stmt->bindValue(':email', $data['email'], PDO::PARAM_STR);
+            $stmt->bindValue(':data_nascimento', $data['data_nascimento'], PDO::PARAM_STR);
+            $stmt->bindValue(':updated_at', date("Y-m-d H:i:s"));
+            $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
+            
+            if (!empty($data['image'])) {
+                $stmt->bindValue(':image', $data['image'], PDO::PARAM_STR);
+            }
+            
+            $result = $stmt->execute();
+            
+            // Se atualização bem-sucedida, registra o log de alteração
+            if ($result) {
+                $dadosDepois = [
+                    'id' => $data['id'],
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'data_nascimento' => $data['data_nascimento'],
+                    'image' => $data['image'] ?? $dadosAntes['image'],
+                    'updated_at' => date("Y-m-d H:i:s")
+                ];
+                
+                \App\adms\Models\Services\LogAlteracaoService::registrarAlteracao(
+                    'adms_users',
+                    $data['id'],
+                    $_SESSION['user_id'] ?? 0,
+                    'update',
+                    $dadosAntes ?: [],
+                    $dadosDepois
+                );
+            }
+            
+            return $result;
+        } catch (Exception $e) {
+            GenerateLog::generateLog("error", "Perfil do usuário não editado.", ['id' => $data['id'], 'error' => $e->getMessage()]);
+            return false;
+        }
+    }
+
+
 }

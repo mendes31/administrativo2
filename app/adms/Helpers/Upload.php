@@ -20,8 +20,8 @@ class Upload
     /** @var bool $result Recebe true quando executar o processo com sucesso e false quando houver erro */
     private bool $result;
 
-    /** @var bool $data Recebe array com msg de erro quando houver erro */
-    private bool $data;
+    /** @var array $data Recebe array com msg de erro quando houver erro */
+    private array $data = [];
 
 
 

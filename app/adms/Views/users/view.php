@@ -173,7 +173,7 @@ $csrf_token_delete_image = CSRFHelper::generateCSRFToken('form_delete_user_image
                     <dt class="col-sm-3">Departamento: </dt>
                     <dd class="col-sm-9"><?php echo $dep_name; ?></dd>
 
-                    <dt class="col-sm-3">Usuário: </dt>
+                    <dt class="col-sm-3">Cargo|Função: </dt>
                     <dd class="col-sm-9"><?php echo $pos_name; ?></dd>
 
                     <dt class="col-sm-3">Cadastrado: </dt>

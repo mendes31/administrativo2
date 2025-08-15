@@ -3,12 +3,8 @@
 namespace App\adms\Controllers\users;
 
 use App\adms\Controllers\Services\PageLayoutService;
-use App\adms\Controllers\Services\Validation\ValidationUserImageRakitService;
-use App\adms\Controllers\Services\Validation\ValidationUserRakitService;
 use App\adms\Helpers\CSRFHelper;
 use App\adms\Helpers\GenerateLog;
-use App\adms\Models\Repository\DepartmentsRepository;
-use App\adms\Models\Repository\PositionsRepository;
 use App\adms\Models\Repository\UsersRepository;
 use App\adms\Views\Services\LoadViewService;
 
@@ -24,17 +20,14 @@ use App\adms\Views\Services\LoadViewService;
  */
 class UpdateUserImage
 {
-    // /** @var array|null $dataForm Recebe os dados do FORMULARIO */
-    // private array|null $dataForm;
-
     /** @var array|string|null $data Recebe os dados que devem ser enviados para a VIEW */
     private array|string|null $data = null;
 
     /**
-     * Editar o usuário.
+     * Editar a imagem do usuário.
      *
-     * Este método gerencia o processo de edição de um usuário. Recebe os dados do formulário, valida o CSRF token e
-     * a existência do usuário, e chama o método adequado para editar o usuário ou carregar a visualização de edição.
+     * Este método gerencia o processo de edição da imagem de um usuário. Recebe os dados do formulário, valida o CSRF token e
+     * a existência do usuário, e chama o método adequado para editar a imagem ou carregar a visualização de edição.
      *
      * @param int|string $id ID do usuário a ser editado.
      * 
@@ -42,17 +35,14 @@ class UpdateUserImage
      */
     public function index(int|string $id): void
     {
-
         // Receber os dados do formulário
         $this->data['form'] = filter_input_array(INPUT_POST, FILTER_DEFAULT);
 
         // Acessar o IF se existir o CSRF e for valido o CSRF
         if (isset($this->data['form']['csrf_token']) and CSRFHelper::validateCSRFToken('form_update_user_image', $this->data['form']['csrf_token'])) {
-
             
             // Chamar o método editar
             $this->editUser();
-           
 
         } else {
             
@@ -80,27 +70,19 @@ class UpdateUserImage
     }
 
     /**
-     * Carregar a visualização para edição do usuário.
+     * Carregar a visualização para edição da imagem do usuário.
      *
-     * Este método define o título da página e carrega a visualização de edição do usuário com os dados necessários.
+     * Este método define o título da página e carrega a visualização de edição da imagem com os dados necessários.
      * 
      * @return void
      */
     private function viewUser(): void
     {
-        // Instanciar o repositório para recuperar os departamentos
-        $listDepartments = new DepartmentsRepository();
-        $this->data['listDepartments'] = $listDepartments->getAllDepartmentsSelect();
-
-        // Instanciar o repositório para recuperar os cargos
-        $listPositions = new PositionsRepository();
-        $this->data['listPositions'] = $listPositions->getAllPositionsSelect();
-
         // Definir o título da página
         // Ativar o item de menu
         // Apresentar ou ocultar botão 
         $pageElements = [
-            'title_head' => 'Editar Usuário',
+            'title_head' => 'Editar Imagem do Usuário',
             'menu' => 'list-users',
             'buttonPermission' => ['ListUsers', 'ViewUser'],
         ];
@@ -113,10 +95,10 @@ class UpdateUserImage
         $loadView->loadView();
     }
 
-   /**
-     * Editar o usuário.
+    /**
+     * Editar a imagem do usuário.
      *
-     * Este método valida os dados do formulário, atualiza as informações do usuário no repositório e lida com o resultado
+     * Este método valida os dados do formulário, atualiza a imagem do usuário no repositório e lida com o resultado
      * da operação. Se a atualização for bem-sucedida, o usuário é redirecionado para a página de visualização do usuário.
      * Caso contrário, uma mensagem de erro é exibida e a visualização de edição é recarregada.
      * 
@@ -124,13 +106,30 @@ class UpdateUserImage
      */
     private function editUser(): void 
     {
+        // Adicionar a imagem aos dados do formulário
+        $this->data['form']['image'] = $_FILES['image'] ?? null;
+
+        // Validação da imagem
+        if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+            $this->data['errors'][] = "Erro: Necessário selecionar uma imagem válida!";
+            $this->viewUser();
+            return;
+        }
         
-        $this->data['form']['new_image'] = $_FILES['new_image'] ? $_FILES['new_image'] : null;
-
-        // Instanciar a classe validar os dados do formulario
-        $validationUserImage = new ValidationUserImageRakitService();
-        $this->data['errors'] = $validationUserImage->validate($this->data['form']);  
-
+        // Verificar tipo de arquivo
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!in_array($_FILES['image']['type'], $allowedTypes)) {
+            $this->data['errors'][] = "Erro: Formato de imagem não suportado! Use JPG, PNG ou JPEG.";
+            $this->viewUser();
+            return;
+        }
+        
+        // Verificar tamanho (2MB)
+        if ($_FILES['image']['size'] > 2 * 1024 * 1024) {
+            $this->data['errors'][] = "Erro: Imagem muito grande! Máximo 2MB.";
+            $this->viewUser();
+            return;
+        }
 
         // Acessa o IF quando existir campo com dados incorretos
         if (!empty($this->data['errors'])) {
@@ -139,25 +138,24 @@ class UpdateUserImage
             return;
         }
         
-        // Instanciar Repository para editar o usuário
+        // Instanciar Repository para editar a imagem do usuário
         $updateUserImage = new UsersRepository();
         $result = $updateUserImage->updateUserImage($this->data['form']);
 
         // Acessa o IF se o repository retornou TRUE
         if($result){
             // Criar a mensagem de sucesso
-            $_SESSION['success'] = "Usuário editado com suscesso!";
+            $_SESSION['success'] = "Imagem do usuário editada com sucesso!";
 
             // Redirecionar o usuário para a pagina view - visualizar usuario
             header("Location: {$_ENV['URL_ADM']}view-user/{$this->data['form']['id']}");
             return;
         }else {
             // Criar a mensagem de erro
-            $this->data['errors'][] = "Usuário não editado!";
+            $this->data['errors'][] = "Imagem do usuário não foi editada!";
 
             // Chamar método carregar a view
             $this->viewUser();
         }
-
     }
 }
