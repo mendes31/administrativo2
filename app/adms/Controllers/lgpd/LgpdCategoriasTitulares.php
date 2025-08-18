@@ -45,7 +45,7 @@ class LgpdCategoriasTitulares
 
         $pageElements = [
             'title_head' => 'Categorias de Titulares LGPD',
-            'menu' => 'ListLgpdCategoriasTitulares',
+            'menu' => 'lgpd-categorias-titulares',
             'buttonPermission' => ['ListLgpdCategoriasTitulares', 'CreateLgpdCategoriasTitulares', 'EditLgpdCategoriasTitulares', 'ViewLgpdCategoriasTitulares', 'DeleteLgpdCategoriasTitulares'],
         ];
         $pageLayoutService = new PageLayoutService();

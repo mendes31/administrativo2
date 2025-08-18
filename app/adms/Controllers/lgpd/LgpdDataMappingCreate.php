@@ -37,7 +37,7 @@ class LgpdDataMappingCreate
 
         $pageElements = [
             'title_head' => 'Cadastrar Data Mapping',
-            'menu' => 'ListLgpdDataMapping',
+            'menu' => 'lgpd-data-mapping',
             'buttonPermission' => ['ListLgpdDataMapping'],
         ];
         $pageLayoutService = new PageLayoutService();

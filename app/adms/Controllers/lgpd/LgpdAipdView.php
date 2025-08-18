@@ -15,7 +15,7 @@ class LgpdAipdView
 {
     private array|string|null $data = null;
 
-    public function index(string|int $id = null): void
+    public function index(string|int|null $id = null): void
     {
         if (empty($id)) {
             $_SESSION['error'] = "AIPD não encontrada!";
@@ -53,7 +53,7 @@ class LgpdAipdView
 
         $pageElements = [
             'title_head' => 'Visualizar AIPD',
-            'menu' => 'ViewLgpdAipd',
+            'menu' => 'lgpd-aipd',
             'buttonPermission' => ['ViewLgpdAipd'],
         ];
         $pageLayoutService = new PageLayoutService();

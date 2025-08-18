@@ -43,7 +43,7 @@ class LgpdConsentimentosView
         // Configurar elementos da página
         $pageElements = [
             'title_head' => 'Visualizar Consentimento',
-            'menu' => 'ViewLgpdConsentimentos',
+            'menu' => 'lgpd-consentimentos',
             'buttonPermission' => ['ViewLgpdConsentimentos'],
         ];
         

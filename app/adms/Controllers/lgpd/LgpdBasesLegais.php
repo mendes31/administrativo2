@@ -45,7 +45,7 @@ class LgpdBasesLegais
 
         $pageElements = [
             'title_head' => 'Bases Legais LGPD',
-            'menu' => 'ListLgpdBasesLegais',
+            'menu' => 'lgpd-bases-legais',
             'buttonPermission' => ['ListLgpdBasesLegais', 'CreateLgpdBasesLegais', 'EditLgpdBasesLegais', 'ViewLgpdBasesLegais', 'DeleteLgpdBasesLegais'],
         ];
         $pageLayoutService = new PageLayoutService();

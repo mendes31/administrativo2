@@ -57,7 +57,7 @@ class LgpdAipd
 
         $pageElements = [
             'title_head' => 'Avaliação de Impacto à Proteção de Dados (AIPD)',
-            'menu' => 'ListLgpdAipd',
+            'menu' => 'lgpd-aipd',
             'buttonPermission' => ['ListLgpdAipd', 'CreateLgpdAipd', 'EditLgpdAipd', 'ViewLgpdAipd', 'DeleteLgpdAipd'],
         ];
         $pageLayoutService = new PageLayoutService();
@@ -99,7 +99,7 @@ class LgpdAipd
 
         $pageElements = [
             'title_head' => 'Cadastrar AIPD',
-            'menu' => 'CreateLgpdAipd',
+            'menu' => 'lgpd-aipd',
             'buttonPermission' => ['CreateLgpdAipd'],
         ];
         $pageLayoutService = new PageLayoutService();
@@ -109,7 +109,7 @@ class LgpdAipd
         $loadView->loadView();
     }
 
-    public function view(string|int $id = null): void
+    public function view(string|int|null $id = null): void
     {
         if (empty($id)) {
             $_SESSION['error'] = "AIPD não encontrada!";
@@ -131,7 +131,7 @@ class LgpdAipd
 
         $pageElements = [
             'title_head' => 'Visualizar AIPD',
-            'menu' => 'ViewLgpdAipd',
+            'menu' => 'lgpd-aipd',
             'buttonPermission' => ['ViewLgpdAipd'],
         ];
         $pageLayoutService = new PageLayoutService();
@@ -141,7 +141,7 @@ class LgpdAipd
         $loadView->loadView();
     }
 
-    public function edit(string|int $id = null): void
+    public function edit(string|int|null $id = null): void
     {
         if (empty($id)) {
             $_SESSION['error'] = "AIPD não encontrada!";
@@ -189,7 +189,7 @@ class LgpdAipd
 
         $pageElements = [
             'title_head' => 'Editar AIPD',
-            'menu' => 'EditLgpdAipd',
+            'menu' => 'lgpd-aipd',
             'buttonPermission' => ['EditLgpdAipd'],
         ];
         $pageLayoutService = new PageLayoutService();
@@ -199,7 +199,7 @@ class LgpdAipd
         $loadView->loadView();
     }
 
-    public function delete(string|int $id = null): void
+    public function delete(string|int|null $id = null): void
     {
         if (empty($id)) {
             $_SESSION['error'] = "AIPD não encontrada!";

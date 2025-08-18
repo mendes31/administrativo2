@@ -48,7 +48,7 @@ class LgpdRipdView
             // Configurar elementos da página
             $pageElements = [
                 'title_head' => 'Visualizar RIPD - ' . $ripd['codigo'],
-                'menu' => 'LgpdRipdView',
+                'menu' => 'lgpd-ripd',
                 'buttonPermission' => ['LgpdRipd', 'LgpdRipdCreate', 'LgpdRipdEdit', 'LgpdRipdView', 'LgpdRipdDelete'],
             ];
             

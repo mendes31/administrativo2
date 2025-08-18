@@ -45,7 +45,7 @@ class LgpdFinalidades
 
         $pageElements = [
             'title_head' => 'Finalidades LGPD',
-            'menu' => 'ListLgpdFinalidades',
+            'menu' => 'lgpd-finalidades',
             'buttonPermission' => ['ListLgpdFinalidades', 'CreateLgpdFinalidades', 'EditLgpdFinalidades', 'ViewLgpdFinalidades', 'DeleteLgpdFinalidades'],
         ];
         $pageLayoutService = new PageLayoutService();

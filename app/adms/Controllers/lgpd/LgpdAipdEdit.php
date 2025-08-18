@@ -19,7 +19,7 @@ class LgpdAipdEdit
 {
     private array|string|null $data = null;
 
-    public function index(string|int $id = null): void
+    public function index(string|int|null $id = null): void
     {
         if (empty($id)) {
             $_SESSION['error'] = "AIPD não encontrada!";
@@ -90,7 +90,7 @@ class LgpdAipdEdit
 
         $pageElements = [
             'title_head' => 'Editar AIPD',
-            'menu' => 'EditLgpdAipd',
+            'menu' => 'lgpd-aipd',
             'buttonPermission' => ['EditLgpdAipd'],
         ];
         $pageLayoutService = new PageLayoutService();

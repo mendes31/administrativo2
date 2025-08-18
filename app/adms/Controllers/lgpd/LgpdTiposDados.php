@@ -45,7 +45,7 @@ class LgpdTiposDados
 
         $pageElements = [
             'title_head' => 'Tipos de Dados LGPD',
-            'menu' => 'ListLgpdTiposDados',
+            'menu' => 'lgpd-tipos-dados',
             'buttonPermission' => ['ListLgpdTiposDados', 'CreateLgpdTiposDados', 'EditLgpdTiposDados', 'ViewLgpdTiposDados', 'DeleteLgpdTiposDados'],
         ];
         $pageLayoutService = new PageLayoutService();

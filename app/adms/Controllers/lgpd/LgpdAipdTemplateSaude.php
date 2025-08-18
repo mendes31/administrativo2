@@ -57,7 +57,7 @@ class LgpdAipdTemplateSaude
 
         $pageElements = [
             'title_head' => 'AIPD - Setor de Saúde',
-            'menu' => 'LgpdAipdTemplateSaude',
+            'menu' => 'lgpd-aipd-template-saude',
             'buttonPermission' => ['LgpdAipdTemplateSaude'],
         ];
         $pageLayoutService = new PageLayoutService();

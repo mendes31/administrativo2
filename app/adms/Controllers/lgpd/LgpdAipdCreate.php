@@ -69,7 +69,7 @@ class LgpdAipdCreate
 
         $pageElements = [
             'title_head' => 'Cadastrar AIPD',
-            'menu' => 'CreateLgpdAipd',
+            'menu' => 'lgpd-aipd',
             'buttonPermission' => ['CreateLgpdAipd'],
         ];
         $pageLayoutService = new PageLayoutService();

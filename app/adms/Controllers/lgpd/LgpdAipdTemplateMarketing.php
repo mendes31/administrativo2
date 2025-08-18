@@ -55,7 +55,7 @@ class LgpdAipdTemplateMarketing
 
         $pageElements = [
             'title_head' => 'AIPD - Setor de Marketing',
-            'menu' => 'LgpdAipdTemplateMarketing',
+            'menu' => 'lgpd-aipd-template-marketing',
             'buttonPermission' => ['LgpdAipdTemplateMarketing'],
         ];
         $pageLayoutService = new PageLayoutService();

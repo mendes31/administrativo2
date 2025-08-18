@@ -24,7 +24,7 @@ class LgpdAipdSuggest
         
         $pageElements = [
             'title_head' => 'Sugestões de AIPD',
-            'menu' => 'SuggestLgpdAipd',
+            'menu' => 'lgpd-aipd-suggest',
             'buttonPermission' => ['SuggestLgpdAipd'],
         ];
         $pageLayoutService = new PageLayoutService();

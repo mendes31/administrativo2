@@ -124,7 +124,7 @@ class LgpdTiaTemplate
         // Configurar elementos da página
         $pageElements = [
             'title_head' => 'Templates de TIA por Setor',
-            'menu' => 'LgpdTiaTemplate',
+            'menu' => 'lgpd-tia',
             'buttonPermission' => ['LgpdTia', 'LgpdTiaCreate'],
         ];
         
@@ -149,7 +149,7 @@ class LgpdTiaTemplate
             // Configurar elementos da página
             $pageElements = [
                 'title_head' => 'Template TIA - Recursos Humanos',
-                'menu' => 'LgpdTiaTemplate',
+                'menu' => 'lgpd-tia',
                 'buttonPermission' => ['LgpdTia', 'LgpdTiaCreate'],
             ];
             
@@ -182,7 +182,7 @@ class LgpdTiaTemplate
             // Configurar elementos da página
             $pageElements = [
                 'title_head' => 'Template TIA - Marketing',
-                'menu' => 'LgpdTiaTemplate',
+                'menu' => 'lgpd-tia',
                 'buttonPermission' => ['LgpdTia', 'LgpdTiaCreate'],
             ];
             
@@ -215,7 +215,7 @@ class LgpdTiaTemplate
             // Configurar elementos da página
             $pageElements = [
                 'title_head' => 'Template TIA - Financeiro',
-                'menu' => 'LgpdTiaTemplate',
+                'menu' => 'lgpd-tia',
                 'buttonPermission' => ['LgpdTia', 'LgpdTiaCreate'],
             ];
             
@@ -248,7 +248,7 @@ class LgpdTiaTemplate
             // Configurar elementos da página
             $pageElements = [
                 'title_head' => 'Template TIA - Tecnologia da Informação',
-                'menu' => 'LgpdTiaTemplate',
+                'menu' => 'lgpd-tia',
                 'buttonPermission' => ['LgpdTia', 'LgpdTiaCreate'],
             ];
             

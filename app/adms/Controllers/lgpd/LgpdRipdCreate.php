@@ -57,7 +57,7 @@ class LgpdRipdCreate
             // Configurar elementos da página
             $pageElements = [
                 'title_head' => 'Criar Relatório de Impacto à Proteção de Dados (RIPD)',
-                'menu' => 'LgpdRipdCreate',
+                'menu' => 'lgpd-ripd',
                 'buttonPermission' => ['LgpdRipd', 'LgpdRipdCreate', 'LgpdRipdEdit', 'LgpdRipdView', 'LgpdRipdDelete'],
             ];
             

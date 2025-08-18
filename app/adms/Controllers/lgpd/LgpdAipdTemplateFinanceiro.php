@@ -57,7 +57,7 @@ class LgpdAipdTemplateFinanceiro
 
         $pageElements = [
             'title_head' => 'AIPD - Setor Financeiro',
-            'menu' => 'LgpdAipdTemplateFinanceiro',
+            'menu' => 'lgpd-aipd-template-financeiro',
             'buttonPermission' => ['LgpdAipdTemplateFinanceiro'],
         ];
         $pageLayoutService = new PageLayoutService();

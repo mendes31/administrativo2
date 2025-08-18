@@ -113,7 +113,7 @@ class LgpdAipdTemplateTelecom extends LgpdAipdCreate
         // Configurar layout da página
         $pageElements = [
             'title_head' => 'Template AIPD - Telecomunicações',
-            'menu' => 'LgpdAipdTemplateTelecom',
+            'menu' => 'lgpd-aipd-template-telecom',
             'buttonPermission' => ['LgpdAipdTemplateTelecom'],
         ];
         $pageLayoutService = new PageLayoutService();

@@ -61,7 +61,7 @@ class LgpdRipdEdit
             // Configurar elementos da página
             $pageElements = [
                 'title_head' => 'Editar RIPD - ' . $ripd['codigo'],
-                'menu' => 'LgpdRipdEdit',
+                'menu' => 'lgpd-ripd',
                 'buttonPermission' => ['LgpdRipd', 'LgpdRipdCreate', 'LgpdRipdEdit', 'LgpdRipdView', 'LgpdRipdDelete'],
             ];
             

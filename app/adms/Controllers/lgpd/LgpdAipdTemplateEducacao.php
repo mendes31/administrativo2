@@ -54,7 +54,7 @@ class LgpdAipdTemplateEducacao
 
         $pageElements = [
             'title_head' => 'AIPD - Setor de Educação',
-            'menu' => 'LgpdAipdTemplateEducacao',
+            'menu' => 'lgpd-aipd-template-educacao',
             'buttonPermission' => ['LgpdAipdTemplateEducacao'],
         ];
         $pageLayoutService = new PageLayoutService();

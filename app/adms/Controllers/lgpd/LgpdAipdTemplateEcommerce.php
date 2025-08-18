@@ -55,7 +55,7 @@ class LgpdAipdTemplateEcommerce
 
         $pageElements = [
             'title_head' => 'AIPD - Setor de E-commerce',
-            'menu' => 'LgpdAipdTemplateEcommerce',
+            'menu' => 'lgpd-aipd-template-ecommerce',
             'buttonPermission' => ['LgpdAipdTemplateEcommerce'],
         ];
         $pageLayoutService = new PageLayoutService();

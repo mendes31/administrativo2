@@ -114,7 +114,7 @@ class LgpdAipdTemplateLogistica extends LgpdAipdCreate
         // Configurar layout da página
         $pageElements = [
             'title_head' => 'Template AIPD - Logística',
-            'menu' => 'LgpdAipdTemplateLogistica',
+            'menu' => 'lgpd-aipd-template-logistica',
             'buttonPermission' => ['LgpdAipdTemplateLogistica'],
         ];
         $pageLayoutService = new PageLayoutService();

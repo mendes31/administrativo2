@@ -59,9 +59,18 @@ class Dashboard
         $stmt->bindValue(':mes', $mesAtual, \PDO::PARAM_INT);
         $stmt->execute();
         $aniversariantes = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        // Ajuste: só mantenha o campo image se o arquivo existir
+        // Ajuste: normalizar caminho da imagem do usuário e validar existência
         foreach ($aniversariantes as &$aniv) {
-            if (empty($aniv['image']) || !file_exists('public/adms/uploads/' . $aniv['image'])) {
+            if (empty($aniv['image'])) {
+                $aniv['image'] = null;
+                continue;
+            }
+            $baseUploads = 'public/adms/uploads/';
+            $hasSubdir = strpos($aniv['image'], '/') !== false || strpos($aniv['image'], '\\') !== false;
+            $relativePath = $hasSubdir ? $aniv['image'] : ('users/' . $aniv['id'] . '/' . $aniv['image']);
+            if (file_exists($baseUploads . $relativePath)) {
+                $aniv['image'] = $relativePath;
+            } else {
                 $aniv['image'] = null;
             }
         }

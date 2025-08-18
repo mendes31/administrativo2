@@ -84,7 +84,7 @@ class LgpdTiaEdit
             // Configurar elementos da página
             $pageElements = [
                 'title_head' => 'Editar Teste TIA: ' . $tia['codigo'],
-                'menu' => 'LgpdTiaEdit',
+                'menu' => 'lgpd-tia',
                 'buttonPermission' => ['LgpdTiaEdit'],
             ];
             

@@ -391,8 +391,76 @@ $menus = [
             ],
             [
                 'label' => 'AIPD',
-                'url' => $_ENV['URL_ADM'] . 'lgpd-aipd',
-                'permission' => 'LgpdAipd'
+                'icon' => 'fa-solid fa-file-shield',
+                'submenu' => [
+                    [
+                        'label' => 'AIPD',
+                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd',
+                        'permission' => 'LgpdAipd'
+                    ],
+                    [
+                        'label' => 'Sugestões de AIPD',
+                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-suggest',
+                        'permission' => 'LgpdAipdSuggest'
+                    ],
+                    [
+                        'label' => 'Templates AIPD',
+                        'icon' => 'fa-solid fa-file-lines',
+                        'submenu' => [
+                            [
+                                'label' => 'Template - E-commerce',
+                                'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-ecommerce',
+                                'permission' => 'LgpdAipdTemplateEcommerce'
+                            ],
+                            [
+                                'label' => 'Template - Educação',
+                                'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-educacao',
+                                'permission' => 'LgpdAipdTemplateEducacao'
+                            ],
+                            [
+                                'label' => 'Template - Financeiro',
+                                'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-financeiro',
+                                'permission' => 'LgpdAipdTemplateFinanceiro'
+                            ],       
+                            
+                            [
+                                'label' => 'Template - Jurídico',
+                                'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-juridico',
+                                'icon' => 'fas fa-balance-scale',
+                                'permission' => 'LgpdAipdTemplateJuridico'
+                            ],
+                            [
+                                'label' => 'Template - Logística',
+                                'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-logistica',
+                                'icon' => 'fas fa-truck',
+                                'permission' => 'LgpdAipdTemplateLogistica'
+                            ],
+                            [
+                                'label' => 'Template - Marketing',
+                                'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-marketing',
+                                'permission' => 'LgpdAipdTemplateMarketing'
+                            ],
+                            [
+                                'label' => 'Template - RH',
+                                'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-rh',
+                                'permission' => 'LgpdAipdTemplateRh'
+                            ],
+                            [
+                                'label' => 'Template - Saúde',
+                                'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-saude',
+                                'permission' => 'LgpdAipdTemplateSaude'
+                            ],
+                            [
+                                 'label' => 'Template - Telecomunicações',
+                                 'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-telecom',
+                                 'icon' => 'fas fa-broadcast-tower',
+                                 'permission' => 'LgpdAipdTemplateTelecom'
+                             ],
+                             
+                             
+                        ]
+                    ]
+                ]
             ],
             [
                 'label' => 'RIPD',
@@ -404,69 +472,7 @@ $menus = [
                 'url' => $_ENV['URL_ADM'] . 'lgpd-tia',
                 'permission' => 'LgpdTia'
             ],
-            [
-                'label' => 'Sugestões AIPD',
-                'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-suggest',
-                'permission' => 'LgpdAipdSuggest'
-            ],
-           
-            [
-                'label' => 'Templates AIPD',
-                'icon' => 'fa-solid fa-file-lines',
-                'submenu' => [
-                    [
-                        'label' => 'Template - E-commerce',
-                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-ecommerce',
-                        'permission' => 'LgpdAipdTemplateEcommerce'
-                    ],
-                    [
-                        'label' => 'Template - Educação',
-                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-educacao',
-                        'permission' => 'LgpdAipdTemplateEducacao'
-                    ],
-                    [
-                        'label' => 'Template - Financeiro',
-                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-financeiro',
-                        'permission' => 'LgpdAipdTemplateFinanceiro'
-                    ],       
-                    
-                    [
-                        'label' => 'Template - Jurídico',
-                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-juridico',
-                        'icon' => 'fas fa-balance-scale',
-                        'permission' => 'LgpdAipdTemplateJuridico'
-                    ],
-                    [
-                        'label' => 'Template - Logística',
-                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-logistica',
-                        'icon' => 'fas fa-truck',
-                        'permission' => 'LgpdAipdTemplateLogistica'
-                    ],
-                    [
-                        'label' => 'Template - Marketing',
-                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-marketing',
-                        'permission' => 'LgpdAipdTemplateMarketing'
-                    ],
-                    [
-                        'label' => 'Template - RH',
-                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-rh',
-                        'permission' => 'LgpdAipdTemplateRh'
-                    ],
-                    [
-                        'label' => 'Template - Saúde',
-                        'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-saude',
-                        'permission' => 'LgpdAipdTemplateSaude'
-                    ],
-                    [
-                         'label' => 'Template - Telecomunicações',
-                         'url' => $_ENV['URL_ADM'] . 'lgpd-aipd-template-telecom',
-                         'icon' => 'fas fa-broadcast-tower',
-                         'permission' => 'LgpdAipdTemplateTelecom'
-                     ],
-                     
-                     
-                ]
-            ]
+            
         ]
     ],
     [
@@ -627,7 +633,21 @@ if (!function_exists('countPermittedSubmenus')) {
                                     // Verifica se algum submenu está ativo
                                     foreach ($menu['submenu'] as $submenu) {
                                         if (isset($submenu['permission']) && in_array($submenu['permission'], $menuPermission)) {
-                                            if ((isset($menu['id']) && $menuAtivo == $menu['id']) || (isset($submenu['url']) && $menuAtivo == basename($submenu['url']))) {
+                                            // Determinar primeiro segmento do caminho da URL (ex.: password-policy/1 -> password-policy)
+                                            $firstSegment = '';
+                                            if (isset($submenu['url'])) {
+                                                $path = parse_url($submenu['url'], PHP_URL_PATH);
+                                                $parts = explode('/', trim((string)$path, '/'));
+                                                $basePath = trim((string)(parse_url($_ENV['URL_ADM'] ?? '', PHP_URL_PATH) ?? ''), '/');
+                                                if (!empty($basePath) && !empty($parts) && $parts[0] === $basePath) {
+                                                    array_shift($parts);
+                                                }
+                                                $firstSegment = $parts[0] ?? '';
+                                            }
+                                            if ((isset($menu['id']) && $menuAtivo == $menu['id'])
+                                                || (isset($submenu['url']) && $menuAtivo == basename($submenu['url']))
+                                                || ($firstSegment !== '' && $menuAtivo == $firstSegment)
+                                                || (isset($submenu['permission']) && $menuAtivo == $submenu['permission'])) {
                                                 $submenuActive = true;
                                                 break;
                                             }
@@ -636,9 +656,44 @@ if (!function_exists('countPermittedSubmenus')) {
                                         if (isset($submenu['submenu'])) {
                                             foreach ($submenu['submenu'] as $nestedSubmenu) {
                                                 if (isset($nestedSubmenu['permission']) && in_array($nestedSubmenu['permission'], $menuPermission)) {
-                                                    if (isset($nestedSubmenu['url']) && $menuAtivo == basename($nestedSubmenu['url'])) {
+                                                    $nestedFirst = '';
+                                                    if (isset($nestedSubmenu['url'])) {
+                                                        $npath = parse_url($nestedSubmenu['url'], PHP_URL_PATH);
+                                                        $nparts = explode('/', trim((string)$npath, '/'));
+                                                        $basePath = trim((string)(parse_url($_ENV['URL_ADM'] ?? '', PHP_URL_PATH) ?? ''), '/');
+                                                        if (!empty($basePath) && !empty($nparts) && $nparts[0] === $basePath) {
+                                                            array_shift($nparts);
+                                                        }
+                                                        $nestedFirst = $nparts[0] ?? '';
+                                                    }
+                                                    if ((isset($nestedSubmenu['url']) && $menuAtivo == basename($nestedSubmenu['url']))
+                                                        || ($nestedFirst !== '' && $menuAtivo == $nestedFirst)
+                                                        || (isset($nestedSubmenu['permission']) && $menuAtivo == $nestedSubmenu['permission'])) {
                                                         $submenuActive = true;
                                                         break 2;
+                                                    }
+                                                }
+                                                // Suporte a terceiro nível (ex.: LGPD -> AIPD -> Templates AIPD -> Template X)
+                                                if (isset($nestedSubmenu['submenu']) && is_array($nestedSubmenu['submenu'])) {
+                                                    foreach ($nestedSubmenu['submenu'] as $deepSubmenu) {
+                                                        if (isset($deepSubmenu['permission']) && in_array($deepSubmenu['permission'], $menuPermission)) {
+                                                            $deepFirst = '';
+                                                            if (isset($deepSubmenu['url'])) {
+                                                                $dpath = parse_url($deepSubmenu['url'], PHP_URL_PATH);
+                                                                $dparts = explode('/', trim((string)$dpath, '/'));
+                                                                $basePath = trim((string)(parse_url($_ENV['URL_ADM'] ?? '', PHP_URL_PATH) ?? ''), '/');
+                                                                if (!empty($basePath) && !empty($dparts) && $dparts[0] === $basePath) {
+                                                                    array_shift($dparts);
+                                                                }
+                                                                $deepFirst = $dparts[0] ?? '';
+                                                            }
+                                                            if ((isset($deepSubmenu['url']) && $menuAtivo == basename($deepSubmenu['url']))
+                                                                || ($deepFirst !== '' && $menuAtivo == $deepFirst)
+                                                                || (isset($deepSubmenu['permission']) && $menuAtivo == $deepSubmenu['permission'])) {
+                                                                $submenuActive = true;
+                                                                break 3;
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
@@ -661,7 +716,48 @@ if (!function_exists('countPermittedSubmenus')) {
                             } else {
                                 // Para menus sem submenu, verifica se tem permissão própria
                                 if ($hasPermitted) {
-                                    $active = ($menuAtivo == basename($menu['url'])) ? 'active' : '';
+                                    $active = '';
+                                    // Matches com base no controller (menuAtivo)
+                                    $baseNameMatch = ($menuAtivo == basename($menu['url']));
+                                    $firstSegmentMatch = false;
+                                    $path = parse_url($menu['url'], PHP_URL_PATH);
+                                    $parts = explode('/', trim((string)$path, '/'));
+                                    $basePath = trim((string)(parse_url($_ENV['URL_ADM'] ?? '', PHP_URL_PATH) ?? ''), '/');
+                                    if (!empty($basePath) && !empty($parts) && $parts[0] === $basePath) {
+                                        array_shift($parts);
+                                    }
+                                    $menuFirstSeg = $parts[0] ?? '';
+                                    $menuPathNoBase = implode('/', $parts);
+                                    if ($menuFirstSeg !== '' && $menuAtivo == $menuFirstSeg) {
+                                        $firstSegmentMatch = true;
+                                    }
+                                    $permissionMatch = (isset($menu['permission']) && $menuAtivo == $menu['permission']);
+
+                                    // Matches com base na URL atual
+                                    $currentUrlPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+                                    $currentSegments = explode('/', trim((string)$currentUrlPath, '/'));
+                                    if (!empty($basePath) && !empty($currentSegments) && $currentSegments[0] === $basePath) {
+                                        array_shift($currentSegments);
+                                    }
+                                    $currentFirstSeg = $currentSegments[0] ?? '';
+                                    $currentBaseName = basename((string)$currentUrlPath);
+                                    $currentPathNoBase = implode('/', $currentSegments);
+                                    $urlBaseNameMatch = ($currentBaseName === basename($menu['url']));
+                                    $urlFirstSegMatch = ($currentFirstSeg !== '' && $currentFirstSeg === $menuFirstSeg);
+                                    $urlFullMatch = ($currentPathNoBase !== '' && $menuPathNoBase !== '' && rtrim($currentPathNoBase, '/') === rtrim($menuPathNoBase, '/'));
+
+                                    $urlMatch = ($urlFullMatch || $urlBaseNameMatch || $urlFirstSegMatch);
+                                    $menuCoarseMatch = ($baseNameMatch || $firstSegmentMatch || $permissionMatch);
+
+                                    // Política: priorizar match mais específico (URL completa), 
+                                    // depois basename/segmento, e por fim permission/controller.
+                                    if ($urlFullMatch) {
+                                        $active = 'active';
+                                    } elseif ($urlBaseNameMatch || $urlFirstSegMatch) {
+                                        $active = 'active';
+                                    } elseif ($menuCoarseMatch) {
+                                        $active = 'active';
+                                    }
                                     echo '<a href="' . $menu['url'] . '" class="nav-link ' . $active . '">' . ($nivel == 0 && isset($menu['icon']) ? '<div class="sb-nav-link-icon"><i class="' . $menu['icon'] . '"></i></div> ' : '') . $menu['label'] . '</a>';
                                 }
                             }

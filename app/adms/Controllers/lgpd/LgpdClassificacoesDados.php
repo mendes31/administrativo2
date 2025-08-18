@@ -51,7 +51,7 @@ class LgpdClassificacoesDados
 
         $pageElements = [
             'title_head' => 'Classificações de Dados LGPD',
-            'menu' => 'ListLgpdClassificacoesDados',
+            'menu' => 'lgpd-classificacoes-dados',
             'buttonPermission' => ['ListLgpdClassificacoesDados', 'CreateLgpdClassificacoesDados', 'EditLgpdClassificacoesDados', 'ViewLgpdClassificacoesDados', 'DeleteLgpdClassificacoesDados'],
         ];
         $pageLayoutService = new PageLayoutService();

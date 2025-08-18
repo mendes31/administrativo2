@@ -116,7 +116,7 @@ class LgpdAipdTemplateJuridico extends LgpdAipdCreate
         // Configurar layout da página
         $pageElements = [
             'title_head' => 'Template AIPD - Jurídico',
-            'menu' => 'LgpdAipdTemplateJuridico',
+            'menu' => 'lgpd-aipd-template-juridico',
             'buttonPermission' => ['LgpdAipdTemplateJuridico'],
         ];
         $pageLayoutService = new PageLayoutService();

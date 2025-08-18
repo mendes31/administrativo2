@@ -50,7 +50,7 @@ class LgpdConsentimentosCreate
         // Configurar elementos da página
         $pageElements = [
             'title_head' => 'Cadastrar Consentimento',
-            'menu' => 'CreateLgpdConsentimentos',
+            'menu' => 'lgpd-consentimentos',
             'buttonPermission' => ['CreateLgpdConsentimentos'],
         ];
         

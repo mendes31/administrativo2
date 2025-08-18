@@ -51,7 +51,7 @@ class LgpdTiaView
             // Configurar elementos da página
             $pageElements = [
                 'title_head' => 'Visualizar Teste TIA: ' . $tia['codigo'],
-                'menu' => 'LgpdTiaView',
+                'menu' => 'lgpd-tia',
                 'buttonPermission' => ['LgpdTiaView', 'LgpdTiaEdit', 'LgpdTiaDelete'],
             ];
             

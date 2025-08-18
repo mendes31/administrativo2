@@ -48,7 +48,7 @@ class LgpdTia
             // Configurar elementos da página
             $pageElements = [
                 'title_head' => 'Testes de Impacto às Atividades (TIA)',
-                'menu' => 'LgpdTia',
+                'menu' => 'lgpd-tia',
                 'buttonPermission' => ['LgpdTia', 'LgpdTiaCreate', 'LgpdTiaEdit', 'LgpdTiaView', 'LgpdTiaDelete'],
             ];
             

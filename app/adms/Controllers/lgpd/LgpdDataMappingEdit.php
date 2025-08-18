@@ -47,7 +47,7 @@ class LgpdDataMappingEdit
 
         $pageElements = [
             'title_head' => 'Editar Data Mapping',
-            'menu' => 'ListLgpdDataMapping',
+            'menu' => 'lgpd-data-mapping',
             'buttonPermission' => ['ListLgpdDataMapping', 'EditLgpdDataMapping'],
         ];
         $pageLayoutService = new PageLayoutService();

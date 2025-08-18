@@ -55,7 +55,7 @@ class LgpdAipdTemplateRh
 
         $pageElements = [
             'title_head' => 'AIPD - Setor de RH',
-            'menu' => 'LgpdAipdTemplateRh',
+            'menu' => 'lgpd-aipd-template-rh',
             'buttonPermission' => ['LgpdAipdTemplateRh'],
         ];
         $pageLayoutService = new PageLayoutService();
