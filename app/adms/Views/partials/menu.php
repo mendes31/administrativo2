@@ -245,7 +245,7 @@ $menus = [
             [
                 'label' => 'Dashboard de KPIs ',
                 'url' => $_ENV['URL_ADM'] . 'training-kpi-dashboard',
-                'permission' => 'TrainingKPIDashboard'
+                'permission' => 'TrainingKpiDashboard'
             ],
             [
                 'label' => 'Matriz por Colaborador',

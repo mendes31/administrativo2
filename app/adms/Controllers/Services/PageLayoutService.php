@@ -61,7 +61,7 @@ class PageLayoutService
             "EmailConfig",
             'TestNotification',
             "CompletedTrainingsMatrix",
-            "TrainingKPIDashboard",
+            "TrainingKpiDashboard",
             "MyEvaluations",
             "HistoricoAvaliacoes",
             "Notificacoes",

@@ -3,27 +3,41 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
+// Força cabeçalhos/ambiente UTF-8 na resposta HTML
+if (!headers_sent()) {
+    header('Content-Type: text/html; charset=UTF-8');
+}
+if (function_exists('ini_set')) {
+    ini_set('default_charset', 'UTF-8');
+}
+if (function_exists('mb_internal_encoding')) {
+    mb_internal_encoding('UTF-8');
+}
+if (function_exists('mb_http_output')) {
+    mb_http_output('UTF-8');
+}
+
 // Teste de execução do layout
 // echo "<!-- LAYOUT MAIN EXECUTADO -->";
 
 // Log alternativo com caminho absoluto
-file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
-    date('Y-m-d H:i:s') . ' - [main] session_id(): ' . session_id() .
-    ' | $_SESSION[session_id]: ' . ($_SESSION['session_id'] ?? 'null') .
-    ' | Cookie PHPSESSID: ' . ($_COOKIE['PHPSESSID'] ?? 'null') .
-    ' | $_SESSION: ' . json_encode($_SESSION) . "\n",
-    FILE_APPEND
-);
+// file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+//     date('Y-m-d H:i:s') . ' - [main] session_id(): ' . session_id() .
+//     ' | $_SESSION[session_id]: ' . ($_SESSION['session_id'] ?? 'null') .
+//     ' | Cookie PHPSESSID: ' . ($_COOKIE['PHPSESSID'] ?? 'null') .
+//     ' | $_SESSION: ' . json_encode($_SESSION) . "\n",
+//     FILE_APPEND
+// );
 
 // Log de início do layout para capturar erros fatais
-file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
-    date('Y-m-d H:i:s') . ' - [LAYOUT] INICIO RENDERIZACAO - session_id: ' . (session_id() ?: 'null') .
-    ' | _SESSION: ' . json_encode($_SESSION) .
-    ' | URL: ' . ($_SERVER['REQUEST_URI'] ?? 'null') .
-    ' | GET: ' . json_encode($_GET) .
-    ' | POST: ' . json_encode($_POST) . "\n",
-    FILE_APPEND
-);
+// file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+//     date('Y-m-d H:i:s') . ' - [LAYOUT] INICIO RENDERIZACAO - session_id: ' . (session_id() ?: 'null') .
+//     ' | _SESSION: ' . json_encode($_SESSION) .
+//     ' | URL: ' . ($_SERVER['REQUEST_URI'] ?? 'null') .
+//     ' | GET: ' . json_encode($_GET) .
+//     ' | POST: ' . json_encode($_POST) . "\n",
+//     FILE_APPEND
+// );
 
 
 
@@ -53,12 +67,12 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['session_id'])) {
     $sess = $sessionRepo->getSessionByUserIdAndSessionId($_SESSION['user_id'], session_id());
     
     // Log da consulta ao banco com caminho absoluto
-    file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
-        date('Y-m-d H:i:s') . ' - [main] CONSULTA BANCO - user_id: ' . $_SESSION['user_id'] . 
-        ' | session_id(): ' . session_id() . 
-        ' | Resultado: ' . json_encode($sess) . "\n",
-        FILE_APPEND
-    );
+    // file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+    //     date('Y-m-d H:i:s') . ' - [main] CONSULTA BANCO - user_id: ' . $_SESSION['user_id'] . 
+    //     ' | session_id(): ' . session_id() . 
+    //     ' | Resultado: ' . json_encode($sess) . "\n",
+    //     FILE_APPEND
+    // );
     
     $motivos = [];
     
@@ -69,15 +83,15 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['session_id'])) {
     }
     
     // Log antes da checagem de queda de sessão
-    file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
-        date('Y-m-d H:i:s') . ' - [main] PRE-CHECAGEM QUEDA - user_id: ' . ($_SESSION['user_id'] ?? 'null') .
-        ' | session_id(): ' . session_id() .
-        ' | Motivos: ' . (isset($motivos) ? implode(', ', $motivos) : 'ainda não definido') .
-        ' | Status da sessão: ' . ($sess['status'] ?? 'null') .
-        ' | URL: ' . ($_SERVER['REQUEST_URI'] ?? 'null') .
-        ' | GET: ' . json_encode($_GET) . "\n",
-        FILE_APPEND
-    );
+    // file_put_contents('C:/wamp64/www/administrativo2/app/logs/session_debug2.log',
+    //     date('Y-m-d H:i:s') . ' - [main] PRE-CHECAGEM QUEDA - user_id: ' . ($_SESSION['user_id'] ?? 'null') .
+    //     ' | session_id(): ' . session_id() .
+    //     ' | Motivos: ' . (isset($motivos) ? implode(', ', $motivos) : 'ainda não definido') .
+    //     ' | Status da sessão: ' . ($sess['status'] ?? 'null') .
+    //     ' | URL: ' . ($_SERVER['REQUEST_URI'] ?? 'null') .
+    //     ' | GET: ' . json_encode($_GET) . "\n",
+    //     FILE_APPEND
+    // );
     
     if (!empty($motivos) || ($sess && $sess['status'] === 'invalidada')) {
         $msg = !empty($motivos) ? implode(' e ', $motivos) . '! Contate o Administrador do sistema.' : 'Sessão invalidada. Faça login novamente.';

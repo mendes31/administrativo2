@@ -20,6 +20,14 @@ class AddAdmsPages extends AbstractSeed
         // Variável para receber os dados a serem inseridos
         $data = [];
 
+        // Forçar charset/collation da sessão para evitar "Illegal mix of collations"
+        // quando a tabela está em utf8mb4 e a conexão padrão está em utf8/utf8mb3
+        $this->execute("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'");
+        $this->execute("SET collation_connection = 'utf8mb4_unicode_ci'");
+        $this->execute("SET character_set_client = 'utf8mb4'");
+        $this->execute("SET character_set_results = 'utf8mb4'");
+        $this->execute("SET character_set_connection = 'utf8mb4'");
+
         // Variável para receber os dados que devem ser validados antes de cadastrar
         $pages = [
             // ===== GRUPO 1: DASHBOARD =====
@@ -218,7 +226,7 @@ class AddAdmsPages extends AbstractSeed
             ['name' => 'Vincular Colaboradores ao Treinamento', 'controller' => 'LinkTrainingUsers', 'controller_url' => 'link-training-users', 'directory' => 'trainings','obs' => 'Página para vincular múltiplos colaboradores a um treinamento.','public_page' => 0,'page_status' => 1,'adms_packages_page_id' => 1,'adms_groups_page_id' => 24],
             ['name' => 'Salvar Vínculo de Colaborador','controller' => 'SaveTrainingUserLink','controller_url' => 'save-training-user-link','directory' => 'trainings','obs' => 'Página para salvar vínculo de colaborador ao treinamento.','public_page' => 0, 'page_status' => 1,'adms_packages_page_id' => 1,'adms_groups_page_id' => 24],
             ['name' => 'Remover Vínculo de Colaborador','controller' => 'DeleteTrainingUserLink','controller_url' => 'delete-training-user-link','directory' => 'trainings','obs' => 'Página para remover vínculo individual de colaborador ao treinamento.','public_page' => 0, 'page_status' => 1,'adms_packages_page_id' => 1,'adms_groups_page_id' => 24],
-            ['name' => 'Dashboard de KPIs - Treinamentos', 'controller' => 'TrainingKPIDashboard', 'controller_url' => 'training-kpi-dashboard', 'directory' => 'trainings', 'obs' => 'Dashboard com gráficos e indicadores de treinamentos.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
+            ['name' => 'Dashboard de KPIs - Treinamentos', 'controller' => 'TrainingKpiDashboard', 'controller_url' => 'training-kpi-dashboard', 'directory' => 'trainings', 'obs' => 'Dashboard com gráficos e indicadores de treinamentos.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
             // ===== GRUPO 24: MATRIZ DE TREINAMENTOS =====
             ['name'=> 'Matriz de Treinamentos Realizados', 'controller' => 'CompletedTrainingsMatrix', 'controller_url' => 'completed-trainings-matrix', 'directory' => 'trainings', 'obs' => 'Matriz de treinamentos realizados por colaborador', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
             ['name'=> 'Minhas Avaliações', 'controller' => 'MyEvaluations', 'controller_url' => 'my-evaluations', 'directory' => 'evaluations', 'obs' => 'Página para o colaborador responder avaliações/questionários.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 24],
@@ -289,6 +297,7 @@ class AddAdmsPages extends AbstractSeed
             ['name'=> 'Remover Imagem do Informativo', 'controller' => 'RemoveInformativoImagem', 'controller_url' => 'remove-informativo-imagem', 'directory' => 'informativos', 'obs' => 'Página para remover a imagem do informativo.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 30],
             ['name'=> 'Remover Anexo do Informativo', 'controller' => 'RemoveInformativoAnexo', 'controller_url' => 'remove-informativo-anexo', 'directory' => 'informativos', 'obs' => 'Página para remover o anexo do informativo.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 30],
             // ===== GRUPO 31: LGPD =====
+            ['name'=> 'Dashboard LGPD', 'controller' => 'LgpdDashboard', 'controller_url' => 'lgpd-dashboard', 'directory' => 'lgpd', 'obs' => 'Dashboard LGPD', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
             ['name'=> 'Listar ROPA', 'controller' => 'LgpdRopa', 'controller_url' => 'lgpd-ropa', 'directory' => 'lgpd', 'obs' => 'Página para listar registros ROPA.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
             ['name'=> 'Cadastrar ROPA', 'controller' => 'LgpdRopaCreate', 'controller_url' => 'lgpd-ropa-create', 'directory' => 'lgpd', 'obs' => 'Página para cadastrar registro ROPA.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],
             ['name'=> 'Editar ROPA', 'controller' => 'LgpdRopaEdit', 'controller_url' => 'lgpd-ropa-edit', 'directory' => 'lgpd', 'obs' => 'Página para editar registro ROPA.', 'public_page' => 0, 'page_status' => 1, 'adms_packages_page_id' => 1, 'adms_groups_page_id' => 31],

@@ -49,8 +49,14 @@ abstract class DbConnection
                 // Conexão com a porta
                 // $this->connect = new PDO("mysql:host={$_ENV['DB_HOST']};port={$_ENV['DB_PORT']};dbname=" . $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS']);
 
-                // Conexão sem a porta
-                $this->connect = new PDO("mysql:host={$_ENV['DB_HOST']};dbname=" . $_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS']);
+                // Conexão sem a porta, forçando charset/collation corretos
+                $dsn = "mysql:host={$_ENV['DB_HOST']};dbname=" . $_ENV['DB_NAME'] . ";charset=utf8mb4";
+                $options = [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+                ];
+                $this->connect = new PDO($dsn, $_ENV['DB_USER'], $_ENV['DB_PASS'], $options);
                 
 
                 // echo "Conexão realizada com sucesso!<br>";

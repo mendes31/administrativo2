@@ -68,6 +68,7 @@ class LoadPageAdm
         "ListReceipts", "CreateReceive", "ViewReceive", "UpdateReceive", "DeleteReceive", "Receive", "Installments", "ListPartialValues", "ClearBusyReceive", "CheckBusy", "GetReceiptsStatus",
         "Movements","CashFlow","ExportPdfCashFlow",
         "EditMovement", "DeleteMovement",
+        "TrainingKpiDashboard",
         "ListTrainings", "CreateTraining", "UpdateTraining", "DeleteTraining", "ViewTraining", "TrainingPositions", "TrainingMatrixManager", "ListTrainingStatus", "ApplyTraining",
         "UpdateTrainingMatrix",
         "ListEvaluationModels", "CreateEvaluationModel", "UpdateEvaluationModel", "DeleteEvaluationModel", "ViewEvaluationModel",

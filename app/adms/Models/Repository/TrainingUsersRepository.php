@@ -931,7 +931,21 @@ class TrainingUsersRepository extends DbConnection
      */
     public function getTopCriticalTrainings(): array
     {
-        $sql = "SELECT t.id as training_id, t.nome as training_name, SUM(CASE WHEN tu.status = 'pendente' THEN 1 ELSE 0 END) as pendentes, SUM(CASE WHEN tu.status = 'vencido' THEN 1 ELSE 0 END) as vencidos FROM adms_training_users tu INNER JOIN adms_trainings t ON t.id = tu.adms_training_id GROUP BY t.id ORDER BY (pendentes + vencidos) DESC, t.nome ASC LIMIT 5";
+        // Nota: MySQL não permite referenciar aliases de agregação dentro de expressões no ORDER BY.
+        // Repetimos as expressões de agregação para ordenar pela soma de pendentes + vencidos.
+        $sql = "SELECT 
+                    t.id as training_id, 
+                    t.nome as training_name, 
+                    SUM(CASE WHEN tu.status = 'pendente' THEN 1 ELSE 0 END) as pendentes, 
+                    SUM(CASE WHEN tu.status = 'vencido' THEN 1 ELSE 0 END) as vencidos 
+                FROM adms_training_users tu 
+                INNER JOIN adms_trainings t ON t.id = tu.adms_training_id 
+                GROUP BY t.id 
+                ORDER BY 
+                    (SUM(CASE WHEN tu.status = 'pendente' THEN 1 ELSE 0 END) + 
+                     SUM(CASE WHEN tu.status = 'vencido' THEN 1 ELSE 0 END)) DESC, 
+                    t.nome ASC 
+                LIMIT 5";
         $stmt = $this->getConnection()->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

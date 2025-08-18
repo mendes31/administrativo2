@@ -11,7 +11,7 @@ use App\adms\Models\Repository\PositionsRepository;
 use App\adms\Controllers\Services\PageLayoutService;
 use App\adms\Views\Services\LoadViewService;
 
-class TrainingKPIDashboard
+class TrainingKpiDashboard
 {
     private TrainingUsersRepository $trainingUsersRepo;
     private TrainingApplicationsRepository $applicationsRepo;
@@ -35,7 +35,7 @@ class TrainingKPIDashboard
         $data = [
             'title_head' => 'Dashboard de KPIs - Treinamentos',
             'menu' => 'training-kpi-dashboard',
-            'buttonPermission' => ['TrainingKPIDashboard'],
+            'buttonPermission' => ['TrainingKpiDashboard'],
         ];
 
         $pageLayout = new PageLayoutService();

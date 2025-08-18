@@ -32,7 +32,8 @@ return
             'user' => $_ENV['DB_USER'],
             'pass' => $_ENV['DB_PASS'],
             'port' => $_ENV['DB_PORT'],
-            'charset' => 'utf8',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
         ],
         'development' => [
             'adapter' => 'mysql',
@@ -41,7 +42,8 @@ return
             'user' => $_ENV['DB_USER'],
             'pass' => $_ENV['DB_PASS'],
             'port' => $_ENV['DB_PORT'],
-            'charset' => 'utf8',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
         ],
         'testing' => [
             'adapter' => 'mysql',
@@ -50,7 +52,8 @@ return
             'user' => $_ENV['DB_USER'],
             'pass' => $_ENV['DB_PASS'],
             'port' => $_ENV['DB_PORT'],
-            'charset' => 'utf8',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
         ]
     ],
     // Ordem das migrações.
