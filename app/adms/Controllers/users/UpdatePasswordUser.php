@@ -100,6 +100,13 @@ class UpdatePasswordUser
         
         $pageLayoutService = new PageLayoutService();
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
+        
+        // Adicionar informações do usuário para o cabeçalho
+        $this->data['user_info'] = [
+            'id' => $this->data['form']['id'],
+            'name' => $this->data['form']['name'],
+            'email' => $this->data['form']['email']
+        ];
 
         // Carregar a VIEW
         $loadView = new LoadViewService("adms/Views/users/updatePassword", $this->data);

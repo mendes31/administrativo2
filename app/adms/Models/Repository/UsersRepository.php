@@ -80,6 +80,20 @@ class UsersRepository extends DbConnection
     }
 
     /**
+     * Buscar usuário por email ou username
+     */
+    public function getUserByEmailOrUsername(string $email, string $username): array|false
+    {
+        $sql = 'SELECT * FROM adms_users WHERE email = :email OR username = :username LIMIT 1';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':email', $email, PDO::PARAM_STR);
+        $stmt->bindValue(':username', $username, PDO::PARAM_STR);
+        $stmt->execute();
+        $u = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $u ?: false;
+    }
+
+    /**
      * Recuperar a quantidade total de usuários para paginação.
      *
      * Este método retorna a quantidade total de usuários na tabela `adms_users`, útil para a paginação.
@@ -168,6 +182,10 @@ class UsersRepository extends DbConnection
     public function createUser(array $data): bool|int
     {
         try {
+            // Garantir imagem default quando não vier
+            if (empty($data['image'])) {
+                $data['image'] = 'icon_user.png';
+            }
             $sql = 'INSERT INTO adms_users (
                 name, email, username, user_department_id, user_position_id, password, status, bloqueado, tentativas_login, senha_nunca_expira, modificar_senha_proximo_logon, created_at, image, data_nascimento
             ) VALUES (
@@ -235,6 +253,9 @@ class UsersRepository extends DbConnection
         try {
             // Debug: verificar dados recebidos
             error_log("DEBUG updateUser - Dados recebidos: " . print_r($data, true));
+            // Preencher campos ausentes mínimos p/ updates parciais vindos de import
+            $defaults = ['status'=>null,'bloqueado'=>null,'senha_nunca_expira'=>null,'modificar_senha_proximo_logon'=>null,'tentativas_login'=>null];
+            $data = array_merge($defaults, $data);
             
             // Captura os dados antigos antes da alteração
             $dadosAntes = $this->getUser($data['id']);
@@ -289,8 +310,8 @@ class UsersRepository extends DbConnection
             $stmt->bindValue(':name', $data['name'], PDO::PARAM_STR);
             $stmt->bindValue(':email', $data['email'], PDO::PARAM_STR);
             $stmt->bindValue(':username', $data['username'], PDO::PARAM_STR);
-            $stmt->bindValue(':user_department_id', $data['user_department_id'], PDO::PARAM_INT);
-            $stmt->bindValue(':user_position_id', $data['user_position_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':user_department_id', (int)$data['user_department_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':user_position_id', (int)$data['user_position_id'], PDO::PARAM_INT);
             $stmt->bindValue(':updated_at', date("Y-m-d H:i:s"));
             if (isset($data['status'])) {
                 $stmt->bindValue(':status', $data['status'], PDO::PARAM_STR);
@@ -315,6 +336,13 @@ class UsersRepository extends DbConnection
                 $stmt->bindValue(':password', password_hash($data['password'], PASSWORD_DEFAULT));
             }
             $result = $stmt->execute();
+            if (!$result) {
+                $err = $stmt->errorInfo();
+                GenerateLog::generateLog("error", "DEBUG updateUser - Execução falhou.", [
+                    'id' => $data['id'] ?? null,
+                    'errorInfo' => $err,
+                ]);
+            }
             // Se atualização bem-sucedida, registra o log de alteração
             if ($result) {
                 // Monta os dados depois da alteração (agora com todos os campos relevantes)
@@ -373,13 +401,23 @@ class UsersRepository extends DbConnection
                 return false;
             }
             
-            // Validar tipo de imagem
+            // Validar tipo de imagem (usar MIME real quando disponível)
+            $detectedType = $data['image']['type'] ?? '';
+            if (function_exists('finfo_open') && is_uploaded_file($data['image']['tmp_name'] ?? '')) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $realMime = finfo_file($finfo, $data['image']['tmp_name']);
+                finfo_close($finfo);
+                if (!empty($realMime)) {
+                    $detectedType = $realMime;
+                }
+            }
+
             $valExtImg = new ValExtImg();
-            $valExtImg->validateExtImg($data['image']['type']);
+            $valExtImg->validateExtImg($detectedType);
             error_log("DEBUG updateUserImage - Validação da imagem: " . ($valExtImg->getResult() ? 'SUCESSO' : 'FALHOU'));
             
             if (!$valExtImg->getResult()) {
-                error_log("DEBUG updateUserImage - Formato de imagem não suportado: " . $data['image']['type']);
+                error_log("DEBUG updateUserImage - Formato de imagem não suportado: " . ($detectedType ?: 'desconhecido') . ' size=' . ($data['image']['size'] ?? 'null'));
                 $this->data['errors'][] = "Erro: Formato de imagem não suportado! Use JPG, PNG ou GIF.";
                 return false;
             }
@@ -930,6 +968,37 @@ class UsersRepository extends DbConnection
             return $result;
         } catch (Exception $e) {
             GenerateLog::generateLog("error", "Perfil do usuário não editado.", ['id' => $data['id'], 'error' => $e->getMessage()]);
+            return false;
+        }
+    }
+
+    /**
+     * Atualizar apenas a imagem do usuário
+     *
+     * @param array $data Dados contendo ID e nova imagem
+     * @return bool true se sucesso, false se falha
+     */
+    public function updateUserImageOnly(array $data): bool
+    {
+        try {
+            $sql = 'UPDATE adms_users SET image = :image, updated_at = :updated_at WHERE id = :id';
+            $stmt = $this->getConnection()->prepare($sql);
+            $stmt->bindValue(':image', $data['image'], PDO::PARAM_STR);
+            $stmt->bindValue(':updated_at', date("Y-m-d H:i:s"));
+            $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
+            
+            $result = $stmt->execute();
+            
+            if ($result) {
+                error_log("UsersRepository: Imagem atualizada com sucesso para usuário ID: " . $data['id']);
+                return true;
+            }
+            
+            error_log("UsersRepository: Falha ao atualizar imagem para usuário ID: " . $data['id']);
+            return false;
+            
+        } catch (Exception $e) {
+            error_log("UsersRepository: Erro ao atualizar imagem: " . $e->getMessage());
             return false;
         }
     }

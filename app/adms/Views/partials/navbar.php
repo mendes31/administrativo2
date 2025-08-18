@@ -21,8 +21,8 @@ if (!empty($_SESSION['user_id'])) {
     <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <?php if (!empty($userInfo['image'])): ?>
-                    <img src="<?php echo $_ENV['URL_ADM']; ?>public/adms/uploads/<?php echo $userInfo['image']; ?>" 
+                <?php if (!empty($userInfo['image']) && $userInfo['image'] !== 'icon_user.png'): ?>
+                    <img src="<?php echo $_ENV['URL_ADM']; ?>public/adms/uploads/users/<?php echo $userInfo['id']; ?>/<?php echo $userInfo['image']; ?>" 
                          alt="Foto do usuário" 
                          class="rounded-circle me-2" 
                          style="width: 32px; height: 32px; object-fit: cover;">
@@ -47,8 +47,8 @@ if (!empty($_SESSION['user_id'])) {
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                 <li class="dropdown-header">
                     <div class="d-flex align-items-center">
-                        <?php if (!empty($userInfo['image'])): ?>
-                            <img src="<?php echo $_ENV['URL_ADM']; ?>public/adms/uploads/<?php echo $userInfo['image']; ?>" 
+                        <?php if (!empty($userInfo['image']) && $userInfo['image'] !== 'icon_user.png'): ?>
+                            <img src="<?php echo $_ENV['URL_ADM']; ?>public/adms/uploads/users/<?php echo $userInfo['id']; ?>/<?php echo $userInfo['image']; ?>" 
                                  alt="Foto do usuário" 
                                  class="rounded-circle me-2" 
                                  style="width: 40px; height: 40px; object-fit: cover;">

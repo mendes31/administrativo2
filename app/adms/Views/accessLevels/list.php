@@ -38,6 +38,8 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_access_level');
                     echo "<a href='{$_ENV['URL_ADM']}access-level-page-sync' class='btn btn-warning btn-sm' onclick='showLoading()'><i class='fa-solid fa-rotate'></i> Sincronizar</a> ";
                 }
                 ?>
+                <!-- <a href="<?= $_ENV['URL_ADM']; ?>import-access-levels/template" class="btn btn-outline-secondary btn-sm me-1 mb-1"><i class="fa-solid fa-download"></i> Baixar Template</a> -->
+                <a href="<?= $_ENV['URL_ADM']; ?>import-access-levels" class="btn btn-primary btn-sm me-1 mb-1"><i class="fa-solid fa-file-import"></i> Importar</a>
             </span>
         </div>
 

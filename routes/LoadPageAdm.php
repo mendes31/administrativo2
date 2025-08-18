@@ -44,22 +44,21 @@ class LoadPageAdm
         "Login", "Error403", "NewUser", "ForgotPassword", "ResetPassword"
     ];
 
-    /** @var array $listPgPrivate Recebe a lista de paginas privadas */
     private array $listPgPrivate = [
         "Dashboard",
-        "ListUsers", "ViewUser", "CreateUser", "UpdateUser", "UpdateUserImage", "DeleteUserImage", "DeleteUser", "UpdatePasswordUser", "UpdatePassword", "Profile",
+        "ListUsers", "ViewUser", "CreateUser", "UpdateUser", "UpdateUserImage", "DeleteUserImage", "DeleteUser", "UpdatePasswordUser", "UpdatePassword", "Profile", "ImportUsers",
         "Logout", 
-        "ListAccessLevels", "CreateAccessLevel", "ViewAccessLevel", "UpdateAccessLevel", "DeleteAccessLevel",
-        "ListDepartments",  "CreateDepartment",  "ViewDepartment", "UpdateDepartments", "DeleteDepartment",
+        "ListAccessLevels", "CreateAccessLevel", "ViewAccessLevel", "UpdateAccessLevel", "DeleteAccessLevel", "ImportAccessLevels",
+        "ListDepartments",  "CreateDepartment",  "ViewDepartment", "UpdateDepartments", "DeleteDepartment", "ImportDepartments",
         "UpdateUserAccessLevels",
         "AccessLevelPageSync", "ListPackages", "CreatePackage", "ViewPackage", "UpdatePackage", "DeletePackage",
         "ListGroupsPages", "ViewGroupPage", "CreateGroupPage", "UpdateGroupPage", "DeleteGroupPage",
         "ListPages", "ViewPage", "CreatePage", "UpdatePage", "DeletePage",
-        "ListPositions", "CreatePosition", "ViewPosition", "UpdatePosition", "DeletePosition",
+        "ListPositions", "CreatePosition", "ViewPosition", "UpdatePosition", "DeletePosition", "ImportPositions",
         "ListAccessLevelsPermissions",
         "ListBanks", "CreateBank", "ViewBank", "UpdateBank", "DeleteBank",
         "ListMovBetweenAccounts", "CreateMovBetweenAccounts", "ViewMovBetweenAccounts", "UpdateMovBetweenAccounts", "DeleteMovBetweenAccounts",
-        "ListCostCenters", "CreateCostCenter", "ViewCostCenter", "UpdateCostCenter", "DeleteCostCenter",
+        "ListCostCenters", "CreateCostCenter", "ViewCostCenter", "UpdateCostCenter", "DeleteCostCenter", "ImportCostCenters",
         "ListAccountsPlan", "CreateAccountPlan", "ViewAccountPlan", "UpdateAccountPlan", "DeleteAccountPlan",
         "ListFrequncies", "CreateFrequncy", "ViewFrequncy", "UpdateFrequncy", "DeleteFrequncy",
         "ListCustomers", "CreateCustomer", "ViewCustomer", "UpdateCustomer", "DeleteCustomer",

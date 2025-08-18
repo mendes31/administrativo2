@@ -40,14 +40,27 @@ class ValExtImg
     {
         $this->mimeType = $mimeType;
 
-        $allowedMimeTypes = ['image/jpeg', 'image/pjpeg', 'image/png', 'image/x-png'];
+        // Ampliado para suportar variações comuns enviadas por navegadores em desktops
+        $allowedMimeTypes = [
+            'image/jpeg',
+            'image/pjpeg',
+            'image/jpg',
+            'image/jfif',
+            'image/png',
+            'image/x-png',
+            'image/webp',
+            'image/gif',
+            'image/heic',
+            'image/heif',
+            'image/avif',
+        ];
 
         if (in_array($this->mimeType, $allowedMimeTypes, true)) {
             $this->result = true;
         } else {
             // Criar a mensagem de erro
            
-            $this->data['errors'][] = "Erro: Necessário selecionar uma imagem JPEG ou PNG!";
+            $this->data['errors'][] = "Erro: Necessário selecionar uma imagem válida (PNG, JPG, JPEG, JFIF ou WEBP)!";
             
             // $_SESSION['msg'] = "<p class='alert-danger'>Erro: Necessário selecionar uma imagem JPEG ou PNG!</p>";
             $this->result = false;

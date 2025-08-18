@@ -25,8 +25,8 @@ use App\adms\Helpers\CSRFHelper;
                     Foto do Perfil
                 </div>
                 <div class="card-body text-center">
-                    <?php if (!empty($this->data['form']['image'])): ?>
-                        <img src="<?php echo $_ENV['URL_ADM']; ?>public/adms/uploads/<?php echo $this->data['form']['image']; ?>" 
+                    <?php if (!empty($this->data['form']['image']) && $this->data['form']['image'] !== 'icon_user.png'): ?>
+                        <img src="<?php echo $_ENV['URL_ADM']; ?>public/adms/uploads/users/<?php echo $_SESSION['user_id']; ?>/<?php echo $this->data['form']['image']; ?>" 
                              alt="Foto do usuário" 
                              class="img-fluid rounded-circle mb-3" 
                              style="width: 150px; height: 150px; object-fit: cover;">

@@ -27,12 +27,27 @@ if (!empty($_SESSION['force_password_change'])): ?>
     </script>
 <?php unset($_SESSION['force_password_change']); endif; ?>
 
-?>
+
 
 <div class="container-fluid px-4">
 
     <div class="mb-1 d-flex flex-column flex-sm-row gap-2">
-        <h2 class="mt-3">Usuários</h2>
+        <div>
+            <h2 class="mt-3">Usuários</h2>
+            <?php if (isset($this->data['user_info'])): ?>
+                <div class="alert alert-info py-2 px-3 mb-0 border-0" style="background-color: #e3f2fd; border-left: 4px solid #2196f3 !important;">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-circle text-primary me-2 fs-5"></i>
+                        <div>
+                            <strong class="text-primary">Usuário Selecionado:</strong>
+                            <span class="fw-bold text-dark"><?php echo htmlspecialchars($this->data['user_info']['name']); ?></span>
+                            <span class="badge bg-secondary ms-2">ID: <?php echo $this->data['user_info']['id']; ?></span>
+                            <span class="text-muted ms-2"><?php echo htmlspecialchars($this->data['user_info']['email']); ?></span>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
 
         <ol class="breadcrumb mb-3 mt-0 mt-sm-3 ms-auto">
             <li class="breadcrumb-item"><a href="<?php echo $_ENV['URL_ADM']; ?>dashboard" class="text-decoration-none">Dashboard</a></li>

@@ -33,7 +33,8 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_department');
                     echo "<a href='{$_ENV['URL_ADM']}create-department' class='btn btn-success btn-sm'><i class='fa-regular fa-square-plus'></i> Cadastrar</a> ";
                 }
                 ?>
-                
+                <!-- <a href="<?= $_ENV['URL_ADM']; ?>import-departments/template" class="btn btn-outline-secondary btn-sm me-1 mb-1"><i class="fa-solid fa-download"></i> Baixar Template</a> -->
+                <a href="<?= $_ENV['URL_ADM']; ?>import-departments" class="btn btn-primary btn-sm me-1 mb-1"><i class="fa-solid fa-file-import"></i> Importar</a>
             </span>
         </div>
 

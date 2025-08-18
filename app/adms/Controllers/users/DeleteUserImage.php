@@ -5,6 +5,7 @@ namespace App\adms\Controllers\users;
 use App\adms\Helpers\CSRFHelper;
 use App\adms\Helpers\GenerateLog;
 use App\adms\Models\Repository\UsersRepository;
+use App\adms\Models\Repository\UserImageRepository;
 
 class DeleteUserImage
 {
@@ -33,23 +34,24 @@ class DeleteUserImage
         }
 
         // Remover arquivo físico se existir
-        if (!empty($user['image'])) {
-            $imgPath = 'public/adms/uploads/' . $user['image'];
-            if (file_exists($imgPath)) {
-                unlink($imgPath);
-            }
+        if (!empty($user['image']) && $user['image'] !== 'icon_user.png') {
+            // Usar UserImageRepository para deletar a imagem
+            $userImageRepo = new UserImageRepository();
+            $userImageRepo->deleteUserImage((int)$id, $user['image']);
         }
 
-        // Limpar campo image no banco
-        $userRepo->updateUser([
+        // Limpar campo image no banco (definir como icon_user.png)
+        $result = $userRepo->updateUserImageOnly([
             'id' => $id,
-            'image' => null,
-            'name' => $user['name'],
-            'email' => $user['email'],
-            'username' => $user['username'],
-            'user_department_id' => $user['user_department_id'],
-            'user_position_id' => $user['user_position_id'],
+            'image' => 'icon_user.png'
         ]);
+        
+        if (!$result) {
+            error_log("DeleteUserImage: Erro ao atualizar banco para usuário ID: " . $id);
+            $_SESSION['error'] = "Erro ao atualizar banco de dados.";
+            header("Location: {$_ENV['URL_ADM']}view-user/$id");
+            return;
+        }
 
         GenerateLog::generateLog("info", "Imagem de usuário deletada com sucesso.", ['id' => $id]);
         $_SESSION['success'] = "Imagem removida com sucesso.";

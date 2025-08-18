@@ -5,7 +5,7 @@ namespace App\adms\Controllers\users;
 use App\adms\Controllers\Services\PageLayoutService;
 use App\adms\Helpers\CSRFHelper;
 use App\adms\Helpers\GenerateLog;
-use App\adms\Models\Repository\UsersRepository;
+use App\adms\Models\Repository\UserImageRepository;
 use App\adms\Views\Services\LoadViewService;
 
 /**
@@ -47,7 +47,7 @@ class UpdateUserImage
         } else {
             
             // Instanciar o Repository para recuperar o registro do banco de dados
-            $viewUser = new UsersRepository();
+            $viewUser = new \App\adms\Models\Repository\UsersRepository();
             $this->data['form'] = $viewUser->getUser((int) $id);
 
             // Verificar se existe o registro no banco de dados
@@ -89,6 +89,13 @@ class UpdateUserImage
         
         $pageLayoutService = new PageLayoutService();
         $this->data = array_merge($this->data, $pageLayoutService->configurePageElements($pageElements));
+        
+        // Adicionar informações do usuário para o cabeçalho
+        $this->data['user_info'] = [
+            'id' => $this->data['form']['id'],
+            'name' => $this->data['form']['name'],
+            'email' => $this->data['form']['email']
+        ];
 
         // Carregar a VIEW
         $loadView = new LoadViewService("adms/Views/users/updateUserImage", $this->data);
@@ -110,23 +117,42 @@ class UpdateUserImage
         $this->data['form']['image'] = $_FILES['image'] ?? null;
 
         // Validação da imagem
+        error_log(
+            'UPLOAD DEBUG - controller: type=' . ($_FILES['image']['type'] ?? 'null') .
+            ' size=' . ($_FILES['image']['size'] ?? 'null') .
+            ' error=' . ($_FILES['image']['error'] ?? 'null') .
+            ' ua=' . ($_SERVER['HTTP_USER_AGENT'] ?? 'unknown')
+        );
         if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
             $this->data['errors'][] = "Erro: Necessário selecionar uma imagem válida!";
             $this->viewUser();
             return;
         }
         
-        // Verificar tipo de arquivo
-        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-        if (!in_array($_FILES['image']['type'], $allowedTypes)) {
-            $this->data['errors'][] = "Erro: Formato de imagem não suportado! Use JPG, PNG ou JPEG.";
+        // Verificar tipo de arquivo (ampliado p/ maior compatibilidade em desktops)
+        $allowedTypes = [
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+            'image/pjpeg',
+            'image/jfif',
+            'image/webp',
+            'image/gif',
+            'image/heic',
+            'image/heif',
+            'image/avif',
+        ];
+        if (!in_array($_FILES['image']['type'], $allowedTypes, true)) {
+            error_log('UPLOAD DEBUG - controller: tipo não suportado recebido=' . ($_FILES['image']['type'] ?? 'null'));
+            $this->data['errors'][] = "Erro: Formato de imagem não suportado (" . htmlspecialchars($_FILES['image']['type']) . ")! Use PNG, JPG, JPEG, JFIF, WEBP, GIF, HEIC, HEIF ou AVIF.";
             $this->viewUser();
             return;
         }
         
-        // Verificar tamanho (2MB)
-        if ($_FILES['image']['size'] > 2 * 1024 * 1024) {
-            $this->data['errors'][] = "Erro: Imagem muito grande! Máximo 2MB.";
+        // Verificar tamanho (10MB para compatibilidade)
+        if ($_FILES['image']['size'] > 10 * 1024 * 1024) {
+            error_log('UPLOAD DEBUG - controller: arquivo acima do limite size=' . ($_FILES['image']['size'] ?? 'null'));
+            $this->data['errors'][] = "Erro: Imagem muito grande! Máximo 10MB.";
             $this->viewUser();
             return;
         }
@@ -138,8 +164,8 @@ class UpdateUserImage
             return;
         }
         
-        // Instanciar Repository para editar a imagem do usuário
-        $updateUserImage = new UsersRepository();
+        // Instanciar Repository específico para imagem
+        $updateUserImage = new UserImageRepository();
         $result = $updateUserImage->updateUserImage($this->data['form']);
 
         // Acessa o IF se o repository retornou TRUE

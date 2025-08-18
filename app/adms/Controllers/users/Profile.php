@@ -132,47 +132,20 @@ class Profile
      */
     private function updateProfile(): void 
     {
-        // Apenas processar upload da imagem se houver
-        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = 'public/adms/uploads/users/' . $_SESSION['user_id'] . '/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $fileName = uniqid('user_') . '.' . $ext;
-            $destPath = $uploadDir . $fileName;
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $destPath)) {
-                $this->data['form']['image'] = 'users/' . $_SESSION['user_id'] . '/' . $fileName;
-            }
-        }
-
-        // Se não há imagem para atualizar, apenas redirecionar
-        if (!isset($this->data['form']['image'])) {
+        // Verificar se há imagem para upload
+        if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
             $_SESSION['success'] = "Nenhuma alteração foi feita.";
             header("Location: {$_ENV['URL_ADM']}profile");
             return;
         }
 
-        // Adicionar o ID do usuário logado
+        // Adicionar o ID do usuário logado e a imagem
         $this->data['form']['id'] = $_SESSION['user_id'];
+        $this->data['form']['image'] = $_FILES['image'];
 
-        // Processar upload da imagem se houver
-        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = 'public/adms/uploads/users/' . $_SESSION['user_id'] . '/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $fileName = uniqid('user_') . '.' . $ext;
-            $destPath = $uploadDir . $fileName;
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $destPath)) {
-                $this->data['form']['image'] = 'users/' . $_SESSION['user_id'] . '/' . $fileName;
-            }
-        }
-
-        // Instanciar Repository para editar apenas a imagem do perfil do usuário
-        $userUpdate = new UsersRepository();
-        $result = $userUpdate->updateUserProfileImage($this->data['form']);
+        // Instanciar UserImageRepository para atualizar a imagem
+        $userImageRepo = new \App\adms\Models\Repository\UserImageRepository();
+        $result = $userImageRepo->updateUserImage($this->data['form']);
 
         // Acessa o IF se o repository retornou TRUE
         if($result){
@@ -203,10 +176,10 @@ class Profile
         // Adicionar o ID do usuário logado
         $this->data['form']['id'] = $_SESSION['user_id'];
         
-        // Definir a foto padrão
-        $this->data['form']['image'] = 'users/icon_user.png';
+        // Definir a foto padrão (apenas o nome do arquivo)
+        $this->data['form']['image'] = 'icon_user.png';
 
-        // Instanciar Repository para editar apenas a imagem do perfil do usuário
+        // Instanciar UsersRepository para atualizar apenas a imagem no banco
         $userUpdate = new UsersRepository();
         $result = $userUpdate->updateUserProfileImage($this->data['form']);
 

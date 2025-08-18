@@ -282,4 +282,17 @@ class AccessLevelsRepository extends DbConnection
         // Ler os registros e retornar
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Obter nível de acesso pelo nome (case-insensitive, trim)
+     */
+    public function getByName(string $name): array|bool
+    {
+        $sql = 'SELECT id, name FROM adms_access_levels WHERE LOWER(TRIM(name)) = LOWER(TRIM(:name)) LIMIT 1';
+        $stmt = $this->getConnection()->prepare($sql);
+        $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+        $stmt->execute();
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $res ?: false;
+    }
 }

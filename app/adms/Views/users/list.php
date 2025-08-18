@@ -24,11 +24,14 @@ $csrf_token = CSRFHelper::generateCSRFToken('form_delete_user');
                 Listar
             </span>
 
-            <span class="ms-auto">
+            <span class="ms-auto d-flex flex-wrap gap-1">
                 <?php
                 if (in_array('CreateUser', $this->data['buttonPermission'])) {
                     echo "<a href='{$_ENV['URL_ADM']}create-user' class='btn btn-success btn-sm'><i class='fa-regular fa-square-plus'></i> Cadastrar</a> ";
                 }
+                // Botões de Template e Importar (sem permissão específica por enquanto)
+                // echo "<a href='{$_ENV['URL_ADM']}import-users/template' class='btn btn-outline-secondary btn-sm'><i class='fa-solid fa-download'></i> Baixar Template</a> ";
+                echo "<a href='{$_ENV['URL_ADM']}import-users' class='btn btn-primary btn-sm'><i class='fa-solid fa-file-import'></i> Importar</a> ";
                 ?>
             </span>
         </div>
